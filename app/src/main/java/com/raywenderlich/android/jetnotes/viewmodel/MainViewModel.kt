@@ -34,6 +34,7 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
 
 
     val colors: LiveData<List<ColorModel>> by lazy {
+        //TODO: replace with a static list of colors
         repository.getAllColors()
     }
 

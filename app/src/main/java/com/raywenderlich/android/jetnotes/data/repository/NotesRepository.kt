@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.raywenderlich.android.jetnotes.data.database.toLong
+import kotlinx.datetime.Instant
 
 fun NotePropertyDb.isChecked(): Boolean = this.isChecked != 0L
 fun NotePropertyDb.canBeChecked(): Boolean = this.canBeChecked != 0L
@@ -25,19 +26,26 @@ fun NotePropertyDb.isArchived(): Boolean = this.isArchived != 0L
 class NotesRepository(
     private val databaseHelper: DatabaseHelper
 ) {
-    val allNotes: List<NoteProperty>
+    private val allNotes: List<NoteProperty>
         get() = databaseHelper.fetchAllNotes().map(NotePropertyDb::toNoteProperty)
 
-    val mainNotes: LiveData<List<NoteProperty>> by lazy{
-        MutableLiveData(databaseHelper.fetchMainNotes().map(NotePropertyDb::toNoteProperty))
+    private val mainNotesLiveData: MutableLiveData<List<NoteProperty>> by lazy{
+        MutableLiveData<List<NoteProperty>>()
     }
 
-    val archivedNotes: LiveData<List<NoteProperty>> by lazy{
-        MutableLiveData(databaseHelper.fetchArchivedNotes().map(NotePropertyDb::toNoteProperty))
+    private val archivedNotesLiveData: MutableLiveData<List<NoteProperty>> by lazy{
+        MutableLiveData<List<NoteProperty>>()
     }
+    init{
+        updateNotesLiveData()
+    }
+
+    fun getMainNotes(): LiveData<List<NoteProperty>> = mainNotesLiveData
+    fun getArchivedNotes(): LiveData<List<NoteProperty>> = archivedNotesLiveData
 
     fun deleteNote(id: String) {
         databaseHelper.removeNote(id)
+        updateNotesLiveData()
     }
 
     fun createNote(title: String, content: String, colorId: Long,
@@ -53,33 +61,36 @@ class NotesRepository(
                 isArchived = 0,
                 editDate = editDate ?: Clock.System.now().toString())
         )
+        updateNotesLiveData()
     }
 
     fun archiveNote(id: String){
         databaseHelper.archiveNote(id)
+        updateNotesLiveData()
     }
 
     fun restoreNote(id: String){
         databaseHelper.unarchiveNote(id)
+        updateNotesLiveData()
     }
 
     fun markNote(id: String) {
         databaseHelper.markNote(id)
+        updateNotesLiveData()
     }
     fun unmarkNote(id: String) {
         databaseHelper.unmarkNote(id)
+        updateNotesLiveData()
     }
 
     fun getNote(id: String): NoteProperty? {
         return databaseHelper.fetchNote(id)?.toNoteProperty()
     }
 
-
-
-    /*
-      fun markReminder(id: String, isCompleted: Boolean) {
-          databaseHelper.updateIsCompleted(id, isCompleted)
-      }*/
+    private fun updateNotesLiveData() {
+        mainNotesLiveData.postValue(databaseHelper.fetchMainNotes().map(NotePropertyDb::toNoteProperty))
+        archivedNotesLiveData.postValue(databaseHelper.fetchArchivedNotes().map(NotePropertyDb::toNoteProperty))
+    }
 
 }
 
@@ -91,5 +102,5 @@ fun NotePropertyDb.toNoteProperty() = NoteProperty(
     canBeChecked = this.canBeChecked(),
     isChecked = this.isChecked(),
     isArchived = this.isArchived(),
-    editDate = this.editDate.toInstant()
+    editDate = Instant.parse(this.editDate)
 )
