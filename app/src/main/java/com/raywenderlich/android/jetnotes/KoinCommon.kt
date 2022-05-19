@@ -5,6 +5,7 @@ import com.raywenderlich.android.jetnotes.data.repository.NotesRepository
 import com.raywenderlich.android.jetnotes.data.database.DatabaseHelper
 //import com.raywenderlich.organize.presentation.AboutViewModel
 //import com.raywenderlich.organize.presentation.RemindersViewModel
+import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -23,21 +24,22 @@ object Modules {
         factory { NotesRepository(get()) }
     }
 
-    /*val viewModels = module {
-        factory { RemindersViewModel(get()) }
-        factory { AboutViewModel(get(), get()) }
-    }*/
+    val viewModel= module {
+        factory { MainViewModel(get()) }
+    }
 }
 
 fun initKoin(
     appModule: Module = module { },
     coreModule: Module = Modules.core,
     repositoriesModule: Module = Modules.repositories,
+    viewModelsModule: Module = Modules.viewModel,
 ): KoinApplication = startKoin {
     modules(
         appModule,
         coreModule,
         repositoriesModule,
+        viewModelsModule,
         platformModule
     )
 }

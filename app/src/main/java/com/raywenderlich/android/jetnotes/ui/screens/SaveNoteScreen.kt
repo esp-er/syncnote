@@ -23,7 +23,7 @@ import com.raywenderlich.android.jetnotes.R
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.painterResource
 import com.raywenderlich.android.jetnotes.domain.model.NEW_NOTE_ID
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
+import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
 import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
 import kotlinx.coroutines.launch
@@ -34,8 +34,8 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
 
     var topBarTitle by remember{ mutableStateOf(title)}
 
-    val noteEntry: NoteModel by viewModel.noteEntry
-        .observeAsState(NoteModel()) //noteEntry is of LiveData type
+    val noteEntry: NoteProperty by viewModel.noteEntry
+        .observeAsState(NoteProperty()) //noteEntry is of LiveData type
     //By observing viewModel.noteEntry, this will recompose whenever noteEntry changes.!
 
     // here
@@ -46,7 +46,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
         rememberBottomDrawerState(BottomDrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    val trashedNotes: List<NoteModel> by viewModel
+    val trashedNotes: List<NoteProperty> by viewModel
         .notesInTrash
         .observeAsState(listOf()) //Model (Observer model state
 
@@ -64,11 +64,10 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
     Scaffold( //Creating a scaffold is easy
         topBar =
         {
-            val existingNote: Boolean = noteEntry.id != NEW_NOTE_ID
-            if(existingNote){ topBarTitle = "Edit Note" }
+            //val existingNote: Boolean = noteEntry.id != NEW_NOTE_ID //TODO: implement this with new model
             SaveNoteTopAppBar(
                 topBarTitle,
-                enableTrash = existingNote && !isArchivedNote,
+                enableTrash = !isArchivedNote,
                 enablePermaDelete = isArchivedNote,
                 onBackClick = {
                     JetNotesRouter.navigateTo(Screen.Notes)
@@ -96,7 +95,8 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
                     ColorPicker(
                         colors = colors,
                         onColorSelect = { color ->
-                            val newNoteEntry = noteEntry.copy(color = color)
+                            //val newNoteEntry = noteEntry.copy(color = color)
+                            val newNoteEntry = noteEntry.copy() //TODO: fix note coloring
                             viewModel.onNoteEntryChange(newNoteEntry)
                             coroutineScope.launch{ //Close color picker on choice
                                 bottomDrawerState.close()
@@ -200,8 +200,8 @@ private fun SaveNoteTopAppBar(
 
 @Composable
 private fun SaveNoteContent(
-    note: NoteModel,
-    onNoteChange: (NoteModel) -> Unit,
+    note: NoteProperty,
+    onNoteChange: (NoteProperty) -> Unit,
     onOpenColorPickerClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -224,22 +224,23 @@ private fun SaveNoteContent(
             }
         )
 
-        val canBeCheckedOff: Boolean = note.isCheckedOff != null
+        /*
         NoteCheckOption( isChecked = canBeCheckedOff,
             onCheckedChange = { canBeCheckedOffNewValue ->
                 val isCheckedOff: Boolean? = if (canBeCheckedOffNewValue)
                     false else null
                 onNoteChange.invoke(note.copy(isCheckedOff = isCheckedOff))
             }
-        )
-        PickedColor(color = note.color, onOpenColorPickerClick)
+        )*/
+        //PickedColor(color = note.color, onOpenColorPickerClick) //TODO: fix coloring in new model
+        PickedColor(color = ColorModel.DEFAULT, onOpenColorPickerClick) //TODO: fix coloring in new model
     }
 }
 @Preview(showBackground = true)
 @Composable
 fun SaveNoteContentPreview() {
     SaveNoteContent(
-        note = NoteModel(title = "Title", content = "content"),
+        note = NoteProperty(title = "Title", content = "content"),
         onNoteChange = {},
         onOpenColorPickerClick = {}
     )

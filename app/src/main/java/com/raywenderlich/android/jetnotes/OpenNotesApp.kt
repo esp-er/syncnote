@@ -46,11 +46,9 @@ import org.koin.dsl.module
  */
 class OpenNotesApp : Application() {
 
-  lateinit var dependencyInjector: DependencyInjector
-
   override fun onCreate() {
+
     super.onCreate()
-    initDependencyInjector()
     initKoin(
       appModule = module {
         single<Context> { this@OpenNotesApp }
@@ -63,10 +61,6 @@ class OpenNotesApp : Application() {
         }
       }
     )
-  }
-
-  private fun initDependencyInjector() {
-    dependencyInjector = DependencyInjector(this)
   }
 
 }

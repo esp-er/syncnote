@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
+import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,24 +30,24 @@ import kotlinx.coroutines.runBlocking
 @ExperimentalMaterialApi
 @Composable
 fun NotesList(
-    notes: LiveData<List<NoteModel>>,
-    onNoteCheckedChange: (NoteModel) -> Unit,
-    onEditNote : (NoteModel) -> Unit,
-    onRestoreNote: (NoteModel) -> Unit = {},
-    onArchiveNote: (NoteModel) -> Unit = {},
-    onDeleteNote: (NoteModel) -> Unit = {},
+    notes: LiveData<List<NoteProperty>>,
+    onNoteCheckedChange: (NoteProperty) -> Unit,
+    onEditNote : (NoteProperty) -> Unit,
+    onRestoreNote: (NoteProperty) -> Unit = {},
+    onArchiveNote: (NoteProperty) -> Unit = {},
+    onDeleteNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false,
 ) {
 
 
     val listState = rememberLazyListState()
-    val notes: List<NoteModel> by notes
+    val notes: List<NoteProperty> by notes
         .observeAsState(listOf())
     val notesReversed by derivedStateOf {notes.reversed()}
 
     LazyColumn(state = listState) {
-        items(notesReversed, {note: NoteModel -> note.id}) { note ->
+        items(notesReversed, {note: NoteProperty -> note.id}) { note ->
             //var dismissOpacity by remember { mutableStateOf(0f)}
             var dismissState = rememberDismissState()
             if(dismissState.isDismissed(DismissDirection.StartToEnd)){
@@ -105,9 +105,9 @@ fun NotesList(
 private fun NotesListPreview() {
     NotesList(
         notes = listOf(
-            NoteModel(1, "Note 1", "Content 1", null),
-            NoteModel(2, "Note 2", "Content 2", false),
-            NoteModel(3, "Note 3", "Content 3", true)
+            NoteProperty(1, "Note 1", "Content 1", null),
+            NoteProperty(2, "Note 2", "Content 2", false),
+            NoteProperty(3, "Note 3", "Content 3", true)
         ),
         onNoteCheckedChange = {},
         onEditNote = {},

@@ -16,6 +16,11 @@ import androidx.lifecycle.Transformations
 import com.raywenderlich.android.jetnotes.data.database.toLong
 import kotlinx.datetime.Instant
 
+import com.raywenderlich.android.jetnotes.data.database.dao.ColorDao
+import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
+import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
+import com.raywenderlich.android.jetnotes.domain.model.ColorModel
+
 fun NotePropertyDb.isChecked(): Boolean = this.isChecked != 0L
 fun NotePropertyDb.canBeChecked(): Boolean = this.canBeChecked != 0L
 fun NotePropertyDb.isArchived(): Boolean = this.isArchived != 0L
@@ -43,8 +48,30 @@ class NotesRepository(
     fun getMainNotes(): LiveData<List<NoteProperty>> = mainNotesLiveData
     fun getArchivedNotes(): LiveData<List<NoteProperty>> = archivedNotesLiveData
 
+    fun getAllColors(): LiveData<List<ColorModel>>{//TODO: replace this temporary hack
+        val colors = ColorDbModel.DEFAULT_COLORS
+        val mapper = DbMapperImpl()
+        return MutableLiveData(mapper.mapColors(colors))
+    }
+
     fun deleteNote(id: String) {
         databaseHelper.removeNote(id)
+        updateNotesLiveData()
+    }
+
+    fun saveNote(note: NoteProperty){
+        databaseHelper.insert(
+            NotePropertyDb(
+                id = note.id,
+                title = note.title,
+                content = note.content,
+                colorId = note.colorId,
+                canBeChecked = note.canBeChecked.toLong(),
+                isChecked = note.isChecked.toLong(),
+                isArchived = note.isArchived.toLong(),
+                editDate = note.editDate.toString()
+            )
+        )
         updateNotesLiveData()
     }
 

@@ -1,7 +1,6 @@
 package com.raywenderlich.android.jetnotes
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.ExperimentalMaterialApi
@@ -14,7 +13,8 @@ import com.raywenderlich.android.jetnotes.ui.screens.NotesScreen
 import com.raywenderlich.android.jetnotes.ui.screens.SaveNoteScreen
 import com.raywenderlich.android.jetnotes.ui.screens.ArchiveScreen
 import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
-import com.raywenderlich.android.jetnotes.viewmodel.MainViewModelFactory
+import org.koin.androidx.compose.getViewModel
+
 
 /**
  * Main activity for the app.
@@ -23,12 +23,14 @@ import com.raywenderlich.android.jetnotes.viewmodel.MainViewModelFactory
 @ExperimentalMaterialApi
 class MainActivity : AppCompatActivity() {
 
+  /*
   private val viewModel: MainViewModel by viewModels(factoryProducer = {
     MainViewModelFactory(
       this,
       (application as OpenNotesApp).dependencyInjector.repository
     )
-  })
+  })*/
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -37,8 +39,7 @@ class MainActivity : AppCompatActivity() {
       JetNotesTheme{
       //General idea: let people add arbitrary emoji / icon to note?
         //Search note/filter feature?
-        MainActivityScreen(viewModel = viewModel)
-
+        MainActivityScreen()
       }
 
     }
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
 @ExperimentalMaterialApi
 @Composable
-private fun MainActivityScreen(viewModel: MainViewModel) {
+private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Koin injects viewmodel
   Surface {
     when (JetNotesRouter.currentScreen) {
       is Screen.Notes -> NotesScreen(viewModel)

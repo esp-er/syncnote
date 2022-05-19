@@ -27,25 +27,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
+import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
 import com.raywenderlich.android.jetnotes.theme.JetNotesThemeSettings
 import com.raywenderlich.android.jetnotes.util.setClipboard
 import com.raywenderlich.android.jetnotes.util.fromHex
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import com.raywenderlich.android.jetnotes.domain.model.ColorModel
+import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun Note(
-    note: NoteModel,
-    onEditNote: (NoteModel) -> Unit = {},
-    onNoteCheckedChange: (NoteModel) -> Unit = {},
-    onRestoreNote: (NoteModel) -> Unit  = {},
-    onArchiveNote: (NoteModel) -> Unit = {},
-    onDeleteNote: (NoteModel) -> Unit = {},
+    note: NoteProperty,
+    onEditNote: (NoteProperty) -> Unit = {},
+    onNoteCheckedChange: (NoteProperty) -> Unit = {},
+    onRestoreNote: (NoteProperty) -> Unit  = {},
+    onArchiveNote: (NoteProperty) -> Unit = {},
+    onDeleteNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchivedNote: Boolean = false
 ){
@@ -92,7 +94,7 @@ fun Note(
                     modifier = Modifier
                         .align(Alignment.Top)
                         .padding(top = 12.dp, start = 10.dp, bottom = 12.dp),
-                    color = Color.fromHex(note.color.hex),
+                    color = Color.fromHex(ColorModel.DEFAULT.hex), //TODO: fix coloring
                     24.dp,
                     border = 0.8.dp
                 )
@@ -132,11 +134,11 @@ fun Note(
 
                 //Could use a better abstraction
                 //than null for "no checkbox"
-                if (note.isCheckedOff != null) {
+                if (note.canBeChecked) {
                     Checkbox(
-                        checked = note.isCheckedOff,
-                        onCheckedChange = { isChecked ->
-                            val newNote = note.copy(isCheckedOff = isChecked)
+                        checked = note.isChecked,
+                        onCheckedChange = { checkedState ->
+                            val newNote = note.copy(isChecked = checkedState)
                             onNoteCheckedChange(newNote)
                             //note: see how the state is copied and passed on in an new obj!
                         },
@@ -238,10 +240,10 @@ fun NoteColorPreview() {
 
 @Composable
 fun NoteButtons(
-    note: NoteModel,
-    onEditNote: (NoteModel) -> Unit,
-    onArchiveNote: (NoteModel) -> Unit = {} ,
-    onDeleteNote: (NoteModel) -> Unit = {},
+    note: NoteProperty,
+    onEditNote: (NoteProperty) -> Unit,
+    onArchiveNote: (NoteProperty) -> Unit = {} ,
+    onDeleteNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false
 ){
@@ -354,14 +356,15 @@ fun NoteButtons(
 @Preview(showBackground = true)
 @Composable
 fun PreviewNoteButtons(){
-    NoteButtons(NoteModel() , {}, {})
+    NoteButtons(NoteProperty() , {}, {})
 }
 
+/* TODO: optional: fix previews
 @ExperimentalMaterialApi
 @Preview
 @Composable
 private fun NotePreview(){ //Note "private"
-    val test = NoteModel(
+    val test = NoteProperty(
             id = 12345,
             title = "Note One",
             content = """Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
@@ -373,4 +376,4 @@ private fun NotePreview(){ //Note "private"
             isCheckedOff = false
         )
     Note(test, {}, {})
-}
+}*/

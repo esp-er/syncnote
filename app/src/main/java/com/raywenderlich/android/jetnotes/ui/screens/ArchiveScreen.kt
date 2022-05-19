@@ -13,7 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
+import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
 import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
@@ -30,7 +30,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
     /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
-    val trashedNotes: List<NoteModel> by viewModel
+    val trashedNotes: List<NoteProperty> by viewModel
         .notesInTrash
         .observeAsState(listOf()) //Model (Observer model state)
 
