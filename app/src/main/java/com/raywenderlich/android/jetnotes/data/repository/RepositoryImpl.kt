@@ -31,20 +31,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+
+/*
 package com.raywenderlich.android.jetnotes.data.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import com.raywenderlich.android.jetnotes.data.database.dao.ColorDao
-import com.raywenderlich.android.jetnotes.data.database.dao.NoteDao
-import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapper
-import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
-import com.raywenderlich.android.jetnotes.data.database.model.NoteDbModel
-import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 /**
  * {@inheritDoc}
@@ -163,3 +154,4 @@ class RepositoryImpl(
     notesInTrashLiveData.postValue(newNotesInTrashLiveData)
   }
 }
+*/

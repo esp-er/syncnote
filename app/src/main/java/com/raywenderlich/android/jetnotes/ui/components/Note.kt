@@ -1,7 +1,6 @@
 package com.raywenderlich.android.jetnotes.ui.components
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +33,7 @@ import com.raywenderlich.android.jetnotes.util.fromHex
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.DpSize
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
 import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 import kotlinx.coroutines.launch
@@ -52,21 +52,23 @@ fun Note(
     isArchivedNote: Boolean = false
 ){
 
-    var expandedState by rememberSaveable { mutableStateOf(false) }
-    val numLines = remember { note.content.lines().size + if(note.title.isBlank()) 0 else 1 }
-    //val numLines = remember { 0 }
+    val expandedButtonsHeight = 32.dp
 
+    var expandedState by rememberSaveable { mutableStateOf(false) }
+    val expandedAnimatedDp by animateDpAsState(
+        if(expandedState) expandedButtonsHeight else 0.dp ,
+        animationSpec = tween(
+            durationMillis = 100,
+            easing = FastOutSlowInEasing
+        ))
+    val isFullyExpanded by derivedStateOf { expandedAnimatedDp == expandedButtonsHeight}
+
+    val numLines = remember { note.content.lines().size + if(note.title.isBlank()) 0 else 1 }
 
     val backgroundShape = RoundedCornerShape(4.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize( //animate size changes
-                animationSpec = tween(
-                    durationMillis = 100,
-                    easing = FastOutSlowInEasing
-                )
-            )
             //.background(MaterialTheme.colors.surface, backgroundShape)
             .padding(8.dp),
         shape = backgroundShape,
@@ -163,15 +165,17 @@ fun Note(
                 }
             }
 
-            if (expandedState) {
-                NoteButtons(
-                    note,
-                    onEditNote = onEditNote,
-                    onArchiveNote = onArchiveNote,
-                    onDeleteNote = onDeleteNote,
-                    onSnackMessage = onSnackMessage,
-                    isArchive = isArchivedNote
-                )
+            Box( modifier = Modifier.height(expandedAnimatedDp) ) {
+                if(isFullyExpanded) {
+                    NoteButtons(
+                        note,
+                        onEditNote = onEditNote,
+                        onArchiveNote = onArchiveNote,
+                        onDeleteNote = onDeleteNote,
+                        onSnackMessage = onSnackMessage,
+                        isArchive = isArchivedNote
+                    )
+                }
             }
 
         }
@@ -223,7 +227,8 @@ fun NoteDropDownMenu(onDismiss: () -> Unit, onDelete: () -> Unit){
     var expanded by remember{ mutableStateOf(true )}
     DropdownMenu(
         expanded = expanded,
-        onDismissRequest = { expanded = false; onDismiss() }
+        onDismissRequest = { expanded = false
+            onDismiss() }
     ) {
         DropdownMenuItem(onClick = { onDelete() }) {
             Text("Delete Permanently")

@@ -23,22 +23,13 @@ import org.koin.androidx.compose.getViewModel
 @ExperimentalMaterialApi
 class MainActivity : AppCompatActivity() {
 
-  /*
-  private val viewModel: MainViewModel by viewModels(factoryProducer = {
-    MainViewModelFactory(
-      this,
-      (application as OpenNotesApp).dependencyInjector.repository
-    )
-  })*/
-
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
 
       JetNotesTheme{
-      //General idea: let people add arbitrary emoji / icon to note?
-        //Search note/filter feature?
+      //TODO: General idea: let people add arbitrary emoji / icon to note?
+      // TODO: Search note/filter feature?
         MainActivityScreen()
       }
 

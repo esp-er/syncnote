@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
 
@@ -22,9 +23,9 @@ fun TopTabBar(initState: Int) {
         state = 1
         JetNotesRouter.navigateTo(Screen.Archive)
     }
-    val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary)
+    val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 14.sp)
     Column {
-        CustomTabRow(selectedTabIndex = state, tabWeights = listOf(4f,1f)) { //TODO: Find better way to pass in tab weights
+        CustomTabRow(selectedTabIndex = state, tabWeights = listOf(5f,2f)) { //TODO: Find better way to pass in tab weights
             LeadingIconTab(
                 text = { Text("Notes", style = textStyle)}, //TODO: fix text colors e.g primary / on prim, etc
                 icon = {
@@ -39,7 +40,7 @@ fun TopTabBar(initState: Int) {
             )
 
             LeadingIconTab(
-                text = { },
+                text = { Text("Archive", style = textStyle)},
                 icon = {
                         Icon(
                             imageVector = Icons.Default.Archive,

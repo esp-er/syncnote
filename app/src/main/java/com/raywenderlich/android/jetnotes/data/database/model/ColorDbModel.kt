@@ -33,15 +33,10 @@
  */
 package com.raywenderlich.android.jetnotes.data.database.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity
 data class ColorDbModel(
-  @PrimaryKey(autoGenerate = true) val id: Long = 0,
-  @ColumnInfo(name = "hex") val hex: String,
-  @ColumnInfo(name = "name") val name: String
+  val id: Long = 0,
+  val hex: String,
+  val name: String
 ) {
 
   companion object {

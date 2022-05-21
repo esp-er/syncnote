@@ -16,10 +16,10 @@ import androidx.lifecycle.Transformations
 import com.raywenderlich.android.jetnotes.data.database.toLong
 import kotlinx.datetime.Instant
 
-import com.raywenderlich.android.jetnotes.data.database.dao.ColorDao
 import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
 import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
+import com.raywenderlich.android.jetnotes.domain.model.NEW_UUID
 
 fun NotePropertyDb.isChecked(): Boolean = this.isChecked != 0L
 fun NotePropertyDb.canBeChecked(): Boolean = this.canBeChecked != 0L
@@ -48,7 +48,7 @@ class NotesRepository(
     fun getMainNotes(): LiveData<List<NoteProperty>> = mainNotesLiveData
     fun getArchivedNotes(): LiveData<List<NoteProperty>> = archivedNotesLiveData
 
-    fun getAllColors(): LiveData<List<ColorModel>>{//TODO: replace this temporary hack
+    fun getAllColors(): LiveData<List<ColorModel>>{//TODO: replace this temporary color repo
         val colors = ColorDbModel.DEFAULT_COLORS
         val mapper = DbMapperImpl()
         return MutableLiveData(mapper.mapColors(colors))
@@ -60,9 +60,10 @@ class NotesRepository(
     }
 
     fun saveNote(note: NoteProperty){
+        val newId = if(note.id == NEW_UUID) UUID().toString() else note.id
         databaseHelper.insert(
             NotePropertyDb(
-                id = note.id,
+                id = newId,
                 title = note.title,
                 content = note.content,
                 colorId = note.colorId,
@@ -75,8 +76,7 @@ class NotesRepository(
         updateNotesLiveData()
     }
 
-    fun createNote(title: String, content: String, colorId: Long,
-                   canBeChecked: Boolean, editDate: String?){
+    fun saveNewNote(title: String, content: String, colorId: Long, canBeChecked: Boolean, editDate: String? = null){
         databaseHelper.insert(
             NotePropertyDb(
                 id = UUID().toString(),

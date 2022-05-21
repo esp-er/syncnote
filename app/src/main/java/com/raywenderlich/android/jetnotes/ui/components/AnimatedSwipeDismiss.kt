@@ -33,7 +33,7 @@ fun <T> AnimatedSwipeDismiss(
 
     AnimatedVisibility(
         modifier = modifier,
-        visible = true,
+        visible = !isDismissed,
         enter = enter,
         exit = exit
     ) {

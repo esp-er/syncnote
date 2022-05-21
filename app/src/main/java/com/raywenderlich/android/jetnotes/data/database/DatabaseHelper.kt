@@ -36,7 +36,7 @@ class DatabaseHelper(
 
     fun insert(note: NotePropertyDb){
         dbRef.notesTableQueries
-            .insertNote(
+            .insertUpdateNote(
                 note.id,
                 note.title,
                 note.content,
@@ -66,26 +66,6 @@ class DatabaseHelper(
         dbRef.notesTableQueries.unarchiveNote(id)
     }
 
-
-
-
-    /*
-    fun insertReminder(id: String, title: String) {
-        dbRef.tableQueries.insertReminder(id, title)
-    }
-
-    fun deleteReminder(id: String) {
-        dbRef.tableQueries.deleteReminder(id)
-    }
-
-    fun updateIsCompleted(id: String, isCompleted: Boolean) {
-        dbRef.tableQueries
-            .updateIsCompleted(isCompleted.toLong(), id)
-    }
-
- */
-    //TODO: implement all other db operations inside of Repository.kt
-    //Or NotesTable.sq
 
 
 }

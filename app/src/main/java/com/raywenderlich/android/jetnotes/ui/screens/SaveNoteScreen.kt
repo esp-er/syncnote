@@ -22,7 +22,6 @@ import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
 import com.raywenderlich.android.jetnotes.R
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.painterResource
-import com.raywenderlich.android.jetnotes.domain.model.NEW_NOTE_ID
 import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
 import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
@@ -47,7 +46,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
     val coroutineScope = rememberCoroutineScope()
 
     val trashedNotes: List<NoteProperty> by viewModel
-        .notesInTrash
+        .notesInArchive
         .observeAsState(listOf()) //Model (Observer model state
 
     val isArchivedNote by derivedStateOf {noteEntry in trashedNotes}

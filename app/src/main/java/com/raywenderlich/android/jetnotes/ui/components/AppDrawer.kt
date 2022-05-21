@@ -163,13 +163,14 @@ private fun LightDarkThemeItem() {
     Row(
         Modifier
             .padding(8.dp)
+            .fillMaxWidth(0.8f)
     ) {
         Text(
-            text = "Turn on dark theme",
+            text = "Dark mode",
             style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
             modifier = Modifier
-                .weight(1f)
+                .weight(5f)
                 .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom =
                 8.dp)
                 .align(alignment = Alignment.CenterVertically)
@@ -178,6 +179,7 @@ private fun LightDarkThemeItem() {
             checked = JetNotesThemeSettings.isDarkThemeEnabled,
             onCheckedChange = { JetNotesThemeSettings.isDarkThemeEnabled = it },
             modifier = Modifier
+                .weight(5f)
                 .padding(start = 8.dp, end = 8.dp)
                 .align(alignment = Alignment.CenterVertically)
         )

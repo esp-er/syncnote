@@ -1,9 +1,6 @@
 package com.raywenderlich.android.jetnotes.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,32 +16,24 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
-import com.raywenderlich.android.jetnotes.ui.components.Note
 import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
+
+import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.android.jetnotes.ui.components.NotesList
 import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
-import com.raywenderlich.android.jetnotes.ui.components.Rectangle
-import com.raywenderlich.android.jetnotes.ui.components.CustomTabRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -66,6 +55,11 @@ fun NotesScreen(viewModel: MainViewModel) {
     /
 
      */
+
+    val configuration = LocalConfiguration.current
+    val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
+    val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
+
 
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
@@ -91,6 +85,7 @@ fun NotesScreen(viewModel: MainViewModel) {
             }
         }
     )
+
 
 
     Scaffold (
@@ -140,6 +135,7 @@ fun NotesScreen(viewModel: MainViewModel) {
                         }
                     )
         },
+        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             var initY by remember { mutableStateOf(0f)}
@@ -148,9 +144,9 @@ fun NotesScreen(viewModel: MainViewModel) {
             var buttonHeight by remember { mutableStateOf(0)}
 
             FloatingActionButton(
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
-                    .heightIn(42.dp,42.dp)
+                    .heightIn(42.dp)
                     .onGloballyPositioned { coords ->
                         val pos = coords.positionInRoot()
                         initX =
@@ -184,15 +180,17 @@ fun NotesScreen(viewModel: MainViewModel) {
                 onClick = { viewModel.onCreateNewNoteClick() },
                 contentColor = MaterialTheme.colors.background,
                 content = {
-                    Row(modifier = Modifier.padding(horizontal = 8.dp).heightIn(40.dp,40.dp)){
+                    Row(modifier = Modifier.padding(horizontal = 12.dp)){
                         Icon(
                             imageVector = Icons.Filled.LibraryAdd,
                             contentDescription = "Add Note Button" ,
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(18.dp)
                         )
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                         Text("New",
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             modifier = Modifier.align(Alignment.CenterVertically)
                             )
                     }
@@ -201,7 +199,7 @@ fun NotesScreen(viewModel: MainViewModel) {
         },
         content = {
                 NotesList( // here
-                    notes = viewModel.notesNotInTrash,
+                    notes = viewModel.notes,
                     onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                     onEditNote = { viewModel.onNoteClick(it)},
                     onRestoreNote = {viewModel.restoreNoteFromArchive(it) },

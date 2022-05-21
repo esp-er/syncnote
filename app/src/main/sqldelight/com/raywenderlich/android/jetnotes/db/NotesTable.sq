@@ -40,8 +40,8 @@ uncheckNote:
 UPDATE NotePropertyDb SET isChecked=0
 WHERE id = ?;
 
-insertNote:
-INSERT OR IGNORE INTO NotePropertyDb(id, title, content, colorId, canBeChecked, isChecked, isArchived, editDate)
+insertUpdateNote:
+INSERT OR REPLACE INTO NotePropertyDb(id, title, content, colorId, canBeChecked, isChecked, isArchived, editDate)
 VALUES (?, ?, ?,?,?,?,?,?);
 
 setEditedDate:

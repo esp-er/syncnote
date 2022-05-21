@@ -34,7 +34,7 @@
 package com.raywenderlich.android.jetnotes.data.database.dbmapper
 
 import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
-import com.raywenderlich.android.jetnotes.data.database.model.NoteDbModel
+//import com.raywenderlich.android.jetnotes.data.database.model.NoteDbModel
 import com.raywenderlich.android.jetnotes.data.repository.Repository
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
 import com.raywenderlich.android.jetnotes.domain.model.NoteModel
@@ -42,13 +42,12 @@ import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 interface DbMapper {
 
   // NoteDbModel -> NoteModel
-
+/*
   fun mapNotes(
     noteDbModels: List<NoteDbModel>,
     colorDbModels: Map<Long, ColorDbModel>
   ): List<NoteModel>
-
-  fun mapNote(noteDbModel: NoteDbModel, colorDbModel: ColorDbModel): NoteModel
+*/
 
   // ColorDbModel -> ColorModel
 
@@ -58,11 +57,7 @@ interface DbMapper {
 
   // NoteModel -> NoteDbModel
 
-  fun mapDbNote(note: NoteModel): NoteDbModel
 
   // ColorModel -> ColorDbModel
 
-  fun mapDbColors(colors: List<ColorModel>): List<ColorDbModel>
-
-  fun mapDbColor(color: ColorModel): ColorDbModel
 }

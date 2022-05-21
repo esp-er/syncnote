@@ -11,6 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
@@ -18,8 +20,8 @@ import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
 import com.raywenderlich.android.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
 import com.raywenderlich.android.jetnotes.ui.components.NotesList
-import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
+import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
 import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,10 +31,10 @@ import kotlinx.coroutines.launch
 fun ArchiveScreen(viewModel: MainViewModel) {
     /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
 
-    //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
-    val trashedNotes: List<NoteProperty> by viewModel
-        .notesInTrash
-        .observeAsState(listOf()) //Model (Observer model state)
+    val configuration = LocalConfiguration.current
+    val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
+    val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
+
 
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
@@ -102,18 +104,17 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                 }
             )
         },
+        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
-            /*if (trashedNotes.isNotEmpty()) {
-                NotesList( // here
-                    notes = trashedNotes,
-                    onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
-                    onEditNote = { viewModel.onNoteClick(it) },
-                    onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
-                    onDeleteNote = { viewModel.permaDeleteNote(it) },
-                    isArchive = true,
-                    onSnackMessage = ::showSnackBar
-                )
-            }*/
+            NotesList( // here
+                notes = viewModel.notesInArchive,
+                onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
+                onEditNote = { viewModel.onNoteClick(it) },
+                onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
+                onDeleteNote = { viewModel.permaDeleteNote(it) },
+                isArchive = true,
+                onSnackMessage = ::showSnackBar
+            )
         }
     )
 }

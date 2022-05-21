@@ -31,6 +31,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+/*
 package com.raywenderlich.android.jetnotes.data.database.dao
 
 import androidx.lifecycle.LiveData
@@ -70,3 +71,4 @@ interface NoteDao {
   @Query("DELETE FROM NoteDbModel WHERE id IN (:noteIds)")
   fun delete(noteIds: List<Long>)
 }
+*/
