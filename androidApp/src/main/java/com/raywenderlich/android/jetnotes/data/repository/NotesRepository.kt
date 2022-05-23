@@ -1,18 +1,13 @@
 package com.raywenderlich.android.jetnotes.data.repository
 
 
-import com.raywenderlich.android.jetnotes.OpenNotesDb
 import com.raywenderlich.android.jetnotes.domain.UUID
 import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
-//import com.raywenderlich.android.jetnotes.data.database.NotePropertyDb
 import com.raywenderlich.android.jetnotes.data.database.DatabaseHelper
 import com.raywenderlich.android.jetnotes.db.NotePropertyDb
-import com.raywenderlich.android.jetnotes.ui.components.Note
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.Clock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.raywenderlich.android.jetnotes.data.database.toLong
 import kotlinx.datetime.Instant
 
