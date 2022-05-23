@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import org.koin.dsl.module
+import com.raywenderlich.jetnotes.initKoin
 
 /**
  * Application class responsible for initializing Koin DI

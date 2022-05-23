@@ -11,8 +11,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 
 
 @Composable
@@ -21,7 +21,7 @@ fun TopTabBar(initState: Int) {
     var state by remember{ mutableStateOf(initState) }
     fun archiveClick() {
         state = 1
-        JetNotesRouter.navigateTo(Screen.Archive)
+        NotesRouter.navigateTo(Screen.Archive)
     }
     val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 14.sp)
     Column {
@@ -36,7 +36,7 @@ fun TopTabBar(initState: Int) {
                     )
                 },
                 selected = state == 0,
-                onClick = { state = 0; JetNotesRouter.navigateTo(Screen.Notes) }
+                onClick = { state = 0; NotesRouter.navigateTo(Screen.Notes) }
             )
 
             LeadingIconTab(

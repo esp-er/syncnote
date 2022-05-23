@@ -18,8 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
 import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
 
@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.android.jetnotes.ui.components.NotesList
-import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
+import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -81,7 +81,7 @@ fun NotesScreen(viewModel: MainViewModel) {
             if (scaffoldState.drawerState.isOpen) { //comment: useful back behavior pattern with the drawer
                 coroutineScope.launch { scaffoldState.drawerState.close() }
             } else {
-                JetNotesRouter.navigateTo(Screen.Notes)
+                NotesRouter.navigateTo(Screen.Notes)
             }
         }
     )

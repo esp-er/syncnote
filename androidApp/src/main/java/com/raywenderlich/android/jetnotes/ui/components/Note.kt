@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
+import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.android.jetnotes.theme.JetNotesThemeSettings
 import com.raywenderlich.android.jetnotes.util.setClipboard
 import com.raywenderlich.android.jetnotes.util.fromHex

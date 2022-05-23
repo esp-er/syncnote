@@ -7,22 +7,19 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
 import com.raywenderlich.android.jetnotes.ui.components.NotesList
 import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
 import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
-import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
+import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,7 +52,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
             if (scaffoldState.drawerState.isOpen) { //comment: useful back behavior pattern with the drawer
                 coroutineScope.launch { scaffoldState.drawerState.close() }
             } else {
-                JetNotesRouter.navigateTo(Screen.Notes)
+                NotesRouter.navigateTo(Screen.Notes)
             }
         }
     )

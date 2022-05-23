@@ -15,21 +15,32 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 
+
 import com.raywenderlich.android.jetnotes.ui.components.NoteColor
 import com.raywenderlich.android.jetnotes.util.fromHex
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
+import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.android.jetnotes.R
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.painterResource
-import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.domain.NoteProperty
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.launch
+
+import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
+
+import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
+
+    //TODO: FIX TEMPORARY COLOR BANDAID
+    val dbmap = DbMapperImpl()
+    val colors = dbmap.mapColors(ColorDbModel.DEFAULT_COLORS)
+
 
     var topBarTitle by remember{ mutableStateOf(title)}
 
@@ -38,8 +49,8 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
     //By observing viewModel.noteEntry, this will recompose whenever noteEntry changes.!
 
     // here
-    val colors: List<ColorModel> by viewModel.colors
-        .observeAsState(listOf())
+    /*val colors: List<ColorModel> by viewModel.colors
+        .observeAsState(listOf())*/
     // here
     val bottomDrawerState: BottomDrawerState =
         rememberBottomDrawerState(BottomDrawerValue.Closed)
@@ -56,7 +67,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
         if (bottomDrawerState.isOpen) { //comment: useful back behavior pattern with the drawer
             coroutineScope.launch { bottomDrawerState.close() }
         } else {
-            JetNotesRouter.navigateTo(Screen.Notes)
+            NotesRouter.navigateTo(Screen.Notes)
         }
     })
 
@@ -69,7 +80,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
                 enableTrash = !isArchivedNote,
                 enablePermaDelete = isArchivedNote,
                 onBackClick = {
-                    JetNotesRouter.navigateTo(Screen.Notes)
+                    NotesRouter.navigateTo(Screen.Notes)
                 },
                 onSaveNoteClick = { // here
                     viewModel.saveNote(noteEntry)

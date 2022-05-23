@@ -1,3 +1,4 @@
 include ':androidApp'
-include 'shared'
+include ':shared'
+include ':desktop'
 rootProject.name = "OpenNotes"

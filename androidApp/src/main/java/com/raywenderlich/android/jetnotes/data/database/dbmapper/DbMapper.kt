@@ -35,9 +35,7 @@ package com.raywenderlich.android.jetnotes.data.database.dbmapper
 
 import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
 //import com.raywenderlich.android.jetnotes.data.database.model.NoteDbModel
-import com.raywenderlich.android.jetnotes.data.repository.Repository
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 
 interface DbMapper {
 

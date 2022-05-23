@@ -1,9 +1,6 @@
-package com.raywenderlich.android.jetnotes.domain.model
+package com.raywenderlich.jetnotes.domain
 
-import com.raywenderlich.android.jetnotes.domain.UUID
-import androidx.compose.ui.graphics.Color
 import kotlinx.datetime.Instant
-
 
 const val NEW_UUID = "NEW"
 

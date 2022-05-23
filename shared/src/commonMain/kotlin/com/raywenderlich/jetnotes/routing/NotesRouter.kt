@@ -1,12 +1,9 @@
-package com.raywenderlich.android.jetnotes.routing
+package com.raywenderlich.jetnotes.routing
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-/**
- * Class defining all possible screens in the app.
- */
 sealed class Screen {
   object Notes : Screen()
   object SaveNote : Screen()
@@ -14,7 +11,7 @@ sealed class Screen {
 }
 
 //changes screen in MainActivity
-object JetNotesRouter {
+object NotesRouter {
   var currentScreen: Screen by mutableStateOf(Screen.Notes)
 
   fun navigateTo(destination: Screen) {

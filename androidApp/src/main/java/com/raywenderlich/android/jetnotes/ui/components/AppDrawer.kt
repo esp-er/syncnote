@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.raywenderlich.android.jetnotes.theme.JetNotesTheme
 import androidx.compose.material.Switch
 import com.raywenderlich.android.jetnotes.theme.JetNotesThemeSettings
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import androidx.compose.material.Divider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,7 +39,7 @@ fun AppDrawer(
             label = "Notes",
             isSelected = currentScreen == Screen.Notes,
             onClick = {
-                JetNotesRouter.navigateTo(Screen.Notes)
+                NotesRouter.navigateTo(Screen.Notes)
                 closeDrawerAction()
             }
         )
@@ -48,7 +48,7 @@ fun AppDrawer(
             label = "Archive",
             isSelected = currentScreen == Screen.Archive,
             onClick = {
-                JetNotesRouter.navigateTo(Screen.Archive)
+                NotesRouter.navigateTo(Screen.Archive)
                 closeDrawerAction()
             }
         )

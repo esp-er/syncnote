@@ -6,13 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import com.raywenderlich.android.jetnotes.routing.JetNotesRouter
-import com.raywenderlich.android.jetnotes.routing.Screen
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.theme.JetNotesTheme
 import com.raywenderlich.android.jetnotes.ui.screens.NotesScreen
 import com.raywenderlich.android.jetnotes.ui.screens.SaveNoteScreen
 import com.raywenderlich.android.jetnotes.ui.screens.ArchiveScreen
-import com.raywenderlich.android.jetnotes.viewmodel.MainViewModel
+import com.raywenderlich.jetnotes.MainViewModel
 import org.koin.androidx.compose.getViewModel
 
 
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Koin injects viewmodel
   Surface {
-    when (JetNotesRouter.currentScreen) {
+    when (NotesRouter.currentScreen) {
       is Screen.Notes -> NotesScreen(viewModel)
       is Screen.SaveNote -> SaveNoteScreen(viewModel)
       is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)

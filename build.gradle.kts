@@ -10,6 +10,7 @@ buildscript {
    extra["koin_version"] = "3.1.5"
    extra["sqldelight_version"] = "1.5.3"
    extra["compose_version"] = "1.1.1"
+   extra["composedesktop_version"] = "1.1.1"
 
     repositories {
         google()

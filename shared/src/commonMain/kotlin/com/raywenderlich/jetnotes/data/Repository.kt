@@ -1,20 +1,14 @@
-package com.raywenderlich.android.jetnotes.data.repository
+package com.raywenderlich.jetnotes.data
 
 
-import com.raywenderlich.android.jetnotes.domain.UUID
-import com.raywenderlich.android.jetnotes.domain.model.NoteProperty
-import com.raywenderlich.android.jetnotes.data.database.DatabaseHelper
-import com.raywenderlich.android.jetnotes.db.NotePropertyDb
+import com.raywenderlich.jetnotes.domain.UUID
+import com.raywenderlich.jetnotes.domain.NoteProperty
+import com.raywenderlich.jetnotes.data.DatabaseHelper
+import com.raywenderlich.jetnotes.db.NotePropertyDb
 import kotlinx.datetime.Clock
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.raywenderlich.android.jetnotes.data.database.toLong
+import com.raywenderlich.jetnotes.data.toLong
+import com.raywenderlich.jetnotes.domain.NEW_UUID
 import kotlinx.datetime.Instant
-
-import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
-import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
-import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.domain.model.NEW_UUID
 
 fun NotePropertyDb.isChecked(): Boolean = this.isChecked != 0L
 fun NotePropertyDb.canBeChecked(): Boolean = this.canBeChecked != 0L
@@ -23,35 +17,23 @@ fun NotePropertyDb.isArchived(): Boolean = this.isArchived != 0L
 
 //This class becomes single source of truth for reminders,
 // we don't need to create Reminder properties anymore
-class NotesRepository(
+class Repository(
     private val databaseHelper: DatabaseHelper
 ) {
     private val allNotes: List<NoteProperty>
         get() = databaseHelper.fetchAllNotes().map(NotePropertyDb::toNoteProperty)
 
-    private val mainNotesLiveData: MutableLiveData<List<NoteProperty>> by lazy{
-        MutableLiveData<List<NoteProperty>>()
-    }
+    private val mainNotesData: List<NoteProperty>
+        get() = databaseHelper.fetchMainNotes().map(NotePropertyDb::toNoteProperty)
 
-    private val archivedNotesLiveData: MutableLiveData<List<NoteProperty>> by lazy{
-        MutableLiveData<List<NoteProperty>>()
-    }
-    init{
-        updateNotesLiveData()
-    }
+    private val archivedNotesData: List<NoteProperty>
+        get() = databaseHelper.fetchArchivedNotes().map(NotePropertyDb::toNoteProperty)
 
-    fun getMainNotes(): LiveData<List<NoteProperty>> = mainNotesLiveData
-    fun getArchivedNotes(): LiveData<List<NoteProperty>> = archivedNotesLiveData
-
-    fun getAllColors(): LiveData<List<ColorModel>>{//TODO: replace this temporary color repo
-        val colors = ColorDbModel.DEFAULT_COLORS
-        val mapper = DbMapperImpl()
-        return MutableLiveData(mapper.mapColors(colors))
-    }
+    fun getMainNotes(): List<NoteProperty> = mainNotesData
+    fun getArchivedNotes(): List<NoteProperty> = archivedNotesData
 
     fun deleteNote(id: String) {
         databaseHelper.removeNote(id)
-        updateNotesLiveData()
     }
 
     fun saveNote(note: NoteProperty){
@@ -68,7 +50,6 @@ class NotesRepository(
                 editDate = note.editDate.toString()
             )
         )
-        updateNotesLiveData()
     }
 
     fun saveNewNote(title: String, content: String, colorId: Long, canBeChecked: Boolean, editDate: String? = null){
@@ -83,35 +64,25 @@ class NotesRepository(
                 isArchived = 0,
                 editDate = editDate ?: Clock.System.now().toString())
         )
-        updateNotesLiveData()
     }
 
     fun archiveNote(id: String){
         databaseHelper.archiveNote(id)
-        updateNotesLiveData()
     }
 
     fun restoreNote(id: String){
         databaseHelper.unarchiveNote(id)
-        updateNotesLiveData()
     }
 
     fun markNote(id: String) {
         databaseHelper.markNote(id)
-        updateNotesLiveData()
     }
     fun unmarkNote(id: String) {
         databaseHelper.unmarkNote(id)
-        updateNotesLiveData()
     }
 
     fun getNote(id: String): NoteProperty? {
         return databaseHelper.fetchNote(id)?.toNoteProperty()
-    }
-
-    private fun updateNotesLiveData() {
-        mainNotesLiveData.postValue(databaseHelper.fetchMainNotes().map(NotePropertyDb::toNoteProperty))
-        archivedNotesLiveData.postValue(databaseHelper.fetchArchivedNotes().map(NotePropertyDb::toNoteProperty))
     }
 
 }

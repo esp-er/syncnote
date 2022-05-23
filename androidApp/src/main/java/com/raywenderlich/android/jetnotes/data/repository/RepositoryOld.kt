@@ -41,7 +41,7 @@ import com.raywenderlich.android.jetnotes.domain.model.NoteModel
 /**
  * Allows communication with the app's database.
  */
-interface Repository {
+interface RepositoryOld {
 
   // notes
 
