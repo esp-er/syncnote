@@ -6,6 +6,7 @@ val koin_version by extra("3.1.5")
 */
 
 buildscript {
+   extra["ktor_version"]  = "2.0.1"
    extra["kotlin_version"] = "1.6.10"
    extra["koin_version"] = "3.1.5"
    extra["sqldelight_version"] = "1.5.3"
@@ -20,6 +21,7 @@ buildscript {
     }
 
     dependencies {
+
         classpath("com.android.tools.build:gradle:7.2.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${project.extra["kotlin_version"]}")
         classpath("com.squareup.sqldelight:gradle-plugin:${project.extra["sqldelight_version"]}")

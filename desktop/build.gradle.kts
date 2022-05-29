@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose") version "1.1.1"
 }
 
-group = "com.raywenderlich.jetnotes"
+group = "com.patriker.syncnote"
 version = "1.0.0"
 
 // 3
@@ -27,9 +27,22 @@ kotlin {
             dependencies {
 
                 implementation(project(":shared"))
-                implementation(compose.desktop.currentOs)
+
+                //Koin depinjection
                 implementation("io.insert-koin:koin-core:${rootProject.ext["koin_version"]}")
+
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+
+                //Ktor deps
+
+                implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-websockets-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
+                //implementation("ch.qos.logback:logback-classic:${rootProject.ext["ktor_version"]}")
+
+                implementation(compose.desktop.currentOs)
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
@@ -51,7 +64,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "com.patriker.syncnote.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi,

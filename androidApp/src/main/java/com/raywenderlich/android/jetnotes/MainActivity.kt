@@ -12,6 +12,7 @@ import com.raywenderlich.android.jetnotes.theme.JetNotesTheme
 import com.raywenderlich.android.jetnotes.ui.screens.NotesScreen
 import com.raywenderlich.android.jetnotes.ui.screens.SaveNoteScreen
 import com.raywenderlich.android.jetnotes.ui.screens.ArchiveScreen
+import com.raywenderlich.android.jetnotes.ui.screens.SyncScreen
 import com.raywenderlich.jetnotes.MainViewModel
 import org.koin.androidx.compose.getViewModel
 
@@ -45,6 +46,8 @@ private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Ko
       is Screen.Notes -> NotesScreen(viewModel)
       is Screen.SaveNote -> SaveNoteScreen(viewModel)
       is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
+      is Screen.Sync -> SyncScreen(viewModel) //ArchiveScreen(viewModel)
+      //is Screen.Chat -> TestChatScreen(viewModel)
     }
   }
 }

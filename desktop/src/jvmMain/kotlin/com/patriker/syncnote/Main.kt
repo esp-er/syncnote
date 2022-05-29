@@ -1,3 +1,5 @@
+package com.patriker.syncnote
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -7,23 +9,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
-import androidx.compose.ui.window.MenuBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.window.*
+import com.patriker.syncnote.networking.Control
+import com.patriker.syncnote.networking.SocketSession
+import com.patriker.syncnote.networking.SyncServer
+import com.patriker.syncnote.networking.configureSocketServer
 import com.raywenderlich.jetnotes.initKoin
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.domain.NEW_UUID
 import com.raywenderlich.jetnotes.domain.NoteProperty
-import kotlinx.datetime.Instant
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
+import org.koin.dsl.module
 import java.lang.Thread.sleep
+import java.util.*
+import kotlin.concurrent.thread
 
 //import com.raywenderlich.compose.theme.AppTheme
 //import com.raywenderlich.compose.ui.MainView
@@ -36,25 +46,30 @@ lateinit var koin: Koin
 fun main() {
     koin = initKoin().koin
 
-    val m = MainViewModel(koin.get())
 
-    repeat(100) {
+    val m = MainViewModel(koin.get(), koin.get())
+    val server = SyncServer(m.getRepoReference()).apply{
+        start()
+    }
+
+/*
+    repeat(10) {
         m.saveNote(
             NoteProperty(
-                id = NEW_UUID,
-                title = "hej",
-                content = "mung",
+                id = UUID.randomUUID().toString(),
+                title = "Note No $it",
+                content = "test",
                 colorId = 0,
                 false,
                 false,
                 false
             )
         )
-    }
+    }*/
 
-    m.notes.forEach{ println(it.title)}
+
+
     application {
-
         //Set up multiple windows
         var initialized by remember { mutableStateOf(false) }
         var windowCount by remember { mutableStateOf(1) }

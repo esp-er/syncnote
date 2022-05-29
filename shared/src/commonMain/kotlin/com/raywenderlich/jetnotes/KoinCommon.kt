@@ -3,6 +3,8 @@ package com.raywenderlich.jetnotes
 
 import com.raywenderlich.jetnotes.data.Repository
 import com.raywenderlich.jetnotes.data.DatabaseHelper
+import com.raywenderlich.jetnotes.data.ExternDatabaseHelper
+import com.raywenderlich.jetnotes.data.ExternRepository
 //import com.raywenderlich.organize.presentation.AboutViewModel
 //import com.raywenderlich.organize.presentation.RemindersViewModel
 import org.koin.core.KoinApplication
@@ -16,16 +18,19 @@ expect val platformModule: Module
 
 object Modules {
     val core = module {
-//        factory { Platform() }
+        //factory { Platform() }
         factory { DatabaseHelper(get()) }
+        factory{ ExternDatabaseHelper(get())}
     }
 
     val repositories = module {
         factory { Repository(get()) }
+        factory { ExternRepository(get())}
     }
     val viewModel= module {
-        factory { MainViewModel(get()) }
+        factory { MainViewModel(get(), get()) }
     }
+    
 
 }
 

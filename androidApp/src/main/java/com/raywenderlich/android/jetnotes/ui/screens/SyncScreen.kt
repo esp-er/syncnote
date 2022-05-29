@@ -1,61 +1,92 @@
 package com.raywenderlich.android.jetnotes.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.material.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
-import com.raywenderlich.android.jetnotes.ui.components.NotesList
 import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
+
 import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
+//import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.sp
+import com.raywenderlich.android.jetnotes.ui.components.NotesList
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
+
+
 
 @ExperimentalMaterialApi
 @Composable
-fun ArchiveScreen(viewModel: MainViewModel) {
-    /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
+fun SyncScreen(viewModel: MainViewModel) {
+
+    /*
+    val configuration = LocalConfiguration.current
+    val densityDpi = resources.displayMetrics.densityDpi
+
+    val screenWidth = configuration.screenWidthDp * (densityDpi / 160f) //Convert Dp to pixel values
+    val screenHeight = configuration.screenHeightDp * (densityDpi / 160f)
+    *
+    /
+
+     */
 
     val configuration = LocalConfiguration.current
     val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
 
+
+    //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
 
     fun showSnackBar(message: String) {
         coroutineScope.launch{
-            val showbar = launch {
-                scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Indefinite)
-            }
-            delay(2000) //Trick to allow shorter snackbar time
+            val showbar = launch { scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Indefinite)}
+            delay(2000)
             showbar.cancel()
         }
     }
 
+    //val fabPos: Offset by viewModel.fabPos.observeAsState(viewModel.fabPos.value ?: Offset(0f,0f))
 
     BackHandler(
         onBack = {
             if (scaffoldState.drawerState.isOpen) { //comment: useful back behavior pattern with the drawer
                 coroutineScope.launch { scaffoldState.drawerState.close() }
             } else {
-                NotesRouter.navigateTo(Screen.Notes)
+                NotesRouter.navigateTo(Screen.Sync)
             }
         }
     )
+
+
 
     Scaffold (
         topBar =
@@ -85,14 +116,17 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                         }
                     }
                 )
-                TopTabBar(initState = 2) //Tabs
+                TopTabBar(initState = 1) //Tabs
             }
         },
         scaffoldState = scaffoldState, //lets the scaffold display the correct state
         snackbarHost = {scaffoldState.snackbarHostState},
+        bottomBar = { SnackbarHost(
+            hostState = scaffoldState.snackbarHostState)
+        },
         drawerContent = {
             AppDrawer(
-                currentScreen = Screen.Archive,
+                currentScreen = Screen.Sync,
                 closeDrawerAction = {
                     //Drawer close
                     coroutineScope.launch{
@@ -104,12 +138,13 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
             NotesList( // here
-                notes = viewModel.notesInArchive,
-                onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
-                onEditNote = { viewModel.onNoteClick(it) },
-                onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
-                onDeleteNote = { viewModel.permaDeleteNote(it) },
-                isArchive = true,
+                notes = viewModel.cachedNotes,
+                onNoteCheckedChange = { },
+                onEditNote = { },
+                onRestoreNote = { },
+                onArchiveNote = { },
+                onDeleteNote = { },
+                isArchive = false,
                 onSnackMessage = ::showSnackBar
             )
         }

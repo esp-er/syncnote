@@ -1,5 +1,6 @@
 package com.raywenderlich.jetnotes.domain
 
+import kotlinx.serialization.*
 import kotlinx.datetime.Instant
 
 const val NEW_UUID = "NEW"
@@ -7,6 +8,7 @@ const val NEW_UUID = "NEW"
 /**
  * Model class that represents one Note
  */
+@Serializable
 data class NoteProperty(
     val id: String = NEW_UUID,
     val title: String = "",

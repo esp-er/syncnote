@@ -8,7 +8,7 @@ import com.squareup.sqldelight.db.SqlDriver
 fun Boolean.toLong(): Long = if (this) 1L else 0L
 
 class DatabaseHelper(
-    sqlDriver: SqlDriver,
+    private val sqlDriver: SqlDriver
 ) {
     private val dbRef: OpenNotesDb = OpenNotesDb(sqlDriver)
 

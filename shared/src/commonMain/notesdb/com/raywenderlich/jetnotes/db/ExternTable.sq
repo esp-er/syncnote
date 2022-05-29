@@ -1,0 +1,57 @@
+CREATE TABLE ExternNoteDb(
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    colorId INTEGER,
+    canBeChecked INTEGER NOT NULL DEFAULT 0,
+    isChecked INTEGER NOT NULL DEFAULT 0,
+    isArchived INTEGER NOT NULL DEFAULT 0,
+    editDate TEXT NOT NULL DEFAULT '1970-01-01T00:00:00Z'
+);
+
+getAllNotes:
+SELECT * FROM ExternNoteDb;
+
+getNotes:
+SELECT * FROM ExternNoteDb
+WHERE isArchived=0;
+
+getNote:
+SELECT * FROM ExternNoteDb
+WHERE id = ?;
+
+getArchivedNotes:
+SELECT * FROM ExternNoteDb
+WHERE isArchived=1;
+
+clearAllNotes:
+DELETE FROM ExternNoteDb;
+
+archiveNote:
+UPDATE ExternNoteDb SET isArchived=1
+WHERE id = ?;
+
+unarchiveNote:
+UPDATE ExternNoteDb SET isArchived=0
+WHERE id = ?;
+
+checkNote:
+UPDATE ExternNoteDb SET isChecked=1
+WHERE id = ?;
+
+uncheckNote:
+UPDATE ExternNoteDb SET isChecked=0
+WHERE id = ?;
+
+insertUpdateNote:
+INSERT OR REPLACE INTO ExternNoteDb(id, title, content, colorId, canBeChecked, isChecked, isArchived, editDate)
+VALUES (?, ?, ?,?,?,?,?,?);
+
+setEditedDate:
+UPDATE ExternNoteDb
+SET editDate = ? WHERE id = ?;
+
+deleteNote:
+DELETE FROM ExternNoteDb
+WHERE id = ?;
+

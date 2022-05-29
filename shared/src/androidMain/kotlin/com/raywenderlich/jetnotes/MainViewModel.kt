@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.raywenderlich.jetnotes.data.*
 import com.raywenderlich.jetnotes.domain.NoteProperty
-import com.raywenderlich.jetnotes.data.Repository
+import com.raywenderlich.jetnotes.domain.UUID
 //import com.raywenderlich.jetnotes.routing.NotesRouter
 //import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.Dispatchers
@@ -14,13 +15,43 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
-import com.raywenderlich.jetnotes.data.AndroidRepository
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
+import java.util.UUID.randomUUID
 
 //Contains the app state
-actual class MainViewModel actual constructor(private val repository: Repository) : BaseViewModel() {
+actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository) : BaseViewModel() {
     val androrepo = AndroidRepository(repository)
+    val androcache = AndroidExternRepository(cacheRepository)
+
+/*
+    init{
+        viewModelScope.launch{
+            val note = NoteProperty(
+                id = "NEW",
+                title = "TEST",
+                content = "test",
+                colorId = 0,
+                false,
+                false,
+                false
+            )
+            androcache.saveNote(note)
+
+        }
+    }*/
+
+    val sync = SyncClient(androcache).apply {
+        viewModelScope.launch(Dispatchers.IO) {
+            connect()
+        }
+    }
+
+
+    val cachedNotes: LiveData<List<NoteProperty>> by lazy {
+        androcache.getNotesLiveData()
+    }
+
     val notes: LiveData<List<NoteProperty>> by lazy {
         androrepo.getMainNotes()
     }
@@ -96,6 +127,5 @@ actual class MainViewModel actual constructor(private val repository: Repository
             }
         }
     }
-
-
 }
+

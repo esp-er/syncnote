@@ -6,17 +6,18 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.OpenNotesDb
+import io.ktor.client.engine.android.*
 import org.koin.core.context.GlobalContext.get
 import org.koin.dsl.module
 
-//"actual" in mpp
 actual val platformModule = module {
-
- /*   single<Settings> {
+    /*
+     single<Settings> {
         AndroidSettings(get())
     }*/
 
     single<SqlDriver> {
         AndroidSqliteDriver(OpenNotesDb.Schema, get(), "OpenNotesDb")
     }
+
 }

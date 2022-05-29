@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,13 +20,10 @@ import com.raywenderlich.jetnotes.routing.Screen
 fun TopTabBar(initState: Int) {
 
     var state by remember{ mutableStateOf(initState) }
-    fun archiveClick() {
-        state = 1
-        NotesRouter.navigateTo(Screen.Archive)
-    }
-    val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 14.sp)
+
+    val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 12.sp)
     Column {
-        CustomTabRow(selectedTabIndex = state, tabWeights = listOf(5f,2f)) { //TODO: Find better way to pass in tab weights
+        CustomTabRow(selectedTabIndex = state, tabWeights = listOf(4f,2f ,2f)) { //TODO: Find better way to pass in tab weights
             LeadingIconTab(
                 text = { Text("Notes", style = textStyle)}, //TODO: fix text colors e.g primary / on prim, etc
                 icon = {
@@ -40,6 +38,19 @@ fun TopTabBar(initState: Int) {
             )
 
             LeadingIconTab(
+                text = { Text("Sync", style = textStyle)}, //TODO: fix text colors e.g primary / on prim, etc
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Devices,
+                        tint = MaterialTheme.colors.onSecondary,
+                        contentDescription = "Sync Notes Tab"
+                    )
+                },
+                selected = state == 1,
+                onClick = { state = 1; NotesRouter.navigateTo(Screen.Sync) }
+            )
+
+            LeadingIconTab(
                 text = { Text("Archive", style = textStyle)},
                 icon = {
                         Icon(
@@ -48,8 +59,8 @@ fun TopTabBar(initState: Int) {
                             tint = MaterialTheme.colors.onSecondary
                         )
                     },
-                selected = state == 1,
-                onClick = { archiveClick() },
+                selected = state == 2,
+                onClick = { state = 2; NotesRouter.navigateTo(Screen.Archive) },
             )
         }
     }

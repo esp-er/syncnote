@@ -8,6 +8,8 @@ sealed class Screen {
   object Notes : Screen()
   object SaveNote : Screen()
   object Archive : Screen()
+  object Sync : Screen()
+ // object Chat: Screen()
 }
 
 //changes screen in MainActivity

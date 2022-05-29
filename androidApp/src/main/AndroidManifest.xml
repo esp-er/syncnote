@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   package="com.raywenderlich.android.jetnotes">
-
+  <uses-permission android:name="android.permission.INTERNET" />
   <application
     android:name=".OpenNotesApp"
     android:allowBackup="true"
@@ -16,6 +16,7 @@
     <activity
       android:name=".SplashActivity"
       android:screenOrientation="portrait"
+      android:usesCleartextTraffic="true"
       tools:ignore="LockedOrientationActivity"
         android:exported="true">
       <intent-filter>

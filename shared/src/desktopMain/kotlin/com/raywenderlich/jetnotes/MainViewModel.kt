@@ -1,6 +1,7 @@
 package com.raywenderlich.jetnotes
 
 import androidx.compose.ui.geometry.Offset
+import com.raywenderlich.jetnotes.data.ExternRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.data.Repository
 import com.raywenderlich.jetnotes.routing.NotesRouter
@@ -12,9 +13,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 //Contains the app state
-actual class MainViewModel actual constructor(private val repository: Repository) : BaseViewModel() {
+actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository) : BaseViewModel() {
+
     val notes: List<NoteProperty> get() = repository.getMainNotes()
     val notesinArchive: List<NoteProperty> get() = repository.getArchivedNotes()
+
+    val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()
 
     private var _noteEntry = NoteProperty()
     val noteEntry: NoteProperty = _noteEntry
@@ -22,6 +26,10 @@ actual class MainViewModel actual constructor(private val repository: Repository
     fun onCreateNewNoteClick() {
         _noteEntry = NoteProperty() //Create a new note
         NotesRouter.navigateTo(Screen.SaveNote)
+    }
+
+    fun getRepoReference(): Repository{ //TODO: remove quick hack to share repo with SyncServer
+        return repository
     }
 
     fun onNoteClick(note: NoteProperty) { //Pass in an existing note
@@ -41,6 +49,8 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun saveNote(note: NoteProperty) {
         //withContext(Dispatchers.Main) {
+
+
         runBlocking{
             withContext(Dispatchers.IO) {
                 repository.saveNote(note.copy(editDate = Clock.System.now()))
