@@ -3,12 +3,7 @@ package com.raywenderlich.android.jetnotes.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,14 +12,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.raywenderlich.android.jetnotes.theme.JetNotesTheme
-import androidx.compose.material.Switch
 import com.raywenderlich.android.jetnotes.theme.JetNotesThemeSettings
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import androidx.compose.material.Divider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.*
+import androidx.compose.material.icons.filled.*
 
 @Composable
 fun AppDrawer(
@@ -35,16 +29,24 @@ fun AppDrawer(
         AppDrawerHeader()
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
         ScreenNavigationButton(
-            icon = Icons.Filled.Home,
+            icon = Icons.Filled.Notes,
             label = "Notes",
             isSelected = currentScreen == Screen.Notes,
             onClick = {
                 NotesRouter.navigateTo(Screen.Notes)
+            }
+        )
+        ScreenNavigationButton(
+            icon = Icons.Filled.Devices,
+            label = "Computer Notes",
+            isSelected = currentScreen == Screen.Sync,
+            onClick = {
+                NotesRouter.navigateTo(Screen.Sync)
                 closeDrawerAction()
             }
         )
         ScreenNavigationButton(
-            icon = Icons.Filled.Inventory2,
+            icon = Icons.Filled.Archive,
             label = "Archive",
             isSelected = currentScreen == Screen.Archive,
             onClick = {
@@ -52,6 +54,8 @@ fun AppDrawer(
                 closeDrawerAction()
             }
         )
+
+        SyncToggleItem()
         LightDarkThemeItem()
     }
 }
@@ -157,6 +161,54 @@ fun AppDrawerHeaderPreview() {
         AppDrawerHeader()
     }
 }
+@Composable
+private fun SyncToggleItem(modifier: Modifier = Modifier) {
+    Row(
+        Modifier
+            .padding(8.dp)
+            .fillMaxWidth(0.8f)
+    ) {
+
+        Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
+            Row {
+                Text(
+                    text = "Automatic Sync",
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        //.align(alignment = Alignment.Start)
+                )
+                Icon(
+                    imageVector = Icons.Default.Sync,
+                    "Sync Icon",
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.CenterVertically)
+                )
+            }
+        }
+
+        Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
+            Switch( //TODO: implement toggling for sync
+                checked = false,
+                onCheckedChange = { },
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 32.dp)
+                    .align(alignment = Alignment.End)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SyncToggleItemPreview() {
+    JetNotesTheme {
+        SyncToggleItem()
+    }
+}
+
 
 @Composable
 private fun LightDarkThemeItem() {
@@ -165,24 +217,28 @@ private fun LightDarkThemeItem() {
             .padding(8.dp)
             .fillMaxWidth(0.8f)
     ) {
-        Text(
-            text = "Dark mode",
-            style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-            modifier = Modifier
-                .weight(5f)
-                .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom =
-                8.dp)
-                .align(alignment = Alignment.CenterVertically)
-        )
-        Switch(
-            checked = JetNotesThemeSettings.isDarkThemeEnabled,
-            onCheckedChange = { JetNotesThemeSettings.isDarkThemeEnabled = it },
-            modifier = Modifier
-                .weight(5f)
-                .padding(start = 8.dp, end = 8.dp)
-                .align(alignment = Alignment.CenterVertically)
-        )
+        Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)){
+            Text(
+                text = "Dark mode",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier
+                    .padding(
+                        start = 8.dp, top = 8.dp, end = 8.dp, bottom =
+                        8.dp
+                    )
+                    .align(alignment = Alignment.Start)
+            )
+        }
+        Column (modifier = Modifier.align(Alignment.CenterVertically).weight(1f)){
+            Switch(
+                checked = JetNotesThemeSettings.isDarkThemeEnabled,
+                onCheckedChange = { JetNotesThemeSettings.isDarkThemeEnabled = it },
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 32.dp)
+                    .align(alignment = Alignment.End)
+            )
+        }
     }
 }
 @Preview

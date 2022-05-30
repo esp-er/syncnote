@@ -1,44 +1,26 @@
 package com.raywenderlich.android.jetnotes.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.material.Text
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
-import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
 
-import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.ui.components.NotesList
+import com.raywenderlich.android.jetnotes.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-
-
 
 
 @ExperimentalMaterialApi
@@ -137,14 +119,9 @@ fun SyncScreen(viewModel: MainViewModel) {
         },
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
-            NotesList( // here
+            SyncedNoteList( // here
                 notes = viewModel.cachedNotes,
-                onNoteCheckedChange = { },
-                onEditNote = { },
-                onRestoreNote = { },
-                onArchiveNote = { },
                 onDeleteNote = { },
-                isArchive = false,
                 onSnackMessage = ::showSnackBar
             )
         }

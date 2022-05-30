@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -20,8 +21,11 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.json.Json
+import java.net.ConnectException
 
-class SyncClient(private val cacheRepository: AndroidExternRepository) {
+class SyncClient(private val cacheRepository: AndroidExternRepository, private val connectionInfo: HostData) {
+
+    private val isConnectedState = MutableLiveData(false)
 
     val client = HttpClient {
         install(WebSockets){
@@ -30,20 +34,35 @@ class SyncClient(private val cacheRepository: AndroidExternRepository) {
     }
     //private var noteList: List<NoteProperty> = listOf<NoteProperty>()
 
+    fun isSocketConnected() : LiveData<Boolean> = isConnectedState
+
     suspend fun connect(){
+        try {
             client.webSocket(
                 method = HttpMethod.Get,
-                host = "192.168.0.149",
-                port = 9000,
-                path = "/syncnote"
-            ) {
-                val receiveNoteRoutine = launch { receiveNotes() }
+                host = connectionInfo.address,
+                port = connectionInfo.port,
+                path = connectionInfo.path) {
 
-                receiveNoteRoutine.join() // Wait for completion; either "exit" or error
+                val receiveNotesRoutine = launch { receiveNotes() }
+                isConnectedState.postValue(true)
+
+                receiveNotesRoutine.join() // Wait for completion; either "exit" or error
                 //messageOutputRoutine.cancelAndJoin()
             }
-        client.close()
-        Log.d("ktor", "Connection closed. Goodbye!")
+        }
+        catch(e: ConnectException){
+            Log.d("SyncClient:", "Failed to connect, aborting")
+        }
+        catch(e: Exception){
+            Log.d("SyncClient:", "Error while connecting")
+            e.printStackTrace()
+        }
+        finally {
+            client.close()
+            isConnectedState.postValue(false)
+            Log.d("ktor", "Connection closed. Goodbye!")
+        }
     }
 
     private fun updateNotes(notes: List<NoteProperty>){
@@ -55,6 +74,7 @@ class SyncClient(private val cacheRepository: AndroidExternRepository) {
             while (true) {
                 val networkNotes = receiveDeserialized<List<NoteProperty>>()
                 updateNotes(networkNotes)
+                delay(10)
             }
         } catch (e: WebsocketDeserializeException){
             Log.d("ktor client", "Failed to deserialize network data")

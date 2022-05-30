@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.jetnotes.data.*
+import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.domain.UUID
 //import com.raywenderlich.jetnotes.routing.NotesRouter
@@ -41,12 +42,16 @@ actual class MainViewModel actual constructor(private val repository: Repository
         }
     }*/
 
-    val sync = SyncClient(androcache).apply {
+    val host = HostData("192.168.0.149", 9000, "/syncnote") //TODO: save this to settings
+                                                                                // and create a class/function
+                                                                                //that can determine this
+    val sync = SyncClient(androcache, host).apply {
         viewModelScope.launch(Dispatchers.IO) {
             connect()
         }
     }
 
+    val isSyncing = sync.isSocketConnected()
 
     val cachedNotes: LiveData<List<NoteProperty>> by lazy {
         androcache.getNotesLiveData()
