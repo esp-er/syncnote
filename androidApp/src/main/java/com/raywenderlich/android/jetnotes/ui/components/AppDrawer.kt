@@ -223,10 +223,7 @@ private fun LightDarkThemeItem() {
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier
-                    .padding(
-                        start = 8.dp, top = 8.dp, end = 8.dp, bottom =
-                        8.dp
-                    )
+                    .padding(8.dp)
                     .align(alignment = Alignment.Start)
             )
         }

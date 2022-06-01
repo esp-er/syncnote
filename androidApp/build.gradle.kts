@@ -10,7 +10,7 @@ android {
     compileSdk = 32
     defaultConfig {
         applicationId = "com.raywenderlich.android.jetnotes"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 32
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,6 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion = rootProject.extra["compose_version"] as String
-        kotlinCompilerVersion = rootProject.extra["kotlin_version"] as String
     }
 
     packagingOptions {
@@ -84,6 +83,14 @@ dependencies {
     //Koin dependency injection
     implementation("io.insert-koin:koin-android:${rootProject.extra["koin_version"]}")
     implementation("io.insert-koin:koin-androidx-compose:${rootProject.extra["koin_version"]}")
+
+    // Zxing (QR)
+    implementation("com.google.zxing:core:3.3.3")
+
+    //CameraX (for QR)
+    implementation( "androidx.camera:camera-camera2:1.0.2")
+    implementation("androidx.camera:camera-lifecycle:1.0.2")
+    implementation("androidx.camera:camera-view:1.0.0-alpha31")
 
 
 }

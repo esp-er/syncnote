@@ -27,22 +27,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SyncScreen(viewModel: MainViewModel) {
 
-    /*
-    val configuration = LocalConfiguration.current
-    val densityDpi = resources.displayMetrics.densityDpi
-
-    val screenWidth = configuration.screenWidthDp * (densityDpi / 160f) //Convert Dp to pixel values
-    val screenHeight = configuration.screenHeightDp * (densityDpi / 160f)
-    *
-    /
-
-     */
-
     val configuration = LocalConfiguration.current
     val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
-
-
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
@@ -67,8 +54,6 @@ fun SyncScreen(viewModel: MainViewModel) {
             }
         }
     )
-
-
 
     Scaffold (
         topBar =
@@ -119,11 +104,15 @@ fun SyncScreen(viewModel: MainViewModel) {
         },
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
+            if(viewModel.hasPairedHost.value!!)
             SyncedNoteList( // here
                 notes = viewModel.cachedNotes,
                 onDeleteNote = { },
                 onSnackMessage = ::showSnackBar
             )
+            else{
+                PairDeviceUI()
+            }
         }
     )
 }

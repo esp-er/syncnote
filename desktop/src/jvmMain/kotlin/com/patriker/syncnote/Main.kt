@@ -1,5 +1,6 @@
 package com.patriker.syncnote
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -11,8 +12,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.patriker.syncnote.networking.Control
 import com.patriker.syncnote.networking.SocketSession
@@ -22,6 +26,7 @@ import com.raywenderlich.jetnotes.initKoin
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.domain.NEW_UUID
 import com.raywenderlich.jetnotes.domain.NoteProperty
+import io.github.g0dkar.qrcode.QRCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -34,6 +39,16 @@ import org.koin.dsl.module
 import java.lang.Thread.sleep
 import java.util.*
 import kotlin.concurrent.thread
+
+
+import io.github.g0dkar.qrcode.render.*
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
+import org.jetbrains.skia.Image
+
+import java.net.InetAddress
+
+
 
 //import com.raywenderlich.compose.theme.AppTheme
 //import com.raywenderlich.compose.ui.MainView
@@ -51,6 +66,18 @@ fun main() {
     val server = SyncServer(m.getRepoReference()).apply{
         start()
     }
+
+    val hostinfo = InetAddress.getLocalHost()
+    val ipaddress = hostinfo.hostAddress!!
+    val hostname = hostinfo.hostName!!
+    val port: Int = 9000
+
+
+    val qrData = QRCode("192.168.0.149:${port}").render()
+    var imageBytes = ByteArrayOutputStream().also{qrData.writeImage(it, "PNG")}.toByteArray()
+    val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
+    //val tmp = qrData.writeImage()
+    //val imageBytes = ByteArrayOutputStream().also { ImageIO.write(qrData, "PNG", it) }.toByteArray()
 
 
 /*
@@ -144,7 +171,16 @@ fun main() {
 
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MaterialTheme () {
-                        Text("hej")
+                        Column {
+                            Row {
+                                Text("$ipaddress:${port}")
+                                Spacer(Modifier.width(4.dp))
+                                Text(hostname)
+                            }
+                            Box(modifier = Modifier.size(320.dp, 320.dp)) {
+                                Image(bitmap, "QR code")
+                            }
+                        }
                     }
                 }
             }

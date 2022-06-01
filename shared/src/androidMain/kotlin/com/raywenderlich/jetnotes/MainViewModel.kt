@@ -45,6 +45,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
     val host = HostData("192.168.0.149", 9000, "/syncnote") //TODO: save this to settings
                                                                                 // and create a class/function
                                                                                 //that can determine this
+    val hasPairedHost = MutableLiveData(false) //TODO: retreive this from AndroidSettings provider instead
     val sync = SyncClient(androcache, host).apply {
         viewModelScope.launch(Dispatchers.IO) {
             connect()

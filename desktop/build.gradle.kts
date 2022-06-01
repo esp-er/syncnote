@@ -42,6 +42,9 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
                 //implementation("ch.qos.logback:logback-classic:${rootProject.ext["ktor_version"]}")
 
+                //QR code generation
+                implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")
+
                 implementation(compose.desktop.currentOs)
                 api(compose.runtime)
                 api(compose.foundation)
