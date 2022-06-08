@@ -55,94 +55,21 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       JetNotesTheme{
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-
-          val context = LocalContext.current
-          val lifecycleOwner = LocalLifecycleOwner.current
-          val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-
-          var code by remember { mutableStateOf("") }
-          var hasCameraPermission by remember {
-            mutableStateOf(
-              ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-              ) == PackageManager.PERMISSION_GRANTED
-            )
-          }
-          val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-            onResult = { granted ->
-              hasCameraPermission = granted
-            }
-          )
-
-          LaunchedEffect(key1 = true) {
-            launcher.launch(Manifest.permission.CAMERA)
-          }
-
-          Column(modifier = Modifier.fillMaxSize()) {
-            if (hasCameraPermission) {
-              AndroidView(
-                factory = { context ->
-                  val previewView = PreviewView(context)
-                  val preview = Preview.Builder().build()
-                  val selector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
-                  preview.setSurfaceProvider(previewView.surfaceProvider)
-                  val imageAnalysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                  imageAnalysis.setAnalyzer(
-                    ContextCompat.getMainExecutor(context),
-                    QRAnalyzer { result ->
-                      result?.let { code = it }
-                    }
-                  )
-
-                  try {
-                    cameraProviderFuture.get().bindToLifecycle(
-                      lifecycleOwner,
-                      selector,
-                      preview,
-                      imageAnalysis
-                    )
-                  } catch (e: Exception) {
-                    e.printStackTrace()
-                  }
-
-                  return@AndroidView previewView
-                },
-                modifier = Modifier.weight(1f)
-              )
-              Text(
-                text = code,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(32.dp)
-              )
-            }
-          }
-        }
+         MainActivityScreen()
       }
-
     }
   }
 }
 
 @ExperimentalMaterialApi
 @Composable
-private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Koin injects viewmodel
+private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Koin injects ViewModel
   Surface {
     when (NotesRouter.currentScreen) {
       is Screen.Notes -> NotesScreen(viewModel)
       is Screen.SaveNote -> SaveNoteScreen(viewModel)
       is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
-      is Screen.Sync -> SyncScreen(viewModel) //ArchiveScreen(viewModel)
-      //is Screen.Chat -> TestChatScreen(viewModel)
+      is Screen.Sync -> SyncScreen(viewModel)
     }
   }
 }

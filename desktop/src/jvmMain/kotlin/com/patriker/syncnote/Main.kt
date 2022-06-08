@@ -32,8 +32,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
 import org.koin.dsl.module
 import java.lang.Thread.sleep
@@ -42,6 +40,7 @@ import kotlin.concurrent.thread
 
 
 import io.github.g0dkar.qrcode.render.*
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import org.jetbrains.skia.Image
@@ -63,21 +62,24 @@ fun main() {
 
 
     val m = MainViewModel(koin.get(), koin.get())
-    val server = SyncServer(m.getRepoReference()).apply{
-        start()
-    }
+    runBlocking {
+        launch(Dispatchers.IO) {
+            val server = SyncServer(m.getRepoReference()).apply {
+                start()
+            }
+        }
 
-    val hostinfo = InetAddress.getLocalHost()
-    val ipaddress = hostinfo.hostAddress!!
-    val hostname = hostinfo.hostName!!
-    val port: Int = 9000
+        val hostinfo = InetAddress.getLocalHost()
+        val ipaddress = hostinfo.hostAddress!!
+        val hostname = hostinfo.hostName!!
+        val port: Int = 9000
 
 
-    val qrData = QRCode("192.168.0.149:${port}").render()
-    var imageBytes = ByteArrayOutputStream().also{qrData.writeImage(it, "PNG")}.toByteArray()
-    val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
-    //val tmp = qrData.writeImage()
-    //val imageBytes = ByteArrayOutputStream().also { ImageIO.write(qrData, "PNG", it) }.toByteArray()
+        val qrData = QRCode("192.168.0.149:${port}").render()
+        var imageBytes = ByteArrayOutputStream().also { qrData.writeImage(it, "PNG") }.toByteArray()
+        val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
+        //val tmp = qrData.writeImage()
+        //val imageBytes = ByteArrayOutputStream().also { ImageIO.write(qrData, "PNG", it) }.toByteArray()
 
 
 /*
@@ -97,94 +99,99 @@ fun main() {
 
 
 
-    application {
-        //Set up multiple windows
-        var initialized by remember { mutableStateOf(false) }
-        var windowCount by remember { mutableStateOf(1) }
-        val windowList = remember { SnapshotStateList<WindowInfo>() }
-        if (!initialized) {
-            windowList.add(WindowInfo("Timezone-${windowCount}",
-                rememberWindowState()))
-            initialized = true
-        }
+        application {
+            //Set up multiple windows
+            var initialized by remember { mutableStateOf(false) }
+            var windowCount by remember { mutableStateOf(1) }
+            val windowList = remember { SnapshotStateList<WindowInfo>() }
+            if (!initialized) {
+                windowList.add(
+                    WindowInfo(
+                        "Timezone-${windowCount}",
+                        rememberWindowState()
+                    )
+                )
+                initialized = true
+            }
 
-        windowList.forEachIndexed { i, window ->
-            Window(
+            windowList.forEachIndexed { i, window ->
+                Window(
 
-                onCloseRequest = {
-                    windowList.removeAt(i)
-                },
+                    onCloseRequest = {
+                        windowList.removeAt(i)
+                    },
 
-                state = windowList[i].windowState,
-                title = windowList[i].windowName
-            ) {
+                    state = windowList[i].windowState,
+                    title = windowList[i].windowName
+                ) {
 
-                Surface {
+                    Surface {
 
-                    MenuBar {
-                        Menu("File", mnemonic = 'F') {
-                            val nextWindowState = rememberWindowState()
-                            Item(
-                                "New", onClick = {
-                                    windowCount++
-                                    windowList.add(
-                                        WindowInfo(
-                                            "Timezone-${windowCount}",
-                                            nextWindowState
+                        MenuBar {
+                            Menu("File", mnemonic = 'F') {
+                                val nextWindowState = rememberWindowState()
+                                Item(
+                                    "New", onClick = {
+                                        windowCount++
+                                        windowList.add(
+                                            WindowInfo(
+                                                "Timezone-${windowCount}",
+                                                nextWindowState
+                                            )
                                         )
-                                    )
-                                },
-                                shortcut = KeyShortcut(Key.N, ctrl = true)
-                            )
-                            Item(
-                                "Open", onClick = { },
-                                shortcut = KeyShortcut(Key.O, ctrl = true)
-                            )
-                            Item(
-                                "Close",
-                                onClick = { windowList.removeAt(i) },
-                                shortcut = KeyShortcut(Key.W, ctrl = true)
-                            )
-                            Item(
-                                "Save", onClick = { },
-                                shortcut = KeyShortcut(Key.S, ctrl = true)
-                            )
-                            Separator()
-                            Item("Exit", onClick = { windowList.clear() },)
-                        }
-                        Menu("Edit", mnemonic = 'E') {
-                            Item(
-                                "Cut", onClick = { },
-                                shortcut = KeyShortcut(Key.X, ctrl = true)
-                            )
-                            Item(
-                                "Copy", onClick = { },
-                                shortcut = KeyShortcut(Key.C, ctrl = true)
-                            )
-                            Item(
-                                "Paste", onClick = { },
-                                shortcut = KeyShortcut(Key.V, ctrl = true)
-                            )
+                                    },
+                                    shortcut = KeyShortcut(Key.N, ctrl = true)
+                                )
+                                Item(
+                                    "Open", onClick = { },
+                                    shortcut = KeyShortcut(Key.O, ctrl = true)
+                                )
+                                Item(
+                                    "Close",
+                                    onClick = { windowList.removeAt(i) },
+                                    shortcut = KeyShortcut(Key.W, ctrl = true)
+                                )
+                                Item(
+                                    "Save", onClick = { },
+                                    shortcut = KeyShortcut(Key.S, ctrl = true)
+                                )
+                                Separator()
+                                Item("Exit", onClick = { windowList.clear() },)
+                            }
+                            Menu("Edit", mnemonic = 'E') {
+                                Item(
+                                    "Cut", onClick = { },
+                                    shortcut = KeyShortcut(Key.X, ctrl = true)
+                                )
+                                Item(
+                                    "Copy", onClick = { },
+                                    shortcut = KeyShortcut(Key.C, ctrl = true)
+                                )
+                                Item(
+                                    "Paste", onClick = { },
+                                    shortcut = KeyShortcut(Key.V, ctrl = true)
+                                )
+                            }
                         }
                     }
-                }
 
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    MaterialTheme () {
-                        Column {
-                            Row {
-                                Text("$ipaddress:${port}")
-                                Spacer(Modifier.width(4.dp))
-                                Text(hostname)
-                            }
-                            Box(modifier = Modifier.size(320.dp, 320.dp)) {
-                                Image(bitmap, "QR code")
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        MaterialTheme() {
+                            Column {
+                                Row {
+                                    Text("$ipaddress:${port}")
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(hostname)
+                                }
+                                Box(modifier = Modifier.size(320.dp, 320.dp)) {
+                                    Image(bitmap, "QR code")
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
 
+    }
 }

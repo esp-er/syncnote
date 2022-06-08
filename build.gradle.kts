@@ -12,6 +12,7 @@ buildscript {
    extra["sqldelight_version"] = "1.5.3"
    extra["compose_version"] = "1.1.1"
    extra["composedesktop_version"] = "1.1.1"
+   extra["logback_version"] = "1.2.11"
 
     repositories {
         google()

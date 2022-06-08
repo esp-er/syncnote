@@ -11,7 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -35,15 +34,12 @@ import java.lang.Exception
 
 @Composable
 fun QrCodeScanner() {
-    var code by remember {
-        mutableStateOf("Not read yet")
-    }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraProviderFuture = remember {
-        ProcessCameraProvider.getInstance(context)
-    }
-    var hasCamPermission by remember {
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+
+    var code by remember { mutableStateOf("") }
+    var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
@@ -54,15 +50,16 @@ fun QrCodeScanner() {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
-            hasCamPermission = granted
+            hasCameraPermission = granted
         }
     )
+
     LaunchedEffect(key1 = true) {
         launcher.launch(Manifest.permission.CAMERA)
     }
-    Column(
-    ) {
-        if (hasCamPermission) {
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (hasCameraPermission) {
             AndroidView(
                 factory = { context ->
                     val previewView = PreviewView(context)
@@ -72,20 +69,15 @@ fun QrCodeScanner() {
                         .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()
-                        .setTargetResolution(
-                            Size(
-                                previewView.width,
-                                previewView.height
-                            )
-                        )
-                        .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
                         QRAnalyzer { result ->
-                            code = result!!
+                            result?.let { code = it }
                         }
                     )
+
                     try {
                         cameraProviderFuture.get().bindToLifecycle(
                             lifecycleOwner,
@@ -96,13 +88,14 @@ fun QrCodeScanner() {
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                    previewView
+
+                    return@AndroidView previewView
                 },
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = code,
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()

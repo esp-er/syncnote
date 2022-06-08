@@ -19,11 +19,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.derivedStateOf
 
 @Composable
 fun AppDrawer(
     currentScreen: Screen,
-    closeDrawerAction: () -> Unit
+    closeDrawerAction: () -> Unit,
+    isConnected: Boolean = false
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         AppDrawerHeader()
@@ -38,7 +40,7 @@ fun AppDrawer(
         )
         ScreenNavigationButton(
             icon = Icons.Filled.Devices,
-            label = "Computer Notes",
+            label = if(!isConnected) "Computer Notes" else "Computer Notes (Connected)",
             isSelected = currentScreen == Screen.Sync,
             onClick = {
                 NotesRouter.navigateTo(Screen.Sync)

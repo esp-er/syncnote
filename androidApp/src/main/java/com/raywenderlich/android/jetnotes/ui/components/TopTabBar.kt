@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.routing.NotesRouter
@@ -17,7 +18,7 @@ import com.raywenderlich.jetnotes.routing.Screen
 
 
 @Composable
-fun TopTabBar(initState: Int) {
+fun TopTabBar(initState: Int, isConnected: Boolean = false) {
 
     var state by remember{ mutableStateOf(initState) }
 
@@ -38,11 +39,12 @@ fun TopTabBar(initState: Int) {
             )
 
             LeadingIconTab(
-                text = { Text("Sync", style = textStyle)}, //TODO: fix text colors e.g primary / on prim, etc
+                text = { if(state == 1 && isConnected) Text(" Sync\n(Live)", style = textStyle)
+                        else Text("Sync", style = textStyle)}, //TODO: fix text colors e.g primary / on prim, etc
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Devices,
-                        tint = MaterialTheme.colors.onSecondary,
+                        tint = if(isConnected) Color.Companion.Green else MaterialTheme.colors.onSecondary,
                         contentDescription = "Sync Notes Tab"
                     )
                 },

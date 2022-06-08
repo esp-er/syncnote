@@ -7,6 +7,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -31,6 +33,8 @@ fun ArchiveScreen(viewModel: MainViewModel) {
     val configuration = LocalConfiguration.current
     val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
+
+    val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false);
 
 
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
@@ -98,7 +102,9 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                     coroutineScope.launch{
                         scaffoldState.drawerState.close()
                     }
-                }
+
+                },
+                isConnected = isConnected
             )
         },
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),

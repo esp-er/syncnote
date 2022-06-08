@@ -75,6 +75,7 @@ fun NotesScreen(viewModel: MainViewModel) {
     }
 
     val fabPos: Offset by viewModel.fabPos.observeAsState(viewModel.fabPos.value ?: Offset(0f,0f))
+    val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false)
 
     BackHandler(
         onBack = {
@@ -132,7 +133,8 @@ fun NotesScreen(viewModel: MainViewModel) {
                             coroutineScope.launch{
                                 scaffoldState.drawerState.close()
                             }
-                        }
+                        },
+                        isConnected = isConnected
                     )
         },
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),

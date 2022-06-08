@@ -26,6 +26,9 @@ import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import kotlin.concurrent.thread
+import io.ktor.network.tls.certificates.*
+import org.slf4j.*
+import java.io.*
 
 object SocketSession {
     var sess: DefaultWebSocketServerSession? = null
@@ -69,17 +72,46 @@ suspend fun DefaultWebSocketServerSession.sendNotes(notes: List<NoteProperty>) {
     }
 }
 
+fun Application.hello() {
+    routing {
+        get("/hello") {
+            call.respondText("Hello, world!")
+        }
+    }
+}
+
 class SyncServer(private val dataSource: Repository){
     fun start(){
-        thread(start=true){ //TODO: change thread{} block to coroutine scope
-            embeddedServer(
-                Netty, port = 9000
-            ) {
-               module {
-                    configureSocketServer(dataSource)
-                }
-            }.start(wait = true)
+        val keyStoreFile = File("build/keystore.jks")
+        val keystore = generateCertificate(
+            file = keyStoreFile,
+            keyAlias = "sampleAlias",
+            keyPassword = "foobar",
+            jksPassword = "foobar"
+        )
+
+        val environment = applicationEngineEnvironment {
+            log = LoggerFactory.getLogger("ktor.application")
+            connector {
+                port = 9000
+            }
+            sslConnector(
+                keyStore = keystore,
+                keyAlias = "sampleAlias",
+                keyStorePassword = { "foobar".toCharArray() },
+                privateKeyPassword = { "foobar".toCharArray() }) {
+                port = 443
+                keyStorePath = keyStoreFile
+            }
+            module{
+                //configureSocketServer(dataSource)
+                hello()
+            }
         }
+
+        embeddedServer(
+            Netty, environment
+        ).start(wait = true)
     }
 
 
