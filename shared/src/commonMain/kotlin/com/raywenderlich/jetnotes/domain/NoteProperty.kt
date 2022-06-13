@@ -17,5 +17,6 @@ data class NoteProperty(
     val canBeChecked: Boolean = false,
     val isChecked: Boolean = false,
     val isArchived: Boolean = false,
-    val editDate: Instant = Instant.fromEpochMilliseconds(0)
+    val editDate: Instant = Instant.fromEpochMilliseconds(0),
+    val isPinned: Boolean = false
 )

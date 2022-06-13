@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -15,12 +16,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.raywenderlich.android.jetnotes.ui.components.*
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
-import com.raywenderlich.android.jetnotes.ui.components.NotesList
-import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
-import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -67,7 +65,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
             Column {
                 TopAppBar(
                     modifier = Modifier.heightIn(50.dp,50.dp),
-                    backgroundColor = MaterialTheme.colors.secondaryVariant,
+                    backgroundColor = MaterialTheme.colors.background,
                     title = {
                         Text(
                             text = "Open Notes",
@@ -83,12 +81,13 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                             }
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.List,
+                                imageVector = Icons.Filled.Menu,
                                 contentDescription = "Drawer Button"
                             )
                         }
                     }
                 )
+                horLineSeparator()
                 TopTabBar(initState = 2) //Tabs
             }
         },

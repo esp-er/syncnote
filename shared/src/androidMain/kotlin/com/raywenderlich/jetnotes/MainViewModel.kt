@@ -104,12 +104,18 @@ actual class MainViewModel actual constructor(private val repository: Repository
             }
         }
     }
-    fun moveNoteToTrash(note: NoteProperty) {
+    fun archiveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
             androrepo.archiveNote(note.id)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
             }
+        }
+    }
+
+    fun pinNote(note: NoteProperty) {
+        viewModelScope.launch(Dispatchers.Default) {
+            androrepo.pinNote(note.id)
         }
     }
 

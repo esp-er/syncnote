@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,6 +37,7 @@ fun NotesList(
     onRestoreNote: (NoteProperty) -> Unit = {},
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
+    onPinNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false,
 ) {
@@ -49,29 +51,31 @@ fun NotesList(
     val notesReversed by derivedStateOf {notes.reversed()}
 
     LazyColumn(state = listState) {
+
+        //TODO: list pinned notes on top!
         items(notesReversed, {note: NoteProperty -> note.id}) { note ->
             //var dismissOpacity by remember { mutableStateOf(0f)}
             var dismissState = rememberDismissState()
             if(dismissState.isDismissed(DismissDirection.StartToEnd)){
-                onDeleteNote(note)
+                onArchiveNote(note)
             }
 
             AnimatedSwipeDismiss(
                 dismissState,
                 item = note,
                 background = { _ ->
+                    val backColor = if(isArchive) MaterialTheme.colors.error
+                                    else MaterialTheme.colors.secondaryVariant
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(8.dp)
-                            .background(
-                                MaterialTheme.colors.secondary,
-                                shape = RoundedCornerShape(4.dp)
+                            .background(backColor, shape = RoundedCornerShape(4.dp)
                             )
                     ) {
                         val alpha = 1f
                         Icon(
-                            Icons.Filled.Delete,
+                            if(isArchive) Icons.Filled.Delete else Icons.Filled.Archive,
                             contentDescription = "Delete",
                             modifier = Modifier
                                 .align(Alignment.CenterStart)
@@ -88,6 +92,7 @@ fun NotesList(
                         onRestoreNote = onRestoreNote,
                         onArchiveNote = onArchiveNote,
                         onDeleteNote = onDeleteNote,
+                        onPinNote = onPinNote,
                         isArchivedNote = isArchive,
                         onSnackMessage = onSnackMessage
                     )

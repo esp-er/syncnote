@@ -56,6 +56,8 @@ data class WindowInfo(val windowName: String, val windowState: WindowState)
 
 lateinit var koin: Koin
 
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     koin = initKoin().koin
@@ -63,11 +65,12 @@ fun main() {
 
     val m = MainViewModel(koin.get(), koin.get())
     runBlocking {
-        launch(Dispatchers.IO) {
+        val serverJob = launch(Dispatchers.IO){
             val server = SyncServer(m.getRepoReference()).apply {
                 start()
             }
         }
+
 
         val hostinfo = InetAddress.getLocalHost()
         val ipaddress = hostinfo.hostAddress!!
@@ -80,22 +83,6 @@ fun main() {
         val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
         //val tmp = qrData.writeImage()
         //val imageBytes = ByteArrayOutputStream().also { ImageIO.write(qrData, "PNG", it) }.toByteArray()
-
-
-/*
-    repeat(10) {
-        m.saveNote(
-            NoteProperty(
-                id = UUID.randomUUID().toString(),
-                title = "Note No $it",
-                content = "test",
-                colorId = 0,
-                false,
-                false,
-                false
-            )
-        )
-    }*/
 
 
 

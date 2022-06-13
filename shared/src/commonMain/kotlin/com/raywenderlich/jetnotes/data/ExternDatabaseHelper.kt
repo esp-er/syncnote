@@ -45,7 +45,8 @@ class ExternDatabaseHelper(
                 tmp.canBeChecked,
                 tmp.isChecked,
                 tmp.isArchived,
-                tmp.editDate
+                tmp.editDate,
+                tmp.isPinned
             )
     }
 
@@ -56,12 +57,12 @@ class ExternDatabaseHelper(
 
 fun ExternNoteDb.toNotePropertyDb() = NotePropertyDb(
     id = id, title = title, content = content, colorId = colorId, canBeChecked = canBeChecked, isChecked = isChecked, isArchived = isArchived,
-    editDate= editDate
+    editDate= editDate, isPinned = isPinned
 )
 
 fun NotePropertyDb.toExternNoteDb() = ExternNoteDb(
     id = id, title = title, content = content, colorId = colorId, canBeChecked = canBeChecked, isChecked = isChecked, isArchived = isArchived,
-    editDate= editDate
+    editDate= editDate, isPinned = isPinned
 )
 
 

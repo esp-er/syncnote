@@ -47,12 +47,6 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth-jwt:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
                 implementation("ch.qos.logback:logback-classic:${rootProject.ext["logback_version"]}")
-                implementation("io.ktor:ktor-network-tls-certificates:${rootProject.ext["ktor_version"]}")
-
-                    implementation("io.netty:netty-tcnative:2.0.52.Final")
-                    //:w
-                // implementation("io.netty:netty-tcnative-boringssl-static:2.0.52.Final:linux-x86_64")
-                    implementation("io.netty:netty-tcnative:2.0.52.Final:linux-x86_64")
 
                 //QR code generation
                 implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")

@@ -45,7 +45,8 @@ class ExternRepository(
                 canBeChecked = note.canBeChecked.toLong(),
                 isChecked = note.isChecked.toLong(),
                 isArchived = note.isArchived.toLong(),
-                editDate = note.editDate.toString()
+                editDate = note.editDate.toString(),
+                isPinned = note.isPinned.toLong()
             )
         )
     }

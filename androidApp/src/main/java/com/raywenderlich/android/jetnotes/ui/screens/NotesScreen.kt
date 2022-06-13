@@ -20,10 +20,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import com.raywenderlich.android.jetnotes.ui.components.AppDrawer
-import com.raywenderlich.android.jetnotes.ui.components.TopTabBar
 
-import com.raywenderlich.android.jetnotes.ui.components.CustomDrawerShape
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
@@ -32,7 +29,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.ui.components.NotesList
+import com.raywenderlich.android.jetnotes.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -95,7 +92,7 @@ fun NotesScreen(viewModel: MainViewModel) {
             Column {
                 TopAppBar(
                     modifier = Modifier.heightIn(50.dp,50.dp),
-                    backgroundColor = MaterialTheme.colors.secondaryVariant,
+                    backgroundColor = MaterialTheme.colors.background,
                     title = {
                         Text(
                             text = "Open Notes",
@@ -111,12 +108,13 @@ fun NotesScreen(viewModel: MainViewModel) {
                             }
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.List,
+                                imageVector = Icons.Filled.Menu,
                                 contentDescription = "Drawer Button"
                             )
                         }
                     }
                 )
+                horLineSeparator()
                 TopTabBar(initState = 0) //Tabs
             }
         },
@@ -205,8 +203,9 @@ fun NotesScreen(viewModel: MainViewModel) {
                     onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                     onEditNote = { viewModel.onNoteClick(it)},
                     onRestoreNote = {viewModel.restoreNoteFromArchive(it) },
-                    onArchiveNote = { viewModel.moveNoteToTrash(it) },
+                    onArchiveNote = { viewModel.archiveNote(it) },
                     onDeleteNote = { viewModel.permaDeleteNote(it) },
+                    onPinNote= { viewModel.pinNote(it) },
                     isArchive = false,
                     onSnackMessage = ::showSnackBar
                 )

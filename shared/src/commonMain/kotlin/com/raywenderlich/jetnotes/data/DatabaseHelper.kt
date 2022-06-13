@@ -44,7 +44,8 @@ class DatabaseHelper(
                 note.canBeChecked,
                 note.isChecked,
                 note.isArchived,
-                note.editDate
+                note.editDate,
+                note.isPinned
             )
     }
 
@@ -64,6 +65,14 @@ class DatabaseHelper(
     }
     fun unarchiveNote(id: String){
         dbRef.notesTableQueries.unarchiveNote(id)
+    }
+
+    fun pinNote(id: String){
+        dbRef.notesTableQueries.pinNote(id)
+    }
+
+    fun unpinNote(id: String){
+        dbRef.notesTableQueries.unpinNote(id)
     }
 
 

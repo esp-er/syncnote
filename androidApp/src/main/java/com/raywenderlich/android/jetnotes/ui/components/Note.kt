@@ -48,6 +48,7 @@ fun Note(
     onRestoreNote: (NoteProperty) -> Unit  = {},
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
+    onPinNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchivedNote: Boolean = false
 ){
@@ -75,7 +76,7 @@ fun Note(
         onClick = { expandedState = !expandedState },
         elevation = 4.dp
     ) {
-        val lineColor = MaterialTheme.colors.onPrimary
+        val lineColor = if(expandedState) MaterialTheme.colors.onPrimary.copy(alpha=0.7f) else MaterialTheme.colors.onPrimary.copy(alpha=0.0f)
         Column(horizontalAlignment = Alignment.End) {
             Row(
                 modifier = Modifier
@@ -84,7 +85,7 @@ fun Note(
                     .background(MaterialTheme.colors.surface, backgroundShape)
                     .drawBehind {
                         drawLine(
-                            lineColor.copy(alpha = 0.7f),
+                            lineColor,
                             Offset(0f, size.height),
                             Offset(size.width, size.height),
                             0.9f
@@ -172,6 +173,7 @@ fun Note(
                         onEditNote = onEditNote,
                         onArchiveNote = onArchiveNote,
                         onDeleteNote = onDeleteNote,
+                        onPinNote = onPinNote,
                         onSnackMessage = onSnackMessage,
                         isArchive = isArchivedNote
                     )
@@ -247,8 +249,9 @@ fun NoteColorPreview() {
 fun NoteButtons(
     note: NoteProperty,
     onEditNote: (NoteProperty) -> Unit,
-    onArchiveNote: (NoteProperty) -> Unit = {} ,
+    onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
+    onPinNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false
 ){
@@ -276,16 +279,18 @@ fun NoteButtons(
        {
            val buttonPadding = 2.dp
            IconButton( //Three dot dropdown button
-               onClick = { dropdownState = true },
+               //onClick = { dropdownState = true },
+                onClick = {}
+
            ) {
                if(dropdownState) {
                    NoteDropDownMenu(::dismissDrop, ::deleteClicked)
                }
                Icon(
                    modifier = Modifier.padding(horizontal = 2.dp),
-                   imageVector = Icons.Default.MoreVert,
-                   tint = MaterialTheme.colors.onPrimary.copy(alpha=0.5f),
-                   contentDescription = "Copy Note Button"
+                   imageVector = Icons.Default.PushPin,
+                   tint = MaterialTheme.colors.onPrimary,
+                   contentDescription = "Pin Note Button"
                )
            }
            Spacer(modifier = Modifier.weight(1f))

@@ -47,7 +47,8 @@ class Repository(
                 canBeChecked = note.canBeChecked.toLong(),
                 isChecked = note.isChecked.toLong(),
                 isArchived = note.isArchived.toLong(),
-                editDate = note.editDate.toString()
+                editDate = note.editDate.toString(),
+                isPinned = note.isPinned.toLong()
             )
         )
     }
@@ -60,9 +61,11 @@ class Repository(
                 content = content,
                 colorId = colorId,
                 canBeChecked = canBeChecked.toLong(),
-                isChecked = 0,
-                isArchived = 0,
-                editDate = editDate ?: Clock.System.now().toString())
+                isChecked = 0L,
+                isArchived = 0L,
+                editDate = editDate ?: Clock.System.now().toString(),
+                isPinned = 0L
+            )
         )
     }
 
@@ -79,6 +82,12 @@ class Repository(
     }
     fun unmarkNote(id: String) {
         databaseHelper.unmarkNote(id)
+    }
+    fun pinNote(id:String){
+        databaseHelper.pinNote(id)
+    }
+    fun unpinNote(id:String){
+        databaseHelper.unpinNote(id)
     }
 
     fun getNote(id: String): NoteProperty? {

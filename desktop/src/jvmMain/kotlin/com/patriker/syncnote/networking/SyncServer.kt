@@ -20,13 +20,10 @@ import io.ktor.server.response.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.websocket.serialization.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import kotlin.concurrent.thread
-import io.ktor.network.tls.certificates.*
+import kotlinx.coroutines.*
 import org.slf4j.*
 import java.io.*
 
@@ -52,10 +49,11 @@ fun Application.configureSocketServer(dataSource: Repository) {
             connections += thisConnection
             sendNotes(dataSource.getMainNotes())
             while (true) {
+                ensureActive()
                 if (Control.SendUpdates.getAndSet(false)) {
                     sendNotes(dataSource.getMainNotes())
                 }
-                delay(100)
+                delay(50)
             }
             connections -= thisConnection
             println("exiting server")
@@ -63,49 +61,28 @@ fun Application.configureSocketServer(dataSource: Repository) {
     }
 }
 
-suspend fun DefaultWebSocketServerSession.sendNotes(notes: List<NoteProperty>) {
-    try {
-        sendSerialized(notes)
-    } catch (e: Exception) {
-        println(e.localizedMessage)
-        return
-    }
-}
-
-fun Application.hello() {
-    routing {
-        get("/hello") {
-            call.respondText("Hello, world!")
+suspend fun DefaultWebSocketServerSession.sendNotes(notes: List<NoteProperty>) =
+    withContext(Dispatchers.IO) {
+        try {
+            sendSerialized(notes)
+        } catch (e: Exception) {
+            if(e is CancellationException){
+                throw e
+            }
+            println(e.localizedMessage)
         }
     }
-}
+
 
 class SyncServer(private val dataSource: Repository){
     fun start(){
-        val keyStoreFile = File("build/keystore.jks")
-        val keystore = generateCertificate(
-            file = keyStoreFile,
-            keyAlias = "sampleAlias",
-            keyPassword = "foobar",
-            jksPassword = "foobar"
-        )
-
         val environment = applicationEngineEnvironment {
             log = LoggerFactory.getLogger("ktor.application")
             connector {
                 port = 9000
             }
-            sslConnector(
-                keyStore = keystore,
-                keyAlias = "sampleAlias",
-                keyStorePassword = { "foobar".toCharArray() },
-                privateKeyPassword = { "foobar".toCharArray() }) {
-                port = 443
-                keyStorePath = keyStoreFile
-            }
             module{
-                //configureSocketServer(dataSource)
-                hello()
+                configureSocketServer(dataSource)
             }
         }
 

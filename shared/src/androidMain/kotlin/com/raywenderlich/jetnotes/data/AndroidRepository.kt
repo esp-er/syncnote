@@ -81,6 +81,11 @@ class AndroidRepository(private val repo: Repository){
         return repo.getNote(id)
     }
 
+    fun pinNote(id: String){
+        repo.pinNote(id)
+        updateNotesLiveData()
+    }
+
     private fun updateNotesLiveData() {
         mainNotesLiveData.postValue(repo.getMainNotes())
         archivedNotesLiveData.postValue(repo.getArchivedNotes())

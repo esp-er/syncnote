@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -33,15 +34,17 @@ fun CustomTabRow(
     selectedTabIndex: Int,
     tabWeights: List<Float>,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     indicator: @Composable (tabPositions: List<TabPos>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.Indicator(
-            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+        TabRowDefaults.CustomIndicator(
+            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+            color = MaterialTheme.colors.primaryVariant.copy(alpha=0.7f)
         )
     },
     divider: @Composable () -> Unit = @Composable {
-        TabRowDefaults.Divider()
+        //TabRowDefaults.Divider(modifier = Modifier.widthIn(max=100.dp), thickness = 0.8.dp, color = MaterialTheme.colors.primaryVariant)
+        CustomDivider(color = MaterialTheme.colors.primaryVariant.copy(alpha = 0.9f), thickness = 0.5.dp)
     },
     tabs: @Composable () -> Unit
 ) {
@@ -77,6 +80,14 @@ fun CustomTabRow(
 
             layout(tabRowWidth, tabRowHeight) {
 
+
+
+                subcompose(TabSlots.Indicator) {
+                    indicator(tabPositions)
+                }.forEach {
+                    it.measure(Constraints.fixed(tabRowWidth, tabRowHeight)).placeRelative(0, 0)
+                }
+
                 //Sum the widths of each tab to the left and place it at the sum width
                 tabPlaceables.forEachIndexed { index, placeable ->
                     placeable.placeRelative(tabWidths.take(index).sum() , 0)
@@ -87,13 +98,54 @@ fun CustomTabRow(
                     placeable.placeRelative(0, tabRowHeight - placeable.height)
                 }
 
-                subcompose(TabSlots.Indicator) {
-                    indicator(tabPositions)
-                }.forEach {
-                    it.measure(Constraints.fixed(tabRowWidth, tabRowHeight)).placeRelative(0, 0)
-                }
+
+
             }
         }
+    }
+}
+
+@Composable
+fun CustomDivider(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
+    thickness: Dp = 1.dp,
+    startIndent: Dp = 0.dp,
+    endIndent: Dp = 0.dp
+) {
+    val indentMod = if (startIndent.value != 0f) {
+        Modifier.padding(start = startIndent, end = endIndent)
+    } else {
+        Modifier
+    }
+    val targetThickness = if (thickness == Dp.Hairline) {
+        (1f / LocalDensity.current.density).dp
+    } else {
+        thickness
+    }
+    Box(
+        modifier
+            .then(indentMod)
+            .fillMaxWidth()
+            .height(targetThickness)
+            .background(color = color)
+    )
+}
+
+@Composable
+fun TabRowDefaults.CustomIndicator(
+    modifier: Modifier = Modifier,
+    height: Dp = TabRowDefaults.IndicatorHeight,
+    color: Color = LocalContentColor.current
+) {
+    Column {
+        Box(
+            modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .height(height)
+                .background(color = color)
+        )
     }
 }
 

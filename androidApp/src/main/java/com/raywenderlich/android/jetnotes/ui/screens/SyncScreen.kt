@@ -24,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+
 @ExperimentalMaterialApi
 @Composable
 fun SyncScreen(viewModel: MainViewModel) {
@@ -64,6 +65,7 @@ fun SyncScreen(viewModel: MainViewModel) {
     }
 
 
+
     //val fabPos: Offset by viewModel.fabPos.observeAsState(viewModel.fabPos.value ?: Offset(0f,0f))
 
     BackHandler(
@@ -77,34 +79,38 @@ fun SyncScreen(viewModel: MainViewModel) {
     )
 
     Scaffold (
-        topBar =
-        {
-            Column {
-                TopAppBar(
-                    modifier = Modifier.heightIn(50.dp,50.dp),
-                    backgroundColor = MaterialTheme.colors.secondaryVariant,
-                    title = {
-                        Text(
-                            text = "Open Notes",
-                            fontSize = 18.sp
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    scaffoldState.drawerState.open()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.List,
-                                contentDescription = "Drawer Button"
+        topBar = {
+            Box()
+            {
+                Column {
+                    TopAppBar(
+                        modifier = Modifier.heightIn(50.dp, 50.dp),
+                            //.border(BorderStroke(0.4.dp, MaterialTheme.colors.primaryVariant), shape = RectangleShape),
+                        backgroundColor = MaterialTheme.colors.background,
+                        title = {
+                            Text(
+                                text = "Open Notes",
+                                fontSize = 18.sp
                             )
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        scaffoldState.drawerState.open()
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = "Drawer Button"
+                                )
+                            }
                         }
-                    }
-                )
-                TopTabBar(initState = 1, isConnected) //Tabs
+                    )
+                    horLineSeparator()
+                    TopTabBar(initState = 1, isConnected) //Tabs
+                }
             }
         },
         scaffoldState = scaffoldState, //lets the scaffold display the correct state

@@ -87,7 +87,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
                 },
                 onOpenColorPickerClick = { coroutineScope.launch { bottomDrawerState.open() } },
                 onDeleteNoteClick = {
-                    if(isArchivedNote)  viewModel.moveNoteToTrash(noteEntry) else {}
+                    if(isArchivedNote)  viewModel.archiveNote(noteEntry) else {}
                 },
                 onPermaDeleteNote = {
                     viewModel.permaDeleteNote(noteEntry)
@@ -204,7 +204,9 @@ private fun SaveNoteTopAppBar(
                     )
                 }
             }
-        }
+        },
+        backgroundColor = MaterialTheme.colors.background
+
     )
 }
 

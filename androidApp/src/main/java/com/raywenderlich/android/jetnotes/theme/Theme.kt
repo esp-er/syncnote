@@ -20,14 +20,15 @@ object AppColors{
 
 
 private val DarkThemeColors = darkColors(
-  primary = Color.Black,
-  primaryVariant = AppColors.rwGreenDark,
-  secondary = AppColors.darkBrown,
-  secondaryVariant = Color(0xFF1A1A20),
+  primary = Color(0xFF3584e4),
+  primaryVariant = Color(0xFF4A484A),
+  secondary = Color(0xFF3584e4),
+  secondaryVariant = Color(0xFF365BCA),
   onPrimary = Color.White,
   onSecondary = Color.LightGray,
-  surface = Color(0xFF1A1A20),
-  background = Color(0xFF0D0D0F)
+  error = Color(0xFFc01c28),
+  surface = Color(0xFF363436),
+  background = Color(0xFF222022)
 
 )
 
@@ -38,6 +39,7 @@ private val LightThemeColors = lightColors(
   primaryVariant = Color(0xFF00F884),
   secondaryVariant = AppColors.primaryGreen,
   secondary = AppColors.lightBrown,
+  error = Color(0xFFc01c28),
   onPrimary = Color.Black,
   onSecondary = Color.White,
 )

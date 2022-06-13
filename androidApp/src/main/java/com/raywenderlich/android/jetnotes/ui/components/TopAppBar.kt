@@ -11,7 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -69,7 +69,7 @@ fun TopAppBarPreview(){
     JetNotesTheme { //note easy way to switch out themes
         TopAppBar(
             title = "JetNotes",
-            icon = Icons.Filled.List,
+            icon = Icons.Filled.Menu,
             onIconClick = {})
     }
 
