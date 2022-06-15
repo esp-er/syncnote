@@ -85,6 +85,10 @@ class AndroidRepository(private val repo: Repository){
         repo.pinNote(id)
         updateNotesLiveData()
     }
+    fun unpinNote(id: String){
+        repo.unpinNote(id)
+        updateNotesLiveData()
+    }
 
     private fun updateNotesLiveData() {
         mainNotesLiveData.postValue(repo.getMainNotes())

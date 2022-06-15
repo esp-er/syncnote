@@ -1,5 +1,4 @@
 package com.raywenderlich.android.jetnotes.ui.components
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.runtime.Composable
@@ -27,16 +26,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.domain.NoteProperty
-import com.raywenderlich.android.jetnotes.theme.JetNotesThemeSettings
 import com.raywenderlich.android.jetnotes.util.setClipboard
 import com.raywenderlich.android.jetnotes.util.fromHex
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.DpSize
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
-import com.raywenderlich.android.jetnotes.domain.model.NoteModel
-import kotlinx.coroutines.launch
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Copy
+import compose.icons.tablericons.Edit
+import compose.icons.tablericons.Pin
+import compose.icons.tablericons.PinnedOff
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
@@ -48,7 +47,7 @@ fun Note(
     onRestoreNote: (NoteProperty) -> Unit  = {},
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
-    onPinNote: (NoteProperty) -> Unit = {},
+    onTogglePin: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchivedNote: Boolean = false
 ){
@@ -77,7 +76,7 @@ fun Note(
         elevation = 4.dp
     ) {
         val lineColor = if(expandedState) MaterialTheme.colors.onPrimary.copy(alpha=0.7f) else MaterialTheme.colors.onPrimary.copy(alpha=0.0f)
-        Column(horizontalAlignment = Alignment.End) {
+        Column(horizontalAlignment = Alignment.End, modifier = Modifier.background(MaterialTheme.colors.surface)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,7 +120,7 @@ fun Note(
                         )
                     }
                         Text(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp),
                             text = note.content,
                             color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
                             overflow = TextOverflow.Ellipsis,
@@ -135,45 +134,56 @@ fun Note(
                         )
                 }
 
-                //Could use a better abstraction
-                //than null for "no checkbox"
-                if (note.canBeChecked) {
-                    Checkbox(
-                        checked = note.isChecked,
-                        onCheckedChange = { checkedState ->
-                            val newNote = note.copy(isChecked = checkedState)
-                            onNoteCheckedChange(newNote)
-                            //note: see how the state is copied and passed on in an new obj!
-                        },
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .align(Alignment.CenterVertically)
+                if(!isArchivedNote && note.isPinned) // fix this conditional to a cleaner solution
+                {
+                   Icon(
+                        modifier = Modifier.size(20.dp).padding(2.dp),
+                        imageVector = TablerIcons.Pin,
+                        tint = MaterialTheme.colors.onSecondary,
+                        contentDescription = "Restore Note Button"
                     )
                 }
 
-                if (isArchivedNote) {
-                    IconButton(
-                        onClick = { onRestoreNote(note) },
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Unarchive,
-                            tint = MaterialTheme.colors.onPrimary,
-                            contentDescription = "Restore Note Button"
-                        )
+                Column {
 
+                    //Could use a better abstraction
+                    //than null for "no checkbox"
+                    if (note.canBeChecked) {
+                        Checkbox(
+                            checked = note.isChecked,
+                            onCheckedChange = { checkedState ->
+                                val newNote = note.copy(isChecked = checkedState)
+                                onNoteCheckedChange(newNote)
+                                //note: see how the state is copied and passed on in an new obj!
+                            },
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                        )
+                    }
+
+                    if (isArchivedNote) {
+                        IconButton(
+                            onClick = { onRestoreNote(note) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Unarchive,
+                                tint = MaterialTheme.colors.onPrimary,
+                                contentDescription = "Restore Note Button"
+                            )
+
+                        }
                     }
                 }
             }
 
-            Box( modifier = Modifier.height(expandedAnimatedDp) ) {
+            Box(modifier = Modifier.height(expandedAnimatedDp) ) {
                 if(isFullyExpanded) {
                     NoteButtons(
                         note,
                         onEditNote = onEditNote,
                         onArchiveNote = onArchiveNote,
                         onDeleteNote = onDeleteNote,
-                        onPinNote = onPinNote,
+                        onTogglePin = onTogglePin,
                         onSnackMessage = onSnackMessage,
                         isArchive = isArchivedNote
                     )
@@ -251,7 +261,7 @@ fun NoteButtons(
     onEditNote: (NoteProperty) -> Unit,
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
-    onPinNote: (NoteProperty) -> Unit = {},
+    onTogglePin: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false
 ){
@@ -278,17 +288,15 @@ fun NoteButtons(
     )
        {
            val buttonPadding = 2.dp
-           IconButton( //Three dot dropdown button
-               //onClick = { dropdownState = true },
-                onClick = {}
-
+           IconButton( //Pin Button
+                onClick = { onTogglePin(note) }
            ) {
                if(dropdownState) {
                    NoteDropDownMenu(::dismissDrop, ::deleteClicked)
                }
                Icon(
                    modifier = Modifier.padding(horizontal = 2.dp),
-                   imageVector = Icons.Default.PushPin,
+                   imageVector = if(note.isPinned) TablerIcons.PinnedOff else TablerIcons.Pin,
                    tint = MaterialTheme.colors.onPrimary,
                    contentDescription = "Pin Note Button"
                )
@@ -303,20 +311,14 @@ fun NoteButtons(
                        .padding(horizontal = buttonPadding)
                ) {
                    Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                       Text(
-                           "Archive",
-                           modifier = Modifier.align(Alignment.CenterVertically),
-                           fontSize = 12.sp
-                       )
                        Icon(
-                           modifier = Modifier.padding(horizontal = 1.dp),
-                           imageVector = Icons.Default.Archive,
+                           modifier = Modifier.padding(horizontal = 4.dp),
+                           imageVector = Icons.Outlined.Archive,
                            tint = MaterialTheme.colors.onPrimary,
                            contentDescription = "Archive Note Button"
                        )
                    }
                }
-               Spacer(modifier = Modifier.padding(horizontal = 2.dp))
            }
 
            IconButton( //"Copy" Button
@@ -326,18 +328,14 @@ fun NoteButtons(
                    .padding(horizontal = buttonPadding)
            ) {
                Row(modifier = Modifier.align(Alignment.CenterVertically)){
-                   Text("Copy",
-                       modifier = Modifier.align(Alignment.CenterVertically),
-                       fontSize = 12.sp)
                    Icon(
-                       modifier = Modifier.padding(horizontal = 1.dp),
-                       imageVector = Icons.Default.CopyAll,
+                       modifier = Modifier.padding(horizontal = 4.dp),
+                       imageVector = TablerIcons.Copy,
                        tint = MaterialTheme.colors.onPrimary,
                        contentDescription = "Copy Note Button"
                    )
                }
            }
-           Spacer(modifier = Modifier.padding(horizontal = 2.dp))
 
 
            IconButton(
@@ -347,12 +345,9 @@ fun NoteButtons(
                 .padding(horizontal = buttonPadding)
         ) {
                Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                   Text("Edit",
-                       modifier = Modifier.align(Alignment.CenterVertically),
-                       fontSize = 12.sp)
                    Icon(
-                       modifier = Modifier.padding(horizontal = 1.dp),
-                       imageVector = Icons.Outlined.Edit,
+                       modifier = Modifier.padding(horizontal = 4.dp),
+                       imageVector = TablerIcons.Edit,
                        tint = MaterialTheme.colors.onPrimary,
                        contentDescription = "Edit Note Button"
                    )

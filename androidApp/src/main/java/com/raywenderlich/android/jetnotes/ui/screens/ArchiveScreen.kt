@@ -114,6 +114,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                 onEditNote = { viewModel.onNoteClick(it) },
                 onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
                 onDeleteNote = { viewModel.permaDeleteNote(it) },
+                //onPinNote = {viewModel.pinNote(it)},
                 isArchive = true,
                 onSnackMessage = ::showSnackBar
             )

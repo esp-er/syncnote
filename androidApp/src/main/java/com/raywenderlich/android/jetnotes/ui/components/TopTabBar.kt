@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -21,6 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
+import compose.icons.TablerIcons
+import compose.icons.tablericons.DeviceLaptop
+import compose.icons.tablericons.Devices2
+import compose.icons.tablericons.Notebook
 
 
 @Composable
@@ -30,22 +35,28 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
 
     val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 12.sp)
     Column {
-        CustomTabRow(modifier = Modifier.padding(horizontal = 8.dp), selectedTabIndex = state, tabWeights = listOf(3f,3f,1f)) { //TODO: Find better way to pass in tab weights
+        CustomTabRow(modifier = Modifier.padding(horizontal = 8.dp),
+            selectedTabIndex = state,
+            tabWeights = listOf(3f,3f,1f),
+            indicatorShape = RoundedCornerShape(2.dp)
+        ) { //TODO: Find better way to pass in tab weights
             LeadingIconTab(
                 text = {}, //TODO: fix text colors e.g primary / on prim, etc
                 icon = {
                     val selectedMod = if(state == 0){ //TODO: How can this be done with currying / passing func instead of val
-                        Modifier.fillMaxSize(1f)
+                        Modifier
+                            .fillMaxSize(1f)
                             .background(MaterialTheme.colors.primaryVariant)
                     }else {
                         Modifier.fillMaxSize(1f)
                     }
 
-                    Column(modifier = Modifier.fillMaxWidth().padding(top=4.dp,bottom=4.dp)) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp)) {
                         Icon(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
-                            imageVector = Icons.Default.LibraryBooks,
-                            tint = MaterialTheme.colors.onSecondary,
+                            imageVector = TablerIcons.Notebook,
                             contentDescription = "Notes Tab"
                         )
 
@@ -63,17 +74,25 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top=4.dp,bottom=4.dp)
+                            .padding(top = 4.dp, bottom = 4.dp)
                     )
                     {
 
+                        @Composable
+                        fun DeviceIcon(tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)) {
+                            Icon(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                imageVector = TablerIcons.DeviceLaptop,
+                                tint = tint,
+                                contentDescription = "Sync Notes Tab"
+                            )
+                        }
 
-                        Icon(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            imageVector = Icons.Default.Devices,
-                            tint = if (isConnected) Color.Companion.Green else MaterialTheme.colors.onSecondary,
-                            contentDescription = "Sync Notes Tab"
-                        )
+                        if(isConnected)
+                            DeviceIcon(Color.Companion.Green)
+                        else
+                            DeviceIcon()
+
                         Text(
                             "Desktop Notes", fontSize = 12.sp,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -90,7 +109,8 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                 text = { },
                 icon = {
                     val selectedMod = if (state == 2) {
-                        Modifier.fillMaxSize(1f)
+                        Modifier
+                            .fillMaxSize(1f)
                             .background(MaterialTheme.colors.primaryVariant)
                     } else {
                         Modifier.fillMaxSize(1f)
@@ -99,9 +119,8 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Icon(
                             modifier = Modifier.padding(top = 12.dp),
-                            imageVector = Icons.Default.Archive,
+                            imageVector = Icons.Outlined.Archive,
                             contentDescription = "Archive Tab",
-                            tint = MaterialTheme.colors.onSecondary
                         )
                     }
                 },

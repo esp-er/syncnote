@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabPosition
 import androidx.compose.runtime.Composable
@@ -14,7 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -36,9 +41,13 @@ fun CustomTabRow(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
+    indicatorShape: Shape = RectangleShape,
+    fillFraction: Float = 1f,
     indicator: @Composable (tabPositions: List<TabPos>) -> Unit = @Composable { tabPositions ->
         TabRowDefaults.CustomIndicator(
             Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+            shape = indicatorShape,
+            fillFraction = fillFraction,
             color = MaterialTheme.colors.primaryVariant.copy(alpha=0.7f)
         )
     },
@@ -136,13 +145,17 @@ fun CustomDivider(
 fun TabRowDefaults.CustomIndicator(
     modifier: Modifier = Modifier,
     height: Dp = TabRowDefaults.IndicatorHeight,
-    color: Color = LocalContentColor.current
+    color: Color = LocalContentColor.current,
+    shape: Shape = RectangleShape,
+    fillFraction: Float = 1f,
 ) {
-    Column {
+    Row(verticalAlignment = Alignment.CenterVertically){
         Box(
             modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
+                .align(Alignment.CenterVertically)
+                .clip(shape)
+                .fillMaxWidth(fillFraction)
+                .fillMaxHeight(fillFraction)
                 .height(height)
                 .background(color = color)
         )

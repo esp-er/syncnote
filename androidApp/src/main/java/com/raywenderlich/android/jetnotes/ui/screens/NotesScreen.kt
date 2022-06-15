@@ -1,10 +1,12 @@
 package com.raywenderlich.android.jetnotes.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -26,11 +28,14 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.android.jetnotes.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.SquarePlus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -56,8 +61,6 @@ fun NotesScreen(viewModel: MainViewModel) {
     val configuration = LocalConfiguration.current
     val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
-
-
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
@@ -121,7 +124,15 @@ fun NotesScreen(viewModel: MainViewModel) {
         scaffoldState = scaffoldState, //lets the scaffold display the correct state
         snackbarHost = {scaffoldState.snackbarHostState},
         bottomBar = { SnackbarHost(
-                        hostState = scaffoldState.snackbarHostState)
+                        hostState = scaffoldState.snackbarHostState,
+                        snackbar = { data ->
+                            Snackbar(
+                                snackbarData = data,
+                                contentColor = MaterialTheme.colors.primary,
+                                backgroundColor =  MaterialTheme.colors.surface
+                            )
+                        })
+            
                     },
         drawerContent = {
                     AppDrawer(
@@ -135,6 +146,8 @@ fun NotesScreen(viewModel: MainViewModel) {
                         isConnected = isConnected
                     )
         },
+        drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
+        drawerBackgroundColor = MaterialTheme.colors.background,
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
@@ -178,12 +191,12 @@ fun NotesScreen(viewModel: MainViewModel) {
                         }
                     },
                 onClick = { viewModel.onCreateNewNoteClick() },
-                contentColor = MaterialTheme.colors.background,
+                contentColor = MaterialTheme.colors.onPrimary,
                 content = {
                     Row(modifier = Modifier.padding(horizontal = 12.dp)){
                         Icon(
-                            imageVector = Icons.Filled.LibraryAdd,
-                            contentDescription = "Add Note Button" ,
+                            imageVector = TablerIcons.SquarePlus,
+                                    contentDescription = "Add Note Button" ,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .size(18.dp)
@@ -205,7 +218,7 @@ fun NotesScreen(viewModel: MainViewModel) {
                     onRestoreNote = {viewModel.restoreNoteFromArchive(it) },
                     onArchiveNote = { viewModel.archiveNote(it) },
                     onDeleteNote = { viewModel.permaDeleteNote(it) },
-                    onPinNote= { viewModel.pinNote(it) },
+                    onTogglePin= { viewModel.togglePin(it) },
                     isArchive = false,
                     onSnackMessage = ::showSnackBar
                 )

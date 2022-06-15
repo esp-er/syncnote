@@ -48,8 +48,13 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
                 implementation("ch.qos.logback:logback-classic:${rootProject.ext["logback_version"]}")
 
+                //Tabler icons
+                implementation("br.com.devsrsouza.compose.icons.jetbrains:tabler-icons:1.0.0")
+
                 //QR code generation
                 implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")
+
+                //Android lifecycle on desktop
 
                 implementation(compose.desktop.currentOs)
                 api(compose.runtime)
@@ -57,7 +62,7 @@ kotlin {
                 api(compose.material)
                 api(compose.ui)
                 api(compose.materialIconsExtended)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
             }
         }
     }

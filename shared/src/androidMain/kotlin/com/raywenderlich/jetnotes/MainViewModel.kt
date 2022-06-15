@@ -1,5 +1,6 @@
 package com.raywenderlich.jetnotes
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
@@ -113,9 +114,10 @@ actual class MainViewModel actual constructor(private val repository: Repository
         }
     }
 
-    fun pinNote(note: NoteProperty) {
+    fun togglePin(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
-            androrepo.pinNote(note.id)
+            if(note.isPinned) androrepo.unpinNote(note.id)
+            else androrepo.pinNote(note.id)
         }
     }
 

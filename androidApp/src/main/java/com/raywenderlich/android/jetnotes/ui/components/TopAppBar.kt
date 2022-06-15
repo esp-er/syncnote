@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
@@ -23,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.android.jetnotes.theme.JetNotesTheme
+import com.raywenderlich.jetnotes.theme.SyncNoteTheme
 
 @Composable
 fun TopAppBar(
@@ -66,7 +65,7 @@ fun TopAppBar(
 @Preview
 @Composable
 fun TopAppBarPreview(){
-    JetNotesTheme { //note easy way to switch out themes
+    SyncNoteTheme { //note easy way to switch out themes
         TopAppBar(
             title = "JetNotes",
             icon = Icons.Filled.Menu,

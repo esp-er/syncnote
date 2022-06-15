@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 
@@ -130,7 +131,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
 
 @Composable
 private fun SaveNoteTopAppBar(
-    title: String = "Save Note",
+    title: String = "New Note",
     enableTrash: Boolean,
     enablePermaDelete: Boolean,
     onBackClick: () -> Unit,
@@ -179,7 +180,7 @@ private fun SaveNoteTopAppBar(
             if(enableTrash){
                 IconButton(onClick = onDeleteNoteClick){
                     Icon(
-                        imageVector = Icons.Default.Archive,
+                        imageVector = Icons.Outlined.Archive,
                         tint = MaterialTheme.colors.onPrimary,
                         contentDescription = "Trash Note Button"
                     )

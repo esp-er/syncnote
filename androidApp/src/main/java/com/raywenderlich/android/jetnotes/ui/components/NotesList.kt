@@ -1,5 +1,6 @@
 package com.raywenderlich.android.jetnotes.ui.components
 
+import android.graphics.Paint
 import android.provider.ContactsContract
 import android.util.Log
 import androidx.compose.foundation.background
@@ -13,6 +14,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -37,7 +40,7 @@ fun NotesList(
     onRestoreNote: (NoteProperty) -> Unit = {},
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
-    onPinNote: (NoteProperty) -> Unit = {},
+    onTogglePin: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false,
 ) {
@@ -48,12 +51,14 @@ fun NotesList(
         .observeAsState(listOf())
 
     //TODO: sort notes by last Edited date instead?
-    val notesReversed by derivedStateOf {notes.reversed()}
+    val notesReversed by derivedStateOf {
+        notes.reversed().sortedBy { !(it.isPinned) }
+    }
 
     LazyColumn(state = listState) {
 
         //TODO: list pinned notes on top!
-        items(notesReversed, {note: NoteProperty -> note.id}) { note ->
+        items(notesReversed,  { note: NoteProperty -> note.id}) { note ->
             //var dismissOpacity by remember { mutableStateOf(0f)}
             var dismissState = rememberDismissState()
             if(dismissState.isDismissed(DismissDirection.StartToEnd)){
@@ -67,21 +72,24 @@ fun NotesList(
                     val backColor = if(isArchive) MaterialTheme.colors.error
                                     else MaterialTheme.colors.secondaryVariant
                     Box(
+                        contentAlignment = Alignment.CenterStart,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(8.dp)
-                            .background(backColor, shape = RoundedCornerShape(4.dp)
-                            )
+                            .background(backColor, shape = RoundedCornerShape(4.dp))
                     ) {
-                        val alpha = 1f
-                        Icon(
-                            if(isArchive) Icons.Filled.Delete else Icons.Filled.Archive,
-                            contentDescription = "Delete",
-                            modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(start = 15.dp),
-                            tint = MaterialTheme.colors.onSecondary
-                        )
+                        Row(verticalAlignment = Alignment.Bottom){
+                            val actionText = if (isArchive) "Delete" else "Archive"
+                            Icon(
+                                if (isArchive) Icons.Outlined.Delete else Icons.Outlined.Archive,
+                                contentDescription = "$actionText Note",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                                    .padding(start = 15.dp),
+                                tint = MaterialTheme.colors.onPrimary
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Text("$actionText")
+                        }
                     }
                 },
                 content = { dismissValue ->
@@ -92,7 +100,7 @@ fun NotesList(
                         onRestoreNote = onRestoreNote,
                         onArchiveNote = onArchiveNote,
                         onDeleteNote = onDeleteNote,
-                        onPinNote = onPinNote,
+                        onTogglePin = onTogglePin,
                         isArchivedNote = isArchive,
                         onSnackMessage = onSnackMessage
                     )

@@ -13,6 +13,7 @@ import kotlinx.datetime.Instant
 fun NotePropertyDb.isChecked(): Boolean = this.isChecked != 0L
 fun NotePropertyDb.canBeChecked(): Boolean = this.canBeChecked != 0L
 fun NotePropertyDb.isArchived(): Boolean = this.isArchived != 0L
+fun NotePropertyDb.isPinned(): Boolean = this.isPinned != 0L
 
 
 //This class becomes single source of truth for reminders,
@@ -104,5 +105,6 @@ fun NotePropertyDb.toNoteProperty() = NoteProperty(
     canBeChecked = this.canBeChecked(),
     isChecked = this.isChecked(),
     isArchived = this.isArchived(),
-    editDate = Instant.parse(this.editDate)
+    editDate = Instant.parse(this.editDate),
+    isPinned = this.isPinned()
 )

@@ -92,6 +92,12 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.0.2")
     implementation("androidx.camera:camera-view:1.0.0-alpha31")
 
+    //FluentUI icons
+    //implementation("com.microsoft.design:fluent-system-icons:1.1.172@aar")
+
+    //Tabler icons
+    implementation("br.com.devsrsouza.compose.icons.android:tabler-icons:1.0.0")
+
 
 }
 /*

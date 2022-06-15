@@ -21,6 +21,8 @@ actual class MainViewModel actual constructor(private val repository: Repository
     val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()
 
     private var _noteEntry = NoteProperty()
+    val isSyncing  = false
+
     val noteEntry: NoteProperty = _noteEntry
 
     fun onCreateNewNoteClick() {
@@ -64,14 +66,24 @@ actual class MainViewModel actual constructor(private val repository: Repository
             //}
         }
     }
-    fun moveNoteToTrash(note: NoteProperty) {
-        //viewModelScope.launch(Dispatchers.Default) { //TODO: learn about why viewModelscope is needed
-            repository.archiveNote(note.id)
-         //   withContext(Dispatchers.Main) {
-            NotesRouter.navigateTo(Screen.Notes)
-          //  }
+
+    fun archiveNote(note: NoteProperty) {
+        repository.archiveNote(note.id)
+        //viewModelScope.launch(Dispatchers.Default) { //TODO: figure out how to async on desktop
+            /*withContext(Dispatchers.Main) {
+                NotesRouter.navigateTo(Screen.Notes)
+            }*/
         //}
     }
+
+    fun togglePin(note: NoteProperty) {
+        if(note.isPinned) repository.unpinNote(note.id)
+        else repository.pinNote(note.id)
+        /*viewModelScope.launch(Dispatchers.Default) { TODO: figure out how to async on desktop
+
+        }*/
+    }
+
 
     fun restoreNoteFromArchive(note: NoteProperty){
         repository.restoreNote(note.id)
