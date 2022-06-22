@@ -23,6 +23,7 @@ import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceLaptop
+import compose.icons.tablericons.DeviceMobile
 import compose.icons.tablericons.Devices2
 import compose.icons.tablericons.Notebook
 
@@ -81,7 +82,7 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                         fun DeviceIcon(tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)) {
                             Icon(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                imageVector = TablerIcons.DeviceLaptop,
+                                imageVector = TablerIcons.DeviceMobile,
                                 tint = tint,
                                 contentDescription = "Sync Notes Tab"
                             )
@@ -93,7 +94,7 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                             DeviceIcon()
 
                         Text(
-                            "Desktop Notes", fontSize = 12.sp,
+                            "Phone Notes", fontSize = 12.sp,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
 
@@ -105,17 +106,10 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
             )
 
             LeadingIconTab( //TODO: find different better looking highlight method for archive
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = { },
                 icon = {
-                    val selectedMod = if (state == 2) {
-                        Modifier
-                            .fillMaxSize(1f)
-                            .background(MaterialTheme.colors.primaryVariant)
-                    } else {
-                        Modifier.fillMaxSize(1f)
-                    }
-
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             modifier = Modifier.padding(top = 12.dp),
                             imageVector = Icons.Outlined.Archive,

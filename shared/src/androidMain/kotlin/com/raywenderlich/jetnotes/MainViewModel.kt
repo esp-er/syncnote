@@ -19,10 +19,11 @@ import kotlinx.datetime.Clock
 
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
+import kotlinx.coroutines.CoroutineScope
 import java.util.UUID.randomUUID
 
 //Contains the app state
-actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository) : BaseViewModel() {
+actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     val androrepo = AndroidRepository(repository)
     val androcache = AndroidExternRepository(cacheRepository)
 

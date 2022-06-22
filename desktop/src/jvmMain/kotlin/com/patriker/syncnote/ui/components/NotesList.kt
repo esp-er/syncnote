@@ -23,6 +23,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.forEach
+
 /*
 @ExperimentalMaterialApi
 @Composable
@@ -112,7 +116,7 @@ fun SwipeNotesList(
 @ExperimentalMaterialApi
 @Composable
 fun NotesList(
-    notes: List<NoteProperty>,
+    notes: StateFlow<List<NoteProperty>>,
     onNoteCheckedChange: (NoteProperty) -> Unit,
     onEditNote : (NoteProperty) -> Unit,
     onRestoreNote: (NoteProperty) -> Unit = {},
@@ -128,17 +132,19 @@ fun NotesList(
     //val notes: List<NoteProperty> by notes
     //.observeAsState(listOf())
 
+    val notesList: List<NoteProperty> by notes.collectAsState()
+
 
     //TODO: sort notes by last Edited date instead?
     val notesReversed by derivedStateOf {
-        notes.reversed().sortedBy { !(it.isPinned) }
+        notes.value.reversed().sortedBy { !(it.isPinned) }
     }
 
     Column{
 
         //TODO: list pinned notes on top!
         //items(notesReversed,  { note: NoteProperty -> note.id}) { note ->
-        notesReversed.forEach{ note ->
+        notesList.forEach{ note ->
             //var dismissOpacity by remember { mutableStateOf(0f)}
             Note(
                 note = note,

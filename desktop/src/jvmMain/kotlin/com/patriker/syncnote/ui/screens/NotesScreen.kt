@@ -87,7 +87,7 @@ fun NotesScreen(viewModel: MainViewModel) {
                         }
                     }
                 )
-                horLineSeparator()
+                //horLineSeparator()
                 TopTabBar(initState = 0) //Tabs
             }
         },

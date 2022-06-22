@@ -20,8 +20,10 @@ import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.patriker.syncnote.networking.SyncServer
+import com.patriker.syncnote.ui.screens.ArchiveScreen
 //import com.patriker.syncnote.ui.screens.ArchiveScreen
 import com.patriker.syncnote.ui.screens.NotesScreen
+import com.patriker.syncnote.ui.screens.SaveNoteScreen
 import com.raywenderlich.jetnotes.initKoin
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
@@ -52,6 +54,7 @@ lateinit var viewModel: MainViewModel
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = runBlocking {
         koin = initKoin().koin
+
     /*TODO: Re-enable all android *state* code that was commented out or removed while getting Desktop to compile*/
 
     /*
@@ -78,7 +81,8 @@ fun main() = runBlocking {
 
 
         application {
-            viewModel = MainViewModel(koin.get(), koin.get())
+            val scope = rememberCoroutineScope() //This Scope won't interfere with Compose UI coroutine
+            viewModel = MainViewModel(koin.get(), koin.get(), { scope })
             val state =  rememberWindowState(width = 600.dp, height = 800.dp, position = WindowPosition(1800.dp, 800.dp))
             fun minimize() {
                 state.isMinimized = true
@@ -96,10 +100,10 @@ fun main() = runBlocking {
                     SyncNoteTheme {
                         when (NotesRouter.currentScreen) {
                             is Screen.Notes -> NotesScreen(viewModel)
-                            else -> NotesScreen(viewModel)
-                            /*is Screen.SaveNote -> SaveNoteScreen(viewModel)
+                            is Screen.SaveNote -> SaveNoteScreen(viewModel)
                             is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
-                            is Screen.Sync -> SyncScreen(viewModel)*/
+                            //is Screen.Sync -> SyncScreen(viewModel)
+                            else -> NotesScreen(viewModel)
                         }
                     }
                 }

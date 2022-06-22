@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 
 private enum class TabSlots {
     Tabs,
+    TopDivider,
     Divider,
     Indicator
 }
@@ -97,6 +98,7 @@ fun CustomTabRow(
                     it.measure(Constraints.fixed(tabRowWidth, tabRowHeight)).placeRelative(0, 0)
                 }
 
+
                 //Sum the widths of each tab to the left and place it at the sum width
                 tabPlaceables.forEachIndexed { index, placeable ->
                     placeable.placeRelative(tabWidths.take(index).sum() , 0)
@@ -105,6 +107,10 @@ fun CustomTabRow(
                 subcompose(TabSlots.Divider, divider).forEach {
                     val placeable = it.measure(constraints.copy(minHeight = 0))
                     placeable.placeRelative(0, tabRowHeight - placeable.height)
+                }
+                subcompose(TabSlots.TopDivider, divider).forEach {
+                    val placeable = it.measure(constraints.copy(minHeight = 0))
+                    placeable.placeRelative(0, 0)
                 }
 
 

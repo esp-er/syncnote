@@ -4,17 +4,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
-import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
@@ -70,7 +66,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                         }
                     }
                 )
-                horLineSeparator()
+                //horLineSeparator()
                 TopTabBar(initState = 2) //Tabs
             }
         },
@@ -92,7 +88,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
             NotesList( // here
-                notes = viewModel.notesinArchive,
+                notes = viewModel.notesInArchive,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                 onEditNote = { viewModel.onNoteClick(it) },
                 onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
