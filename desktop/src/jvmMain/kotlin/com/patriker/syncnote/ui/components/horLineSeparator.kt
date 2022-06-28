@@ -14,10 +14,11 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
+/*Not using this at the moment */
 fun horLineSeparator(lineColor: Color = MaterialTheme.colors.primaryVariant){
     Row(modifier = Modifier
         .fillMaxWidth()
-        .height(1.dp)
+        .height(0.5.dp)
         .drawBehind {
             drawLine(lineColor, Offset(22f, 0f), Offset(size.width-22f, 0f), 1f)
         }) { }

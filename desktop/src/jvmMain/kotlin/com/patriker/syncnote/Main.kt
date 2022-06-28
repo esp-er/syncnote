@@ -1,25 +1,11 @@
 package com.patriker.syncnote
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.ui.Modifier
-import androidx.compose.material.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import com.patriker.syncnote.networking.SyncServer
 import com.patriker.syncnote.ui.screens.ArchiveScreen
 //import com.patriker.syncnote.ui.screens.ArchiveScreen
 import com.patriker.syncnote.ui.screens.NotesScreen
@@ -28,16 +14,11 @@ import com.raywenderlich.jetnotes.initKoin
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import com.raywenderlich.jetnotes.theme.SyncNoteTheme
-import io.github.g0dkar.qrcode.QRCode
+import com.patriker.syncnote.ui.SyncNoteDesktopTheme
 import org.koin.core.Koin
 
 
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
-
-import java.net.InetAddress
-
 
 
 //import com.raywenderlich.compose.theme.AppTheme
@@ -97,10 +78,11 @@ fun main() = runBlocking {
                 //alwaysOnTop = pinWindow
             ) {
                 Surface {
-                    SyncNoteTheme {
+                    SyncNoteDesktopTheme {
                         when (NotesRouter.currentScreen) {
                             is Screen.Notes -> NotesScreen(viewModel)
-                            is Screen.SaveNote -> SaveNoteScreen(viewModel)
+                            is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
+                            is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
                             is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
                             //is Screen.Sync -> SyncScreen(viewModel)
                             else -> NotesScreen(viewModel)

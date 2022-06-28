@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.theme.SyncNoteTheme
+import compose.icons.Octicons
+import compose.icons.octicons.ThreeBars16
 
 @Composable
 fun TopAppBar(
@@ -33,7 +34,7 @@ fun TopAppBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(32.dp)
             .background(color = MaterialTheme.colors.primarySurface)
     ) {
         Image(
@@ -49,11 +50,8 @@ fun TopAppBar(
         Text(
             text = title,
             color = MaterialTheme.colors.onPrimary,
-            style = TextStyle(
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp,
-                letterSpacing = 0.15.sp
-            ),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.W500,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterVertically)
@@ -68,7 +66,7 @@ fun TopAppBarPreview(){
     SyncNoteTheme { //note easy way to switch out themes
         TopAppBar(
             title = "JetNotes",
-            icon = Icons.Filled.Menu,
+            icon = Octicons.ThreeBars16,
             onIconClick = {})
     }
 

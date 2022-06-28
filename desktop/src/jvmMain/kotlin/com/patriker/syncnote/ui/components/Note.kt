@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.CompositionLocalProvider
@@ -27,12 +24,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.patriker.syncnote.util.fromHex
+import com.patriker.syncnote.ui.noRippleClickable
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import compose.icons.TablerIcons
-import compose.icons.tablericons.Copy
-import compose.icons.tablericons.Edit
+import compose.icons.Octicons
+import compose.icons.octicons.*
+import compose.icons.tablericons.AlignJustified
 import compose.icons.tablericons.Pin
 import compose.icons.tablericons.PinnedOff
+import kotlin.math.exp
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
@@ -49,13 +51,13 @@ fun Note(
     isArchivedNote: Boolean = false
 ){
 
-    val expandedButtonsHeight = 32.dp
+    val expandedButtonsHeight = 24.dp
 
     var expandedState by rememberSaveable { mutableStateOf(false) }
     val expandedAnimatedDp by animateDpAsState(
         if(expandedState) expandedButtonsHeight else 0.dp ,
         animationSpec = tween(
-            durationMillis = 100,
+            durationMillis = 50,
             easing = FastOutSlowInEasing
         ))
     val isFullyExpanded by derivedStateOf { expandedAnimatedDp == expandedButtonsHeight}
@@ -63,30 +65,28 @@ fun Note(
     val numLines = remember { note.content.lines().size + if(note.title.isBlank()) 0 else 1 }
 
     val backgroundShape = RoundedCornerShape(4.dp)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .noRippleClickable(interactionSource = interactionSource){
+                expandedState = !expandedState
+            }
+            //.hoverable(interactionSource = interactionSource)
             //.background(MaterialTheme.colors.surface, backgroundShape)
-            .padding(8.dp),
+            //.noRippleClickable { expandedState = !expandedState }
+            .padding(horizontal = 6.dp, vertical = 4.dp),
         shape = backgroundShape,
-        onClick = { expandedState = !expandedState },
         elevation = 4.dp
     ) {
-        val lineColor = if(expandedState) MaterialTheme.colors.onPrimary.copy(alpha=0.7f) else MaterialTheme.colors.onPrimary.copy(alpha=0.0f)
-        Column(horizontalAlignment = Alignment.End, modifier = Modifier.background(MaterialTheme.colors.surface)) {
+        val cardBackground = if (isHovered) MaterialTheme.colors.primaryVariant.copy(alpha=0.1f) else MaterialTheme.colors.surface
+        Column(horizontalAlignment = Alignment.End){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(42.dp)
-                    .background(MaterialTheme.colors.surface, backgroundShape)
-                    .drawBehind {
-                        drawLine(
-                            lineColor,
-                            Offset(0f, size.height),
-                            Offset(size.width, size.height),
-                            0.9f
-                        )
-                    }
+                    .background(cardBackground, backgroundShape)
                 //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiers
             ) {
                 NoteColor(
@@ -109,34 +109,28 @@ fun Note(
                             color = MaterialTheme.colors.onPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = TextStyle(
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 16.sp,
-                                letterSpacing = 0.35.sp
-                            )
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.W500
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                     }
                         Text(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 1.dp),
                             text = note.content,
                             color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
                             overflow = TextOverflow.Ellipsis,
                             //TODO: Find a way to determine number of lines in Note?
                             maxLines = if (expandedState) 8 else if(note.title.isBlank()) 3 else minOf(numLines, 2),
-                            style = TextStyle(
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 14.sp,
-                                letterSpacing = 0.25.sp
-                            )
+                            fontSize = 13.sp
                         )
                 }
 
-                if(!isArchivedNote && note.isPinned) // fix this conditional to a cleaner solution
+                if(!isArchivedNote && note.isPinned) //TODO: fix this conditional to a cleaner solution
                 {
                    Icon(
-                        modifier = Modifier.size(20.dp).padding(2.dp),
-                        imageVector = TablerIcons.Pin,
-                        tint = MaterialTheme.colors.onSecondary,
+                        modifier = Modifier.size(18.dp).padding(2.dp),
+                        imageVector = Octicons.BookmarkFill24,
+                        tint = MaterialTheme.colors.onPrimary,
                         contentDescription = "Restore Note Button"
                     )
                 }
@@ -158,32 +152,25 @@ fun Note(
                         )
                     }
 
-                    if (isArchivedNote) {
-                        IconButton(
-                            onClick = { onRestoreNote(note) },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Unarchive,
-                                tint = MaterialTheme.colors.onPrimary,
-                                contentDescription = "Restore Note Button"
-                            )
-
-                        }
-                    }
                 }
             }
 
             Box(modifier = Modifier.height(expandedAnimatedDp) ) {
                 if(isFullyExpanded) {
-                    NoteButtons(
-                        note,
-                        onEditNote = onEditNote,
-                        onArchiveNote = onArchiveNote,
-                        onDeleteNote = onDeleteNote,
-                        onTogglePin = onTogglePin,
-                        onSnackMessage = onSnackMessage,
-                        isArchive = isArchivedNote
-                    )
+                    Column {
+                        Box(modifier = Modifier.fillMaxWidth()
+                            .height(0.5.dp)
+                            .background(MaterialTheme.colors.primaryVariant)) //Divider Line
+                        NoteButtons(
+                            note,
+                            onEditNote = onEditNote,
+                            onArchiveNote = onArchiveNote,
+                            onDeleteNote = onDeleteNote,
+                            onTogglePin = onTogglePin,
+                            onSnackMessage = onSnackMessage,
+                            isArchive = isArchivedNote
+                        )
+                    }
                 }
             }
 
@@ -215,7 +202,7 @@ fun NoteColor(
                     .fillMaxSize()
                     .padding(0.dp)
                     .matchParentSize(),
-                imageVector = Icons.Outlined.Notes,
+                imageVector = TablerIcons.AlignJustified,
                 tint = Color.Black.copy(alpha = 0.4f),
                 contentDescription = "Restore Note Button"
             )
@@ -257,6 +244,7 @@ fun NoteButtons(
     note: NoteProperty,
     onEditNote: (NoteProperty) -> Unit,
     onArchiveNote: (NoteProperty) -> Unit = {},
+    onRestoreNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
     onTogglePin: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
@@ -277,12 +265,14 @@ fun NoteButtons(
     Row(
         modifier = Modifier
             .padding(0.dp)
-            .height(36.dp)
-            .defaultMinSize(minHeight = 32.dp),
+            .height(32.dp)
+            .defaultMinSize(minHeight = 28.dp),
         verticalAlignment = Alignment.Bottom
     )
        {
            val buttonPadding = 2.dp
+           val buttonSize = 14.dp
+           val rightHandModifier = Modifier.padding(horizontal = 2.dp).size(buttonSize)
            IconButton( //Pin Button
                 onClick = { onTogglePin(note) }
            ) {
@@ -290,8 +280,8 @@ fun NoteButtons(
                    NoteDropDownMenu(::dismissDrop, ::deleteClicked)
                }
                Icon(
-                   modifier = Modifier.padding(horizontal = 2.dp),
-                   imageVector = if(note.isPinned) TablerIcons.PinnedOff else TablerIcons.Pin,
+                   modifier = Modifier.padding(horizontal = 2.dp).size(buttonSize),
+                   imageVector = if(note.isPinned) Octicons.BookmarkSlash24 else Octicons.Bookmark24,
                    tint = MaterialTheme.colors.onPrimary,
                    contentDescription = "Pin Note Button"
                )
@@ -299,21 +289,11 @@ fun NoteButtons(
            Spacer(modifier = Modifier.weight(1f))
 
            if(!isArchive) {
-               IconButton(
-                   onClick = { onArchiveNote(note) },
-                   modifier = Modifier
-                       //.align(Alignment.CenterVertically)
-                       .padding(horizontal = buttonPadding)
-               ) {
-                   Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                       Icon(
-                           modifier = Modifier.padding(horizontal = 4.dp),
-                           imageVector = Icons.Outlined.Archive,
-                           tint = MaterialTheme.colors.onPrimary,
-                           contentDescription = "Archive Note Button"
-                       )
-                   }
-               }
+               ArchiveButton(note, onRestoreNote, rightHandModifier)
+           }
+           else{
+               DeleteButton(note, onDeleteNote, rightHandModifier)
+               UnArchiveButton(note, onArchiveNote, rightHandModifier)
            }
 
            IconButton( //"Copy" Button
@@ -324,8 +304,8 @@ fun NoteButtons(
            ) {
                Row(modifier = Modifier.align(Alignment.CenterVertically)){
                    Icon(
-                       modifier = Modifier.padding(horizontal = 4.dp),
-                       imageVector = TablerIcons.Copy,
+                       modifier = rightHandModifier,
+                       imageVector = Octicons.Copy24,
                        tint = MaterialTheme.colors.onPrimary,
                        contentDescription = "Copy Note Button"
                    )
@@ -341,8 +321,8 @@ fun NoteButtons(
         ) {
                Row(modifier = Modifier.align(Alignment.CenterVertically)) {
                    Icon(
-                       modifier = Modifier.padding(horizontal = 4.dp),
-                       imageVector = TablerIcons.Edit,
+                       modifier = rightHandModifier,
+                       imageVector = Octicons.Pencil24,
                        tint = MaterialTheme.colors.onPrimary,
                        contentDescription = "Edit Note Button"
                    )
@@ -351,6 +331,81 @@ fun NoteButtons(
         }
 
     }
+}
+
+@Preview
+@Composable
+fun UnArchiveButton(note: NoteProperty, onRestoreNote: (NoteProperty) -> Unit, modifier: Modifier) {
+    IconButton(
+        onClick = { onRestoreNote(note) },
+        modifier = Modifier
+            //.align(Alignment.CenterVertically)
+            .padding(horizontal = 2.dp)
+    ) {
+        Row{
+            Icon(
+                modifier = Modifier.size(12.dp),
+                imageVector = Octicons.ArrowLeft24,
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = "Archive Note Button"
+            )
+            Icon(
+                modifier = modifier,
+                imageVector = Octicons.Inbox24,
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = "Archive Note Button"
+            )
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun ArchiveButton(note: NoteProperty, onArchiveNote: (NoteProperty) -> Unit, modifier: Modifier) {
+    IconButton(
+        onClick = { onArchiveNote(note) },
+        modifier = Modifier
+        //.align(Alignment.CenterVertically)
+        .padding(horizontal = 2.dp)
+    ) {
+        Row{
+            Icon(
+                modifier = Modifier.size(12.dp),
+                imageVector = Octicons.ArrowRight24,
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = "Archive Note Button"
+            )
+            Icon(
+                modifier = modifier,
+                imageVector = Octicons.Inbox24,
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = "Archive Note Button"
+            )
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun DeleteButton(note: NoteProperty, onDeleteNote: (NoteProperty) -> Unit, modifier: Modifier) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    IconButton(
+        onClick = { onDeleteNote(note) },
+        modifier = Modifier.hoverable(interactionSource)
+            //.align(Alignment.CenterVertically)
+            .padding(horizontal = 2.dp)
+    ) {
+        Icon(
+            modifier = modifier,
+            imageVector = Octicons.Trash24,
+            tint = if(isHovered) MaterialTheme.colors.error else MaterialTheme.colors.onPrimary,
+            contentDescription = "Archive Note Button"
+        )
+    }
+
 }
 
 @Preview

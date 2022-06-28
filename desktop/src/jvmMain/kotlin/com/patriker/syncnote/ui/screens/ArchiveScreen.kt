@@ -3,11 +3,10 @@ package com.patriker.syncnote.ui.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
@@ -42,30 +41,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         topBar =
         {
             Column {
-                TopAppBar(
-                    modifier = Modifier.heightIn(50.dp,50.dp),
-                    backgroundColor = MaterialTheme.colors.background,
-                    title = {
-                        Text(
-                            text = "Open Notes",
-                            fontSize = 18.sp
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    scaffoldState.drawerState.open()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Drawer Button"
-                            )
-                        }
-                    }
-                )
+                TopBar(viewModel::onCreateNewNoteClick)
                 //horLineSeparator()
                 TopTabBar(initState = 2) //Tabs
             }

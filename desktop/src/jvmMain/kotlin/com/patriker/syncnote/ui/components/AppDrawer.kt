@@ -4,7 +4,6 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,9 +17,9 @@ import com.raywenderlich.jetnotes.routing.Screen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Archive
+import compose.icons.Octicons
 import compose.icons.TablerIcons
+import compose.icons.octicons.Inbox24
 import compose.icons.tablericons.*
 
 @Composable
@@ -50,7 +49,7 @@ fun AppDrawer(
             }
         )
         ScreenNavigationButton(
-            icon = Icons.Outlined.Archive,
+            icon = Octicons.Inbox24,
             label = "Archive",
             isSelected = currentScreen == Screen.Archive,
             onClick = {
@@ -77,7 +76,7 @@ fun AppDrawerPreview() {
 fun ScreenNavigationButtonPreview() {
     SyncNoteTheme {
         ScreenNavigationButton(
-            icon = Icons.Filled.Home,
+            icon = TablerIcons.Notebook,
             label = "Notes",
             isSelected = true,
             onClick = { }
@@ -145,7 +144,7 @@ private fun ScreenNavigationButton(
 private fun AppDrawerHeader() {
     Row(modifier = Modifier.fillMaxWidth()) {
         Image(
-            imageVector = Icons.Filled.Menu,
+            imageVector = TablerIcons.Menu,
             contentDescription = "Drawer Header Icon",
             colorFilter = ColorFilter
                 .tint(MaterialTheme.colors.onSurface),

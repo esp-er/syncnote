@@ -40,7 +40,8 @@ private fun MainActivityScreen(viewModel: MainViewModel = getViewModel()) { //Ko
   Surface {
     when (NotesRouter.currentScreen) {
       is Screen.Notes -> NotesScreen(viewModel)
-      is Screen.SaveNote -> SaveNoteScreen(viewModel)
+      is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
+      is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
       is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
       is Screen.Sync -> SyncScreen(viewModel)
     }

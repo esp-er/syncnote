@@ -2,7 +2,6 @@ package com.raywenderlich.jetnotes.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Typography
 import androidx.compose.material.lightColors
 import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
@@ -10,8 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
 
 object AppColors{
   val rwGreen = Color(0xFF006837)
@@ -19,10 +16,12 @@ object AppColors{
   val lightBrown = Color(0xFFDDB284)
   val darkBrown = Color(0xFF723712)
   val primaryGreen = Color(0xFF05745B)
+
+  val outlineGrey = Color(0xFF494749),
 }
 
 
-val DarkThemeColors = darkColors(
+private val DarkThemeColors = darkColors(
   primary = Color(0xFF3584e4),
   primaryVariant = Color(0xFF5E5C5E),
   onPrimary = Color.White,
@@ -37,7 +36,7 @@ val DarkThemeColors = darkColors(
 
 
 //TODO: change the green to something else
-val LightThemeColors = lightColors(
+private val LightThemeColors = lightColors(
   primary = AppColors.primaryGreen,
   primaryVariant = Color(0xFF00F884),
   secondaryVariant = AppColors.primaryGreen,

@@ -50,6 +50,7 @@ kotlin {
 
                 //Tabler icons
                 implementation("br.com.devsrsouza.compose.icons.jetbrains:tabler-icons:1.0.0")
+                implementation("br.com.devsrsouza.compose.icons.jetbrains:octicons:1.0.0")
 
                 //QR code generation
                 implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")
@@ -61,7 +62,6 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(compose.ui)
-                api(compose.materialIconsExtended)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
             }
         }

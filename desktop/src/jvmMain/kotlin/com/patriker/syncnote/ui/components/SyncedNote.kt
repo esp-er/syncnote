@@ -7,10 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.CompositionLocalProvider
@@ -29,10 +25,12 @@ import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.patriker.syncnote.util.fromHex
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.*
 import androidx.compose.ui.unit.DpSize
-import kotlinx.coroutines.launch
+import compose.icons.Octicons
+import compose.icons.octicons.Copy24
 
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun SyncedNote(
@@ -212,6 +210,7 @@ fun SyncedNoteButtons(
            IconButton( //Three dot dropdown button
                onClick = { dropdownState = true },
            ) {
+               /*
                if(dropdownState) {
                    SyncedNoteDropDownMenu(::dismissDrop, ::deleteClicked)
                }
@@ -220,7 +219,7 @@ fun SyncedNoteButtons(
                    imageVector = Icons.Default.MoreVert,
                    tint = MaterialTheme.colors.onPrimary.copy(alpha=0.5f),
                    contentDescription = "Copy Note Button"
-               )
+               )*/
            }
            Spacer(modifier = Modifier.weight(1f))
 
@@ -237,7 +236,7 @@ fun SyncedNoteButtons(
                        fontSize = 12.sp)
                    Icon(
                        modifier = Modifier.padding(horizontal = 1.dp),
-                       imageVector = Icons.Default.CopyAll,
+                       imageVector = Octicons.Copy24,
                        tint = MaterialTheme.colors.onPrimary,
                        contentDescription = "Copy Note Button"
                    )

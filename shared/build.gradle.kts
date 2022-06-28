@@ -29,7 +29,6 @@ kotlin {
                 api(compose.foundation)
                 api(compose.runtime)
                 api(compose.material)
-                api(compose.materialIconsExtended)
                 api(compose.ui)
                 api(compose.uiTooling)
             }

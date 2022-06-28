@@ -1,15 +1,12 @@
 package com.raywenderlich.jetnotes
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.jetnotes.data.*
 import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
-import com.raywenderlich.jetnotes.domain.UUID
 //import com.raywenderlich.jetnotes.routing.NotesRouter
 //import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +17,6 @@ import kotlinx.datetime.Clock
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.CoroutineScope
-import java.util.UUID.randomUUID
 
 //Contains the app state
 actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, getCorScope: () -> CoroutineScope) : BaseViewModel() {
@@ -79,12 +75,12 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun onCreateNewNoteClick() {
         _noteEntry.value = NoteProperty() //Create a new note
-        NotesRouter.navigateTo(Screen.SaveNote)
+        NotesRouter.navigateTo(Screen.NewNote)
     }
 
     fun onNoteClick(note: NoteProperty) { //Pass in an existing note
         _noteEntry.value = note
-        NotesRouter.navigateTo(Screen.SaveNote)
+        NotesRouter.navigateTo(Screen.NewNote)
     }
 
     fun onNoteCheckedChange(note: NoteProperty) {

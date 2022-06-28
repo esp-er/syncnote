@@ -2,7 +2,6 @@ package com.patriker.syncnote.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.material.Text
@@ -12,11 +11,12 @@ import com.raywenderlich.jetnotes.routing.Screen
 
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
+import compose.icons.Octicons
+import compose.icons.octicons.ThreeBars16
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -86,7 +86,7 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Menu,
+                                        imageVector = Octicons.ThreeBars16,
                                         contentDescription = "Drawer Button"
                                     )
                                 }

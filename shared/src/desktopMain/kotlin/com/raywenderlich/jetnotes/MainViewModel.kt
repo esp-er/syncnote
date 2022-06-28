@@ -1,9 +1,5 @@
 package com.raywenderlich.jetnotes
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
 import com.raywenderlich.jetnotes.data.ExternRepository
 import com.raywenderlich.jetnotes.data.FlowRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
@@ -15,7 +11,6 @@ import kotlinx.datetime.Clock
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 //Contains the app state
 actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, getCorScope: () -> CoroutineScope) : BaseViewModel() {
@@ -39,7 +34,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun onCreateNewNoteClick() {
         _noteEntry.value = NoteProperty() //Create a new note
-        NotesRouter.navigateTo(Screen.SaveNote)
+        NotesRouter.navigateTo(Screen.NewNote)
     }
 
     fun getRepoReference(): Repository{ //TODO: remove quick hack to share repo with SyncServer
@@ -48,7 +43,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun onNoteClick(note: NoteProperty) { //Pass in an existing note
         _noteEntry.value = note
-        NotesRouter.navigateTo(Screen.SaveNote)
+        NotesRouter.navigateTo(Screen.EditNote)
     }
 
     fun onNoteCheckedChange(note: NoteProperty) {
@@ -88,7 +83,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
     fun restoreNoteFromArchive(note: NoteProperty){
         viewModelScope.launch(Dispatchers.IO) {
             desktopRepo.restoreNote(note.id)
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.Default) { //TODO:perhaps not navigate on desktop?
                 NotesRouter.navigateTo(Screen.Notes)
             }
         }
@@ -99,8 +94,9 @@ actual class MainViewModel actual constructor(private val repository: Repository
         viewModelScope.launch(Dispatchers.IO) {
             desktopRepo.deleteNote(note.id)
             withContext(Dispatchers.Default) {
-                when(NotesRouter.currentScreen) {
-                    is Screen.SaveNote -> NotesRouter.navigateTo(Screen.Archive)
+                when(NotesRouter.currentScreen) { //TODO: go back to archive if archived note
+                    is Screen.NewNote -> NotesRouter.navigateTo(Screen.Notes)
+                    is Screen.EditNote -> NotesRouter.navigateTo(Screen.Notes)
                     else -> NotesRouter.navigateTo(NotesRouter.currentScreen)
                 }
             }

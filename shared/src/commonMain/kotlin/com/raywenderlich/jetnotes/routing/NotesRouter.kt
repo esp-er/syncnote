@@ -6,7 +6,8 @@ import androidx.compose.runtime.setValue
 
 sealed class Screen {
   object Notes : Screen()
-  object SaveNote : Screen()
+  object NewNote : Screen()
+  object EditNote : Screen()
   object Archive : Screen()
   object Sync : Screen()
  // object Chat: Screen()
