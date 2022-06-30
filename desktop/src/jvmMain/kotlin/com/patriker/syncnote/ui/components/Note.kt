@@ -165,6 +165,7 @@ fun Note(
                             note,
                             onEditNote = onEditNote,
                             onArchiveNote = onArchiveNote,
+                            onRestoreNote = onRestoreNote,
                             onDeleteNote = onDeleteNote,
                             onTogglePin = onTogglePin,
                             onSnackMessage = onSnackMessage,
@@ -251,16 +252,10 @@ fun NoteButtons(
     isArchive: Boolean = false
 ){
 
-    var dropdownState by rememberSaveable{ mutableStateOf(false) }
-    fun dismissDrop(){ dropdownState = false}
-    fun deleteClicked() { onDeleteNote(note)
-                          dismissDrop() }
-
 
     fun copyClicked(){
         onSnackMessage("Note text copied.")
     }
-
 
     Row(
         modifier = Modifier
@@ -273,27 +268,25 @@ fun NoteButtons(
            val buttonPadding = 2.dp
            val buttonSize = 14.dp
            val rightHandModifier = Modifier.padding(horizontal = 2.dp).size(buttonSize)
-           IconButton( //Pin Button
-                onClick = { onTogglePin(note) }
-           ) {
-               if(dropdownState) {
-                   NoteDropDownMenu(::dismissDrop, ::deleteClicked)
-               }
-               Icon(
-                   modifier = Modifier.padding(horizontal = 2.dp).size(buttonSize),
-                   imageVector = if(note.isPinned) Octicons.BookmarkSlash24 else Octicons.Bookmark24,
-                   tint = MaterialTheme.colors.onPrimary,
-                   contentDescription = "Pin Note Button"
-               )
-           }
-           Spacer(modifier = Modifier.weight(1f))
 
            if(!isArchive) {
-               ArchiveButton(note, onRestoreNote, rightHandModifier)
+               IconButton( //Pin Button
+                   onClick = { onTogglePin(note) }
+               ) {
+                   Icon(
+                       modifier = Modifier.padding(horizontal = 2.dp).size(buttonSize),
+                       imageVector = if(note.isPinned) Octicons.BookmarkSlash24 else Octicons.Bookmark24,
+                       tint = MaterialTheme.colors.onPrimary,
+                       contentDescription = "Pin Note Button"
+                   )
+               }
+               Spacer(modifier = Modifier.weight(1f))
+               ArchiveButton(onArchiveNote = { onArchiveNote(note) }, rightHandModifier)
            }
            else{
+               Spacer(modifier = Modifier.weight(1f))
                DeleteButton(note, onDeleteNote, rightHandModifier)
-               UnArchiveButton(note, onArchiveNote, rightHandModifier)
+               UnArchiveButton({onRestoreNote(note)}, rightHandModifier)
            }
 
            IconButton( //"Copy" Button
@@ -335,9 +328,9 @@ fun NoteButtons(
 
 @Preview
 @Composable
-fun UnArchiveButton(note: NoteProperty, onRestoreNote: (NoteProperty) -> Unit, modifier: Modifier) {
+fun UnArchiveButton(onRestoreNote: () -> Unit, modifier: Modifier) {
     IconButton(
-        onClick = { onRestoreNote(note) },
+        onClick = { onRestoreNote() },
         modifier = Modifier
             //.align(Alignment.CenterVertically)
             .padding(horizontal = 2.dp)
@@ -362,9 +355,9 @@ fun UnArchiveButton(note: NoteProperty, onRestoreNote: (NoteProperty) -> Unit, m
 
 @Preview
 @Composable
-fun ArchiveButton(note: NoteProperty, onArchiveNote: (NoteProperty) -> Unit, modifier: Modifier) {
+fun ArchiveButton(onArchiveNote: () -> Unit, modifier: Modifier) {
     IconButton(
-        onClick = { onArchiveNote(note) },
+        onClick = { onArchiveNote() },
         modifier = Modifier
         //.align(Alignment.CenterVertically)
         .padding(horizontal = 2.dp)

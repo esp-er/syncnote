@@ -191,8 +191,7 @@ private fun SaveNoteContent(
             modifier = Modifier
                 .padding(top = 16.dp,bottom=16.dp)
                 .weight(1f),
-            label = "Body",
-
+            label = "Content",
             text = note.content,
             onTextChange = { newContent ->
                 onNoteChange.invoke(note.copy(content = newContent))

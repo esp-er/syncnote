@@ -42,8 +42,7 @@ fun NotesScreen(viewModel: MainViewModel) {
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
-    //val coroutineScope = rememberCoroutineScope()
-
+    val dw = DrawerState(DrawerValue.Closed, { false })
     fun showSnackBar(message: String) {
         /*coroutineScope.launch{
             val showbar = launch { scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Indefinite)}
@@ -54,7 +53,7 @@ fun NotesScreen(viewModel: MainViewModel) {
 
     val isConnected = viewModel.isSyncing //TODO: change to observable (reactive) value
 
-    Scaffold (
+    Scaffold ( //TODO: remove scaffold and change this from scaffold to simple layout on desktop
         topBar =
         {
             Column {
@@ -63,7 +62,7 @@ fun NotesScreen(viewModel: MainViewModel) {
                 TopTabBar(initState = 0) //Tabs
             }
         },
-        scaffoldState = scaffoldState, //lets the scaffold display the correct state
+        scaffoldState = ScaffoldState(dw, scaffoldState.snackbarHostState),
         snackbarHost = {scaffoldState.snackbarHostState},
         bottomBar = { SnackbarHost(
                         hostState = scaffoldState.snackbarHostState,
@@ -76,20 +75,9 @@ fun NotesScreen(viewModel: MainViewModel) {
                         })
             
                     },
-        drawerContent = {
-                    AppDrawer(
-                        currentScreen = Screen.Notes,
-                        closeDrawerAction = {
-                            //Drawer close
-                            /*coroutineScope.launch{
-                                scaffoldState.drawerState.close()
-                            }*/
-                        },
-                        isConnected = isConnected
-                    )
-        },
+        drawerGesturesEnabled = false,
+        drawerContent = {},
         drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
-        drawerBackgroundColor = MaterialTheme.colors.background,
         //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         //floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
@@ -98,7 +86,7 @@ fun NotesScreen(viewModel: MainViewModel) {
                 NotesList( // here
                     notes = viewModel.notes,
                     onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
-                    onEditNote = { viewModel.onNoteClick(it)},
+                    onEditNote = { viewModel.onNoteClick(it) },
                     onRestoreNote = {viewModel.restoreNoteFromArchive(it) },
                     onArchiveNote = { viewModel.archiveNote(it) },
                     onDeleteNote = { viewModel.permaDeleteNote(it) },

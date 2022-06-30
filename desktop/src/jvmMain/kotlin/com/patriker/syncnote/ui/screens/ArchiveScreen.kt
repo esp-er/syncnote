@@ -48,19 +48,8 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         },
         scaffoldState = scaffoldState, //lets the scaffold display the correct state
         snackbarHost = {scaffoldState.snackbarHostState},
-        drawerContent = {
-            AppDrawer(
-                currentScreen = Screen.Archive,
-                closeDrawerAction = {
-                    //Drawer close
-                    coroutineScope.launch{
-                        scaffoldState.drawerState.close()
-                    }
-
-                },
-                isConnected = isConnected
-            )
-        },
+        drawerContent = {},
+        drawerGesturesEnabled = false,
         //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = {
             NotesList( // here
