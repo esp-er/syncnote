@@ -99,7 +99,6 @@ fun MainDropDown(show: Boolean, onDismiss: () -> Unit) {
         offset = DpOffset(0.dp, 16.dp),
         expanded = expanded,
         onDismissRequest = {
-            println("Menu Dismissed")
             onDismiss()
         }
     ) { //TODO: lookup a construct like withFontStyleProvider()
@@ -148,7 +147,7 @@ fun MainDropDown(show: Boolean, onDismiss: () -> Unit) {
                 Icon(
                     imageVector = Octicons.Inbox24,
                     "Notes Screen",
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(16.dp),
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text("Archive", fontSize = fontSize)

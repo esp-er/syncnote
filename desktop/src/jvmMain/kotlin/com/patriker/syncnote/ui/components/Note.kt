@@ -28,12 +28,16 @@ import com.patriker.syncnote.ui.noRippleClickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.Octicons
 import compose.icons.octicons.*
 import compose.icons.tablericons.AlignJustified
+import compose.icons.tablericons.Dots
 import compose.icons.tablericons.Pin
 import compose.icons.tablericons.PinnedOff
+import javax.swing.ImageIcon
 import kotlin.math.exp
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -62,12 +66,18 @@ fun Note(
         ))
     val isFullyExpanded by derivedStateOf { expandedAnimatedDp == expandedButtonsHeight}
 
+    val titleIsBlank = note.title.isBlank()
+
+    val maxLines = 6
+    val maxLinesExpanded = 16
     val numLines = remember { note.content.lines().size + if(note.title.isBlank()) 0 else 1 }
+    val maxContentLines = maxLines - if(!titleIsBlank) 1 else 0
+    val maxContentLinesExpanded = maxLinesExpanded - if(!titleIsBlank) 1 else 0
 
     val backgroundShape = RoundedCornerShape(4.dp)
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    Card(
+    Card( //TODO: Make the expanded card scrollable with VerticalScrollBar if overflows
         modifier = Modifier
             .fillMaxWidth()
             .noRippleClickable(interactionSource = interactionSource){
@@ -81,26 +91,27 @@ fun Note(
         elevation = 4.dp
     ) {
         val cardBackground = if (isHovered) MaterialTheme.colors.primaryVariant.copy(alpha=0.1f) else MaterialTheme.colors.surface
-        Column(horizontalAlignment = Alignment.End){
+        Column(){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(42.dp)
+                    .heightIn(32.dp)
                     .background(cardBackground, backgroundShape)
-                //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiers
+                //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiersj
             ) {
-                NoteColor(
-                    modifier = Modifier
-                        .align(Alignment.Top)
-                        .padding(top = 12.dp, start = 10.dp, bottom = 12.dp),
-                    color = Color.fromHex("0xFFFFFF"), //TODO: fix coloring
-                    24.dp,
-                    border = 0.8.dp
-                )
+                /*Column(modifier = Modifier.widthIn(24.dp,24.dp)) { TODO:fix coloring and reintroduce a badge for the card
+                    NoteColor(
+                        modifier = Modifier
+                            .padding(top = 0.dp, start = 0.dp, bottom = 0.dp),
+                        color = Color.fromHex("0xFFFFFF"), //TODO: fix coloring,
+                        24.dp,
+                        border = 0.8.dp
+                    )
+                }*/
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 10.dp, end = 8.dp, top = 8.dp, bottom = 6.dp)
+                        .padding(start = 10.dp, end = 8.dp, top = 8.dp, bottom = 0.dp)
                         .align(Alignment.Top)
                 ) {
                     if (note.title.isNotBlank()) { //Alter layout when title blank
@@ -119,24 +130,43 @@ fun Note(
                             text = note.content,
                             color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
                             overflow = TextOverflow.Ellipsis,
-                            //TODO: Find a way to determine number of lines in Note?
-                            maxLines = if (expandedState) 8 else if(note.title.isBlank()) 3 else minOf(numLines, 2),
+                            maxLines = if (expandedState) maxContentLinesExpanded else minOf(numLines, maxContentLines),
                             fontSize = 13.sp
                         )
+                        //Spacer(Modifier.weight(1f))
+                    if(!expandedState && numLines > maxLines){ //Vertical overflow case
+                        Icon(imageVector = TablerIcons.Dots,
+                            "Overflow dots",
+                            modifier = Modifier.align(Alignment.CenterHorizontally).size(14.dp)
+                        )
+                    }
+                    if(expandedState && numLines > maxLinesExpanded){
+                        val diff = numLines - maxLinesExpanded
+                        val lines = if(diff >  1) "lines" else "line"
+                        Text("$diff more $lines...",
+                            modifier = Modifier.clickable{ onEditNote(note) }
+                                .align(Alignment.CenterHorizontally),
+                            fontSize = 12.sp,
+                            style = TextStyle(MaterialTheme.colors.onSecondary)
+                        )
+                    }
                 }
 
-                if(!isArchivedNote && note.isPinned) //TODO: fix this conditional to a cleaner solution
-                {
-                   Icon(
-                        modifier = Modifier.size(18.dp).padding(2.dp),
-                        imageVector = Octicons.BookmarkFill24,
-                        tint = MaterialTheme.colors.onPrimary,
-                        contentDescription = "Restore Note Button"
-                    )
+                Column(horizontalAlignment = Alignment.End) {
+                        if (!isArchivedNote && note.isPinned) //TODO: fix this conditional to a cleaner solution
+                        {
+                            Icon(
+                                modifier = Modifier.size(18.dp).padding(2.dp),
+                                imageVector = Octicons.BookmarkFill24,
+                                tint = MaterialTheme.colors.onPrimary,
+                                contentDescription = "Restore Note Button")
+                        }
                 }
 
-                Column {
 
+
+
+                /*
                     //Could use a better abstraction
                     //than null for "no checkbox"
                     if (note.canBeChecked) {
@@ -151,11 +181,24 @@ fun Note(
                                 .padding(start = 8.dp)
                         )
                     }
+                 */
 
+            }
+
+
+            Box(modifier=Modifier.heightIn(14.dp,14.dp).background(cardBackground)){ //TODO: Separate card into text column and right-hand col properly
+                                                                                    //to avoid adding vertical bloat with this
+                //TODO: fix rendering of this box(background clips)
+                //TODO: create Utility function to calculate "hrs / days / weeks / months ago" for this timestamp
+                Row(modifier = Modifier.padding(all = 2.dp)){
+                    Spacer(Modifier.weight(1f))
+                    Text(note.editDate.toString(), fontSize = 9.sp, style = TextStyle(MaterialTheme.colors.onSecondary))
                 }
             }
 
-            Box(modifier = Modifier.height(expandedAnimatedDp) ) {
+
+
+            Box(modifier = Modifier.heightIn(expandedAnimatedDp, expandedAnimatedDp) ) {
                 if(isFullyExpanded) {
                     Column {
                         Box(modifier = Modifier.fillMaxWidth()
@@ -200,7 +243,7 @@ fun NoteColor(
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Icon(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .size(size)
                     .padding(0.dp)
                     .matchParentSize(),
                 imageVector = TablerIcons.AlignJustified,
