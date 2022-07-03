@@ -28,6 +28,16 @@ import com.patriker.syncnote.ui.noRippleClickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.ui.awt.awtEvent
+import androidx.compose.ui.awt.awtEventOrNull
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.unit.DpSize
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
@@ -37,6 +47,7 @@ import compose.icons.tablericons.AlignJustified
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.Pin
 import compose.icons.tablericons.PinnedOff
+import io.netty.handler.codec.http.HttpContentDecoder
 import javax.swing.ImageIcon
 import kotlin.math.exp
 
@@ -55,7 +66,7 @@ fun Note(
     isArchivedNote: Boolean = false
 ){
 
-    val expandedButtonsHeight = 24.dp
+    val expandedButtonsHeight = 26.dp
 
     var expandedState by rememberSaveable { mutableStateOf(false) }
     val expandedAnimatedDp by animateDpAsState(
@@ -80,24 +91,27 @@ fun Note(
     Card( //TODO: Make the expanded card scrollable with VerticalScrollBar if overflows
         modifier = Modifier
             .fillMaxWidth()
-            .noRippleClickable(interactionSource = interactionSource){
+            .noRippleClickable(interactionSource = interactionSource){ //this modifier has  adds hoverable
                 expandedState = !expandedState
             }
-            //.hoverable(interactionSource = interactionSource)
-            //.background(MaterialTheme.colors.surface, backgroundShape)
-            //.noRippleClickable { expandedState = !expandedState }
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 4.dp)
+            .onPointerEvent(PointerEventType.Press) {
+                when {
+                    it.buttons.isPrimaryPressed -> when (it.awtEventOrNull?.clickCount) {
+                        2 -> if(expandedState) onEditNote(note)
+                        else -> { }
+                    }
+                }
+            },
         shape = backgroundShape,
         elevation = 4.dp
     ) {
         val cardBackground = if (isHovered) MaterialTheme.colors.primaryVariant.copy(alpha=0.1f) else MaterialTheme.colors.surface
-        Column(){
+        Column(modifier = Modifier.background(cardBackground, backgroundShape)){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(32.dp)
-                    .background(cardBackground, backgroundShape)
-                //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiersj
             ) {
                 /*Column(modifier = Modifier.widthIn(24.dp,24.dp)) { TODO:fix coloring and reintroduce a badge for the card
                     NoteColor(
@@ -112,7 +126,7 @@ fun Note(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 10.dp, end = 8.dp, top = 8.dp, bottom = 0.dp)
-                        .align(Alignment.Top)
+                        .align(Alignment.CenterVertically)
                 ) {
                     if (note.title.isNotBlank()) { //Alter layout when title blank
                         Text(
@@ -125,14 +139,14 @@ fun Note(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                     }
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 1.dp),
-                            text = note.content,
-                            color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = if (expandedState) maxContentLinesExpanded else minOf(numLines, maxContentLines),
-                            fontSize = 13.sp
-                        )
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 1.dp),
+                        text = note.content,
+                        color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = if (expandedState) maxContentLinesExpanded else minOf(numLines, maxContentLines),
+                        fontSize = 13.sp
+                    )
                         //Spacer(Modifier.weight(1f))
                     if(!expandedState && numLines > maxLines){ //Vertical overflow case
                         Icon(imageVector = TablerIcons.Dots,
@@ -143,7 +157,7 @@ fun Note(
                     if(expandedState && numLines > maxLinesExpanded){
                         val diff = numLines - maxLinesExpanded
                         val lines = if(diff >  1) "lines" else "line"
-                        Text("$diff more $lines...",
+                        Text("Read $diff more $lines...",
                             modifier = Modifier.clickable{ onEditNote(note) }
                                 .align(Alignment.CenterHorizontally),
                             fontSize = 12.sp,
@@ -185,9 +199,7 @@ fun Note(
 
             }
 
-
-            Box(modifier=Modifier.heightIn(14.dp,14.dp).background(cardBackground)){ //TODO: Separate card into text column and right-hand col properly
-                                                                                    //to avoid adding vertical bloat with this
+            Box(modifier=Modifier.heightIn(14.dp,14.dp)){ //TODO: Separate card into text column and right-hand col properly
                 //TODO: fix rendering of this box(background clips)
                 //TODO: create Utility function to calculate "hrs / days / weeks / months ago" for this timestamp
                 Row(modifier = Modifier.padding(all = 2.dp)){
@@ -200,7 +212,7 @@ fun Note(
 
             Box(modifier = Modifier.heightIn(expandedAnimatedDp, expandedAnimatedDp) ) {
                 if(isFullyExpanded) {
-                    Column {
+                    Column(verticalArrangement = Arrangement.Center) {
                         Box(modifier = Modifier.fillMaxWidth()
                             .height(0.5.dp)
                             .background(MaterialTheme.colors.primaryVariant)) //Divider Line
@@ -221,9 +233,6 @@ fun Note(
         }
     }
 }
-
-
-
 
 @Composable
 fun NoteColor(
@@ -305,33 +314,54 @@ fun NoteButtons(
             .padding(0.dp)
             .height(32.dp)
             .defaultMinSize(minHeight = 28.dp),
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.CenterVertically
     )
        {
            val buttonPadding = 2.dp
+           val buttonSpacing = 12.dp
            val buttonSize = 14.dp
            val rightHandModifier = Modifier.padding(horizontal = 2.dp).size(buttonSize)
 
            if(!isArchive) {
-               IconButton( //Pin Button
-                   onClick = { onTogglePin(note) }
-               ) {
-                   Icon(
-                       modifier = Modifier.padding(horizontal = 2.dp).size(buttonSize),
-                       imageVector = if(note.isPinned) Octicons.BookmarkSlash24 else Octicons.Bookmark24,
-                       tint = MaterialTheme.colors.onPrimary,
-                       contentDescription = "Pin Note Button"
-                   )
-               }
+               Icon(
+                   modifier = Modifier
+                       .clip(RoundedCornerShape(2.dp))
+                       .align(Alignment.CenterVertically)
+                       .padding(4.dp)
+                       .size(buttonSize)
+                       .clickable(interactionSource = remember { MutableInteractionSource() },
+                       indication = rememberRipple(bounded = false, radius = buttonSize), // You can also change the color and radius of the ripple
+                       onClick = { onTogglePin(note) }),
+                   imageVector = if(note.isPinned) Octicons.BookmarkSlash24 else Octicons.Bookmark24,
+                   tint = MaterialTheme.colors.onPrimary,
+                   contentDescription = "Pin Note Button"
+               )
                Spacer(modifier = Modifier.weight(1f))
-               ArchiveButton(onArchiveNote = { onArchiveNote(note) }, rightHandModifier)
+               ArchiveButton(onArchiveNote = { onArchiveNote(note) }, buttonSize, rightHandModifier)
            }
            else{
                Spacer(modifier = Modifier.weight(1f))
-               DeleteButton(note, onDeleteNote, rightHandModifier)
-               UnArchiveButton({onRestoreNote(note)}, rightHandModifier)
+               DeleteButton(note, onDeleteNote, buttonSize, rightHandModifier)
+               Spacer(modifier= Modifier.width(buttonSpacing))
+               UnArchiveButton({onRestoreNote(note)}, buttonSize, rightHandModifier)
            }
 
+           Spacer(modifier= Modifier.width(buttonSpacing))
+           NoteButton(onClick = {copyClicked()},
+                      imageVector = Octicons.Copy24,
+                      tint = MaterialTheme.colors.onPrimary,
+                      iconSize =  buttonSize,
+                      contentDescription = "Copy Note Button"
+           )
+           Spacer(modifier= Modifier.width(buttonSpacing))
+           NoteButton(onClick = { onEditNote(note) },
+               imageVector = Octicons.Pencil24,
+               tint = MaterialTheme.colors.onPrimary,
+               iconSize = buttonSize,
+               contentDescription = "Edit Note Button"
+           )
+           Spacer(modifier= Modifier.width(buttonSpacing))
+           /*
            IconButton( //"Copy" Button
                onClick = { copyClicked() },
                modifier = Modifier
@@ -346,102 +376,111 @@ fun NoteButtons(
                        contentDescription = "Copy Note Button"
                    )
                }
-           }
+           }*/
 
-
-           IconButton(
-            onClick = { onEditNote(note) },
-            modifier = Modifier
-                //.align(Alignment.CenterVertically)
-                .padding(horizontal = buttonPadding)
-        ) {
-               Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                   Icon(
-                       modifier = rightHandModifier,
-                       imageVector = Octicons.Pencil24,
-                       tint = MaterialTheme.colors.onPrimary,
-                       contentDescription = "Edit Note Button"
-                   )
-               }
-
-        }
 
     }
 }
 
 @Preview
 @Composable
-fun UnArchiveButton(onRestoreNote: () -> Unit, modifier: Modifier) {
-    IconButton(
-        onClick = { onRestoreNote() },
-        modifier = Modifier
-            //.align(Alignment.CenterVertically)
-            .padding(horizontal = 2.dp)
-    ) {
-        Row{
-            Icon(
-                modifier = Modifier.size(12.dp),
-                imageVector = Octicons.ArrowLeft24,
-                tint = MaterialTheme.colors.onPrimary,
-                contentDescription = "Archive Note Button"
-            )
-            Icon(
-                modifier = modifier,
-                imageVector = Octicons.Inbox24,
-                tint = MaterialTheme.colors.onPrimary,
-                contentDescription = "Archive Note Button"
-            )
-        }
-    }
-
+fun NoteButton(onClick: () -> Unit, imageVector: ImageVector, iconSize: Dp, tint: Color, contentDescription: String = ""){
+    return Icon(modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
+        .padding(horizontal = 4.dp, vertical = 4.dp)
+        .size(iconSize)
+        .clickable(interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(bounded = false, radius = iconSize), // You can also change the color and radius of the ripple
+                onClick = onClick
+                ),
+        imageVector = imageVector,
+        tint = tint,
+        contentDescription = contentDescription
+    )
 }
 
 @Preview
 @Composable
-fun ArchiveButton(onArchiveNote: () -> Unit, modifier: Modifier) {
-    IconButton(
-        onClick = { onArchiveNote() },
-        modifier = Modifier
-        //.align(Alignment.CenterVertically)
-        .padding(horizontal = 2.dp)
-    ) {
-        Row{
-            Icon(
-                modifier = Modifier.size(12.dp),
-                imageVector = Octicons.ArrowRight24,
-                tint = MaterialTheme.colors.onPrimary,
-                contentDescription = "Archive Note Button"
+fun NoteButton2(onClick: () -> Unit, imageVector: ImageVector, imageVector2: ImageVector, iconSize: Dp, tint: Color, contentDescription: String = ""){
+    //TODO: Perhaps receive Modifier as an arg?
+        return Row(modifier = Modifier
+            .clip(RoundedCornerShape(2.dp))
+            .padding(4.dp)
+            .width(iconSize * 2).height(iconSize)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(
+                    bounded = false,
+                    radius = iconSize + (iconSize - 2.dp)
+                ), // You can also change the color and radius of the ripple
+                onClick = onClick
             )
+        )
+        {
             Icon(
-                modifier = modifier,
-                imageVector = Octicons.Inbox24,
-                tint = MaterialTheme.colors.onPrimary,
-                contentDescription = "Archive Note Button"
+                imageVector = imageVector,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(iconSize-2.dp),
+                tint = tint,
+                contentDescription = contentDescription
+            )
+            Spacer(Modifier.width(2.dp))
+            Icon(
+                imageVector = imageVector2,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(iconSize),
+                tint = tint,
+                contentDescription = contentDescription
             )
         }
-    }
-
 }
 
 @Preview
 @Composable
-fun DeleteButton(note: NoteProperty, onDeleteNote: (NoteProperty) -> Unit, modifier: Modifier) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
-    IconButton(
-        onClick = { onDeleteNote(note) },
-        modifier = Modifier.hoverable(interactionSource)
-            //.align(Alignment.CenterVertically)
-            .padding(horizontal = 2.dp)
-    ) {
-        Icon(
-            modifier = modifier,
-            imageVector = Octicons.Trash24,
-            tint = if(isHovered) MaterialTheme.colors.error else MaterialTheme.colors.onPrimary,
+fun UnArchiveButton(onRestoreNote: () -> Unit, buttonSize: Dp, modifier: Modifier) {
+    NoteButton2(
+            onClick = onRestoreNote,
+            imageVector = Octicons.ArrowLeft24,
+            imageVector2= Octicons.Inbox24,
+            iconSize = buttonSize,
+            tint = MaterialTheme.colors.onPrimary,
             contentDescription = "Archive Note Button"
         )
-    }
+}
 
+@Preview
+@Composable
+fun ArchiveButton(onArchiveNote: () -> Unit, buttonSize: Dp, modifier: Modifier) {
+    NoteButton2(
+        onClick = onArchiveNote,
+        imageVector = Octicons.ArrowRight24,
+        imageVector2 = Octicons.Inbox24,
+        iconSize = buttonSize,
+        tint = MaterialTheme.colors.onPrimary,
+        ""
+    )
+
+}
+
+@Preview
+@Composable
+fun DeleteButton(note: NoteProperty, onDeleteNote: (NoteProperty) -> Unit, buttonSize: Dp, modifier: Modifier) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    fun buttonClicked() { onDeleteNote(note) }
+
+    Box(modifier = Modifier.hoverable(interactionSource)){
+        NoteButton(onClick = ::buttonClicked,
+            imageVector = Octicons.Trash24,
+            iconSize = buttonSize,
+            tint = if(isHovered) MaterialTheme.colors.error else MaterialTheme.colors.onPrimary,
+            "Delete Note Button"
+        )
+    }
 }
 
 @Preview

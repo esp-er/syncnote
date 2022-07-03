@@ -1,10 +1,12 @@
 package com.patriker.syncnote.ui.screens
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.max
@@ -177,6 +179,12 @@ private fun SaveNoteContent(
     onNoteChange: (NoteProperty) -> Unit,
     onOpenColorPickerClick: () -> Unit
 ) {
+    val noteScrollState = rememberScrollState(100)
+
+    LaunchedEffect(noteScrollState){
+        println(noteScrollState.value)
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(top=4.dp)) {
         ContentTextField(
             modifier = Modifier.heightIn(52.dp,52.dp),
@@ -187,16 +195,24 @@ private fun SaveNoteContent(
             },
             maxLines = 1
         )
-        ContentTextField(
-            modifier = Modifier
-                .padding(top = 16.dp,bottom=16.dp)
-                .weight(1f),
-            label = "Content",
-            text = note.content,
-            onTextChange = { newContent ->
-                onNoteChange.invoke(note.copy(content = newContent))
-            }
-        )
+        Box(modifier = Modifier.weight(1f).padding(vertical = 16.dp)) {
+            ContentTextField(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(noteScrollState),
+                label = "Notes",
+                text = note.content,
+                onTextChange = { newContent ->
+                    onNoteChange.invoke(note.copy(content = newContent))
+                }
+            )
+            VerticalScrollbar(
+                modifier = Modifier
+                    .padding(start = 0.dp, top = 8.dp, bottom = 8.dp, end = 12.dp)
+                    .align(Alignment.CenterEnd),
+                adapter = rememberScrollbarAdapter(noteScrollState)
+            )
+        }
 
         /*
         NoteCheckOption( isChecked = canBeCheckedOff,
