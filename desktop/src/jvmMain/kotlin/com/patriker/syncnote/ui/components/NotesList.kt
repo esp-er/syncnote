@@ -36,15 +36,13 @@ fun NotesList(
         val notesList: List<NoteProperty> by notes.collectAsState()
 
         //TODO: sort notes by last Edited date instead?
+        //TODO: Ordering looks wrong on Archive screen
         val notesReversed by derivedStateOf {
             notesList.reversed().sortedBy { !(it.isPinned) }
         }
 
         val listState = rememberLazyListState()
         LazyColumn(state = listState, modifier = Modifier.padding(end = 6.dp)) {
-            //TODO: Figure out automatic padding for scollbar?
-
-            //TODO: list pinned notes on top!
             items(notesReversed, { note: NoteProperty -> note.id }) { note ->
                 //var dismissOpacity by remember { mutableStateOf(0f)}
                 Note(

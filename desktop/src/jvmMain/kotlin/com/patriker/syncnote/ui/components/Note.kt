@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.DpSize
+import com.raywenderlich.jetnotes.domain.Util
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
@@ -48,6 +49,7 @@ import compose.icons.tablericons.Dots
 import compose.icons.tablericons.Pin
 import compose.icons.tablericons.PinnedOff
 import io.netty.handler.codec.http.HttpContentDecoder
+import kotlinx.datetime.Clock
 import javax.swing.ImageIcon
 import kotlin.math.exp
 
@@ -65,6 +67,8 @@ fun Note(
     onSnackMessage: (String) -> Unit = {},
     isArchivedNote: Boolean = false
 ){
+
+    val timeAgoText = remember { Util.timeAgoString(note.editDate, Clock.System.now())}
 
     val expandedButtonsHeight = 26.dp
 
@@ -98,7 +102,7 @@ fun Note(
             .onPointerEvent(PointerEventType.Press) {
                 when {
                     it.buttons.isPrimaryPressed -> when (it.awtEventOrNull?.clickCount) {
-                        2 -> if(expandedState) onEditNote(note)
+                        2 -> onEditNote(note)
                         else -> { }
                     }
                 }
@@ -202,9 +206,9 @@ fun Note(
             Box(modifier=Modifier.heightIn(14.dp,14.dp)){ //TODO: Separate card into text column and right-hand col properly
                 //TODO: fix rendering of this box(background clips)
                 //TODO: create Utility function to calculate "hrs / days / weeks / months ago" for this timestamp
-                Row(modifier = Modifier.padding(all = 2.dp)){
+                Row(modifier = Modifier.padding(horizontal = 2.dp)){
                     Spacer(Modifier.weight(1f))
-                    Text(note.editDate.toString(), fontSize = 9.sp, style = TextStyle(MaterialTheme.colors.onSecondary))
+                    Text(timeAgoText, fontSize = 9.sp, style = TextStyle(MaterialTheme.colors.onSecondary))
                 }
             }
 

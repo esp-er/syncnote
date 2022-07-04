@@ -181,9 +181,6 @@ private fun SaveNoteContent(
 ) {
     val noteScrollState = rememberScrollState(100)
 
-    LaunchedEffect(noteScrollState){
-        println(noteScrollState.value)
-    }
 
     Column(modifier = Modifier.fillMaxSize().padding(top=4.dp)) {
         ContentTextField(

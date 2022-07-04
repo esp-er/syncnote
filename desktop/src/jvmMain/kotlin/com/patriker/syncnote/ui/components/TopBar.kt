@@ -1,14 +1,18 @@
 package com.patriker.syncnote.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
@@ -68,16 +72,16 @@ fun TopBar(onClickNew: () -> Unit){
             }
 
             Column(horizontalAlignment = Alignment.End,
-                        modifier = Modifier.width(24.dp).weight(1f)) { //content
-                IconButton(
-                    modifier = Modifier.align(Alignment.End),
-                    onClick = { if(!showMenu) toggleMenu() }
-                ) {
+                        modifier = Modifier.width(30.dp).padding(horizontal = 4.dp).weight(1f)) { //content
+
                     Icon(
+                        modifier = Modifier
+                        .clickable(interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(bounded = false, radius = 16.dp), // You can also change the color and radius of the ripple
+                            onClick = { if(!showMenu) toggleMenu()}),
                         imageVector = Octicons.ThreeBars16,
                         contentDescription = "Drawer Button"
                     )
-                }
 
             }
             Column(horizontalAlignment = Alignment.End) {
