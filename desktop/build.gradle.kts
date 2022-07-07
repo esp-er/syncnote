@@ -52,9 +52,6 @@ kotlin {
                 implementation("br.com.devsrsouza.compose.icons.jetbrains:tabler-icons:1.0.0")
                 implementation("br.com.devsrsouza.compose.icons.jetbrains:octicons:1.0.0")
 
-                //QR code generation
-                implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")
-
                 //Android lifecycle on desktop
 
                 implementation(compose.desktop.currentOs)

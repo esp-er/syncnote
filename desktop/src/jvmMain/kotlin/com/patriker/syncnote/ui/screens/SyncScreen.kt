@@ -11,6 +11,7 @@ import com.raywenderlich.jetnotes.routing.Screen
 
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
@@ -58,43 +59,14 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
         }
     }
 
-    if(!viewModel.isPaired){
-        HostPairWidget()
-    }
-    else {
+
         Scaffold(
-            topBar = {
-                Box()
-                {
-                    Column {
-                        TopAppBar(
-                            modifier = Modifier.heightIn(50.dp, 50.dp),
-                            //.border(BorderStroke(0.4.dp, MaterialTheme.colors.primaryVariant), shape = RectangleShape),
-                            backgroundColor = MaterialTheme.colors.background,
-                            title = {
-                                Text(
-                                    text = "Open Notes",
-                                    fontSize = 18.sp
-                                )
-                            },
-                            navigationIcon = {
-                                IconButton(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            scaffoldState.drawerState.open()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Octicons.ThreeBars16,
-                                        contentDescription = "Drawer Button"
-                                    )
-                                }
-                            }
-                        )
-                        //horLineSeparator()
-                        TopTabBar(initState = 1, isConnected) //Tabs
-                    }
+            topBar =
+            {
+                Column {
+                    TopBar(viewModel::onCreateNewNoteClick)
+                    //horLineSeparator()
+                    TopTabBar(initState = 1) //Tabs
                 }
             },
             scaffoldState = scaffoldState, //lets the scaffold display the correct state
@@ -105,19 +77,20 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
                 )
             },
             drawerContent = {
-                AppDrawer(
-                    currentScreen = Screen.Sync,
-                    closeDrawerAction = {
-                        //Drawer close
-                        coroutineScope.launch {
-                            scaffoldState.drawerState.close()
-                        }
-                    },
-                    isConnected = isConnected
-                )
             },
+            drawerGesturesEnabled = false,
             //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
-           content ={}
+           content = {
+               Box(modifier = Modifier.fillMaxSize())
+               Column {
+                   if (!viewModel.isPaired) {
+                       HostPairWidget(viewModel.qrBitmapFlow, viewModel.ipFlow)
+                   } else {
+                       Text("test")
+                   }
+               }
+           }
+
             /*{
                 val isPaired = viewModel.hasPairedHost.value ?: false
                 if (isPaired)
@@ -131,5 +104,4 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
                 }
             }*/
         )
-    }
 }

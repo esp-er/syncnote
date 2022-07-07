@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.noRippleClickable
+import com.patriker.syncnote.viewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
@@ -154,7 +155,10 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                         }
                     },
                     selected = state == 1,
-                    onClick = { state = 1; NotesRouter.navigateTo(Screen.Sync) }
+                    onClick = { state = 1
+                        viewModel.requestQRCode()
+                        NotesRouter.navigateTo(Screen.Sync)
+                    }
                 )
 
                 LeadingIconTab(

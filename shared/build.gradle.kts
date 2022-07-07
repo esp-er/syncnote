@@ -67,6 +67,8 @@ kotlin {
                 dependsOn(commonMain)
                 dependencies {
                     implementation("com.squareup.sqldelight:sqlite-driver:${rootProject.extra["sqldelight_version"]}")
+                    //QR code generation
+                    implementation("io.github.g0dkar:qrcode-kotlin-jvm:3.1.0")
                 }
             }
         }

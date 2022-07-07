@@ -15,6 +15,7 @@ import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.patriker.syncnote.ui.SyncNoteDesktopTheme
+import com.patriker.syncnote.ui.screens.SyncScreen
 import org.koin.core.Koin
 
 
@@ -45,19 +46,6 @@ fun main() = runBlocking {
             }
         }
 
-
-        val hostinfo = InetAddress.getLocalHost()
-        val ipaddress = hostinfo.hostAddress!!
-        val hostname = hostinfo.hostName!!
-        val port: Int = 9000
-
-
-        val qrData = QRCode("192.168.0.149:${port}").render()
-        var imageBytes = ByteArrayOutputStream().also { qrData.writeImage(it, "PNG") }.toByteArray()
-        val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
-        //val tmp = qrData.writeImage()
-        //val imageBytes = ByteArrayOutputStream().also { ImageIO.write(qrData, "PNG", it) }.toByteArray()
-
      */
 
 
@@ -84,7 +72,7 @@ fun main() = runBlocking {
                             is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
                             is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
                             is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
-                            //is Screen.Sync -> SyncScreen(viewModel)
+                            is Screen.Sync -> SyncScreen(viewModel)
                             else -> NotesScreen(viewModel)
                         }
                     }

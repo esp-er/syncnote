@@ -80,8 +80,6 @@ fun NotesScreen(viewModel: MainViewModel) {
         drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
         //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         //floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-        },
         content = {
                 NotesList( // here
                     notes = viewModel.notes,

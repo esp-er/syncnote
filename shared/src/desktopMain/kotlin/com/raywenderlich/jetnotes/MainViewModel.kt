@@ -1,9 +1,11 @@
 package com.raywenderlich.jetnotes
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.raywenderlich.jetnotes.data.ExternRepository
 import com.raywenderlich.jetnotes.data.FlowRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.data.Repository
+import com.raywenderlich.jetnotes.domain.QRGenerator
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.*
@@ -22,6 +24,11 @@ actual class MainViewModel actual constructor(private val repository: Repository
     val desktopRepo = FlowRepository(repository)
     val notes: StateFlow<List<NoteProperty>> get() = desktopRepo.getMainNotes()
     val notesInArchive: StateFlow<List<NoteProperty>> get() = desktopRepo.getArchivedNotes()
+    val qrgenerator = QRGenerator()
+
+    val qrBitmapFlow: StateFlow<ImageBitmap?> = qrgenerator.getQR()
+    val ipFlow: StateFlow<String> = qrgenerator.getNetAddr()
+
 
     val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()
 
@@ -85,6 +92,14 @@ actual class MainViewModel actual constructor(private val repository: Repository
             desktopRepo.restoreNote(note.id)
             withContext(Dispatchers.Default) { //TODO:perhaps not navigate on desktop?
                 NotesRouter.navigateTo(Screen.Notes)
+            }
+        }
+    }
+
+    fun requestQRCode() {
+        if(!isPaired) {
+            viewModelScope.launch {
+                qrgenerator.renderQRBitmap()
             }
         }
     }
