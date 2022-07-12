@@ -1,14 +1,27 @@
 package com.patriker.syncnote.ui.screens
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.*
+import androidx.compose.material.TextFieldDefaults.indicatorLine
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 //import com.patriker.syncnote.ui.components.NoteColor
@@ -18,7 +31,11 @@ import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.Octicons
 import compose.icons.TablerIcons
-import compose.icons.octicons.*
+import compose.icons.octicons.ArrowLeft24
+import compose.icons.octicons.Inbox24
+import compose.icons.octicons.Check24
+import compose.icons.octicons.People24
+import compose.icons.octicons.Trash24
 import compose.icons.tablericons.Palette
 
 
@@ -108,18 +125,25 @@ private fun SaveNoteTopAppBar(
         title = {
             Text(
                 text = title,
-                color = MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W500
             )
         },
 
         navigationIcon = {
-            IconButton(onClick = onBackClick){
+            Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Octicons.ArrowLeft24,
                     contentDescription = "Save Note Button",
-                    tint = MaterialTheme.colors.onPrimary
+                    tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple(
+                            bounded = false,
+                            radius = 16.dp
+                        ), // You can also change the color and radius of the ripple
+                        onClick = onBackClick
+                    )
                 )
             }
         },
@@ -179,12 +203,12 @@ private fun SaveNoteContent(
     onNoteChange: (NoteProperty) -> Unit,
     onOpenColorPickerClick: () -> Unit
 ) {
-    val noteScrollState = rememberScrollState(100)
+    val noteScrollState = rememberScrollState(0)
 
 
     Column(modifier = Modifier.fillMaxSize().padding(top=4.dp)) {
         ContentTextField(
-            modifier = Modifier.heightIn(52.dp,52.dp),
+            modifier = Modifier.heightIn(42.dp,42.dp),
             label = "Title",
             text = note.title,
             onTextChange = { newTitle ->
@@ -192,7 +216,7 @@ private fun SaveNoteContent(
             },
             maxLines = 1
         )
-        Box(modifier = Modifier.weight(1f).padding(vertical = 16.dp)) {
+        Box(modifier = Modifier.weight(1f).padding(vertical = 8.dp)) {
             ContentTextField(
                 modifier = Modifier
                     .fillMaxSize()
@@ -241,14 +265,20 @@ private fun ContentTextField(
     onTextChange: (String) -> Unit,
     maxLines: Int = Int.MAX_VALUE
 ) {
+    val focusManager = LocalFocusManager.current
+    var isFocused by remember{ mutableStateOf(false) }
     var contentText by remember { mutableStateOf(text)}
-    TextField(
+    NoteTextField(
         value = contentText,
         onValueChange = { contentText = it ; onTextChange(contentText)},
-        label = { Text(label, fontSize = 14.sp) },
+        label = { Row{
+            if(!isFocused) Text(label, fontSize = 12.sp) else Text(label, fontSize = 12.sp)
+        }},
+        placeholder = {},
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 0.dp)
+            .onFocusChanged { isFocused = it.isFocused },
         colors = TextFieldDefaults.textFieldColors( //"default" Data structure used to define colors
             backgroundColor = MaterialTheme.colors.surface
         ),
@@ -341,6 +371,78 @@ private fun SaveNoteTopAppBarPreview(){
     )
 
 }
+
+@Composable
+fun NoteTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape =
+        MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+    colors: TextFieldColors = TextFieldDefaults.textFieldColors()
+) {
+    // If color is not provided via the text style, use content color as a default
+    val textColor = textStyle.color.takeOrElse {
+        colors.textColor(enabled).value
+    }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+    @OptIn(ExperimentalMaterialApi::class)
+    (BasicTextField(
+        value = value,
+        modifier = modifier
+            .background(colors.backgroundColor(enabled).value, shape)
+            .indicatorLine(enabled, isError, interactionSource, colors)
+            .defaultMinSize(
+                minWidth = TextFieldDefaults.MinWidth,
+                minHeight = 40.dp
+            ),
+        onValueChange = onValueChange,
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = mergedTextStyle,
+        cursorBrush = SolidColor(colors.cursorColor(isError).value),
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        interactionSource = interactionSource,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        decorationBox = @Composable { innerTextField ->
+            // places leading icon, text field with label and placeholder, trailing icon
+            TextFieldDefaults.TextFieldDecorationBox(
+                value = value,
+                visualTransformation = visualTransformation,
+                innerTextField = innerTextField,
+                placeholder = placeholder,
+                label = label,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                singleLine = singleLine,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                colors = colors,
+                contentPadding = PaddingValues(start = 8.dp, top=14.dp, bottom = 8.dp, end=8.dp)
+            )
+        }
+    ))
+}
+
 
 /*
 @Composable

@@ -1,5 +1,7 @@
 package com.patriker.syncnote.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.*
@@ -22,46 +24,23 @@ fun ArchiveScreen(viewModel: MainViewModel) {
 
     val isConnected = viewModel.isSyncing
 
-
-    val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
 
-    fun showSnackBar(message: String) {
-        coroutineScope.launch{
-            val showbar = launch {
-                scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Indefinite)
-            }
-            delay(2000) //Trick to allow shorter snackbar time
-            showbar.cancel()
-        }
-    }
-
-
-    Scaffold (
-        topBar =
-        {
-            Column {
-                TopBar(viewModel::onCreateNewNoteClick)
-                //horLineSeparator()
-                TopTabBar(initState = 2) //Tabs
-            }
-        },
-        scaffoldState = scaffoldState, //lets the scaffold display the correct state
-        snackbarHost = {scaffoldState.snackbarHostState},
-        drawerContent = {},
-        drawerGesturesEnabled = false,
-        //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
-        content = {
+    Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+        Column {
+            TopBar(viewModel::onCreateNewNoteClick)
+            //horLineSeparator()
+            TopTabBar(initState = 2) //Tabs
             NotesList( // here
                 notes = viewModel.notesInArchive,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                 onEditNote = { viewModel.onNoteClick(it) },
-                onRestoreNote =  { viewModel.restoreNoteFromArchive(it) },
+                onRestoreNote = { viewModel.restoreNoteFromArchive(it) },
                 onDeleteNote = { viewModel.permaDeleteNote(it) },
                 //onPinNote = {viewModel.pinNote(it)},
                 isArchive = true,
-                onSnackMessage = ::showSnackBar
+                onSnackMessage = {}
             )
         }
-    )
+    }
 }

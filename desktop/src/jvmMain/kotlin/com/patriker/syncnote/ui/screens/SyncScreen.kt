@@ -1,5 +1,6 @@
 package com.patriker.syncnote.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -34,74 +35,21 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
+    Box(modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()) {
+        Column {
+            TopBar(viewModel::onCreateNewNoteClick)
+            //horLineSeparator()
+            TopTabBar(initState = 1) //Tabs
 
-    fun snackBarMessage(message: String) {
-        coroutineScope.launch{
-            val showbar = launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message,
-                    "Hide",
-                    duration = SnackbarDuration.Short
-                )
+            Box(modifier = Modifier.fillMaxSize(0.75f).align(Alignment.CenterHorizontally)) {
+                Column{
+                    if (!viewModel.isPaired) {
+                        HostPairWidget(viewModel.qrBitmapFlow, viewModel.ipFlow)
+                    } else {
+                        Text("test")
+                    }
+                }
             }
         }
     }
-
-    fun snackBarShort(message: String) {
-        coroutineScope.launch{
-            val showbar = launch {
-                scaffoldState.snackbarHostState.showSnackbar(message,
-                    "Hide",
-                    SnackbarDuration.Indefinite)
-            }
-            delay(2000)
-            showbar.cancel()
-        }
-    }
-
-
-        Scaffold(
-            topBar =
-            {
-                Column {
-                    TopBar(viewModel::onCreateNewNoteClick)
-                    //horLineSeparator()
-                    TopTabBar(initState = 1) //Tabs
-                }
-            },
-            scaffoldState = scaffoldState, //lets the scaffold display the correct state
-            snackbarHost = { scaffoldState.snackbarHostState },
-            bottomBar = {
-                SnackbarHost(
-                    hostState = scaffoldState.snackbarHostState
-                )
-            },
-            drawerContent = {
-            },
-            drawerGesturesEnabled = false,
-            //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
-           content = {
-               Box(modifier = Modifier.fillMaxSize())
-               Column {
-                   if (!viewModel.isPaired) {
-                       HostPairWidget(viewModel.qrBitmapFlow, viewModel.ipFlow)
-                   } else {
-                       Text("test")
-                   }
-               }
-           }
-
-            /*{
-                val isPaired = viewModel.hasPairedHost.value ?: false
-                if (isPaired)
-                    SyncedNoteList( // here
-                        notes = viewModel.cachedNotes,
-                        onDeleteNote = { },
-                        onSnackMessage = ::snackBarShort
-                    )
-                else {
-                    PairDeviceUI()
-                }
-            }*/
-        )
 }

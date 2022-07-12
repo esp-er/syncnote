@@ -50,7 +50,7 @@ val LightThemeColors = lightColors(
 
 @Composable
 fun SyncNoteTheme(content: @Composable () -> Unit) {
-  val isDarkThemeEnabled = isSystemInDarkTheme() || ThemeSettings.isDarkThemeEnabled
+  var isDarkThemeEnabled = if(ThemeSettings.isUserDefined) ThemeSettings.isDarkThemeEnabled else isSystemInDarkTheme()
   val colors = if (isDarkThemeEnabled) DarkThemeColors else LightThemeColors
 
   MaterialTheme(colors = colors, content = content)
@@ -61,4 +61,5 @@ fun SyncNoteTheme(content: @Composable () -> Unit) {
  */
 object ThemeSettings {
   var isDarkThemeEnabled by mutableStateOf(false)
+  var isUserDefined by mutableStateOf(false)
 }

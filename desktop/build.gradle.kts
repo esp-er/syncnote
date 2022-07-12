@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.1.1"
+    id("org.jetbrains.compose").version("1.2.0-alpha01-dev741")
 }
 
 group = "com.patriker.syncnote"
@@ -15,7 +15,7 @@ kotlin {
     jvm { //Set up jvm target
         withJava()
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "17"
         }
     }
 
@@ -35,18 +35,20 @@ kotlin {
                 //Koin depinjection
                 implementation("io.insert-koin:koin-core:${rootProject.ext["koin_version"]}")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
                 //Ktor deps
                 implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-websockets-jvm:${rootProject.ext["ktor_version"]}")
-                implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
-                implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
+                //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
+                //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-cio:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth-jwt:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
-                implementation("ch.qos.logback:logback-classic:${rootProject.ext["logback_version"]}")
+                //implementation("ch.qos.logback:logback-classic:${rootProject.ext["logback_version"]}")
 
                 //Tabler icons
                 implementation("br.com.devsrsouza.compose.icons.jetbrains:tabler-icons:1.0.0")
@@ -86,4 +88,18 @@ compose.desktop {
             }
         }
     }
+}
+
+
+tasks.register<proguard.gradle.ProGuardTask>("minifyJar") {
+    val packageUberJarForCurrentOS by tasks.getting
+    dependsOn(packageUberJarForCurrentOS)
+    val files = packageUberJarForCurrentOS.outputs.files
+    injars(files)
+    outjars(files.map { file -> File(file.parentFile, "${file.nameWithoutExtension}.min.jar") })
+
+    val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
+    libraryjars("${System.getProperty("java.home")}/$library")
+
+    configuration("proguard-rules.pro")
 }

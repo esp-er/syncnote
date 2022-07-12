@@ -16,8 +16,7 @@ object AppColors{
   val lightBrown = Color(0xFFDDB284)
   val darkBrown = Color(0xFF723712)
   val primaryGreen = Color(0xFF05745B)
-
-  val outlineGrey = Color(0xFF494749),
+  val outlineGrey = Color(0xFF494749)
 }
 
 

@@ -9,13 +9,12 @@ import java.util.*
 import kotlin.collections.LinkedHashSet
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.cio.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.slf4j.*
 
 object SocketSession {
     var sess: DefaultWebSocketServerSession? = null
@@ -82,7 +81,7 @@ class SyncServer(private val dataSource: Repository){
 
     fun start(){
         val environment = applicationEngineEnvironment {
-            log = LoggerFactory.getLogger("ktor.application")
+            //log = LoggerFactory.getLogger("ktor.application")
             connector {
                 port = 9000
             }
@@ -92,7 +91,7 @@ class SyncServer(private val dataSource: Repository){
         }
 
         embeddedServer(
-            Netty, environment
+            CIO, environment
         ).start(wait = true)
     }
 

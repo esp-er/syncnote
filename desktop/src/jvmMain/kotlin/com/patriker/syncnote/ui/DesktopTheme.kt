@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
 
 @Composable
 fun SyncNoteDesktopTheme(content: @Composable () -> Unit) {
-    val isDarkThemeEnabled = isSystemInDarkTheme() || ThemeSettings.isDarkThemeEnabled
+    var isDarkThemeEnabled = if(ThemeSettingsDesktop.isUserDefined) ThemeSettingsDesktop.isDarkThemeEnabled else isSystemInDarkTheme()
     val colors = if (isDarkThemeEnabled) DarkThemeColors else LightThemeColors
 
     val fontFamily = FontFamily(
@@ -36,5 +36,10 @@ fun SyncNoteDesktopTheme(content: @Composable () -> Unit) {
 
     MaterialTheme(colors = colors, content = content, typography = typography)
 
+}
+
+object ThemeSettingsDesktop {
+    var isDarkThemeEnabled by mutableStateOf(false)
+    var isUserDefined by mutableStateOf(false)
 }
 

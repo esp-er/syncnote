@@ -7,22 +7,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.*
-//import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.material.Text
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import com.raywenderlich.jetnotes.routing.NotesRouter
+//import androidx.compose.runtime.livedata.observeAsState
 import com.raywenderlich.jetnotes.routing.Screen
 
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
-import androidx.compose.material.TopAppBar
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
 import compose.icons.TablerIcons
@@ -43,23 +32,33 @@ fun NotesScreen(viewModel: MainViewModel) {
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val dw = DrawerState(DrawerValue.Closed, { false })
-    fun showSnackBar(message: String) {
-        /*coroutineScope.launch{
-            val showbar = launch { scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Indefinite)}
-            delay(2000)
-            showbar.cancel()
-        }*/
-    }
 
     val isConnected = viewModel.isSyncing //TODO: change to observable (reactive) value
+    Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+        Column {
+            TopBar(viewModel::onCreateNewNoteClick)
+            //horLineSeparator()
+            TopTabBar(initState = 0) //Tabs
+            NotesList( // here
+                notes = viewModel.notes,
+                onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
+                onEditNote = { viewModel.onNoteClick(it) },
+                onRestoreNote = { viewModel.restoreNoteFromArchive(it) },
+                onArchiveNote = { viewModel.archiveNote(it) },
+                onDeleteNote = { viewModel.permaDeleteNote(it) },
+                onTogglePin = { viewModel.togglePin(it) },
+                isArchive = false,
+                onSnackMessage = {}
+            )
+        }
+    }
 
+/*
     Scaffold ( //TODO: remove scaffold and change this from scaffold to simple layout on desktop
         topBar =
         {
             Column {
-                TopBar(viewModel::onCreateNewNoteClick)
-                //horLineSeparator()
-                TopTabBar(initState = 0) //Tabs
+
             }
         },
         scaffoldState = ScaffoldState(dw, scaffoldState.snackbarHostState),
@@ -81,17 +80,7 @@ fun NotesScreen(viewModel: MainViewModel) {
         //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         //floatingActionButtonPosition = FabPosition.End,
         content = {
-                NotesList( // here
-                    notes = viewModel.notes,
-                    onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
-                    onEditNote = { viewModel.onNoteClick(it) },
-                    onRestoreNote = {viewModel.restoreNoteFromArchive(it) },
-                    onArchiveNote = { viewModel.archiveNote(it) },
-                    onDeleteNote = { viewModel.permaDeleteNote(it) },
-                    onTogglePin= { viewModel.togglePin(it) },
-                    isArchive = false,
-                    onSnackMessage = ::showSnackBar
-                )
+
             }
-    )
+    )*/
 }

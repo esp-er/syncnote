@@ -2,6 +2,7 @@ package com.patriker.syncnote.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
+import com.patriker.syncnote.ui.ThemeSettingsDesktop
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.jetnotes.theme.ThemeSettings
@@ -26,6 +28,7 @@ import compose.icons.octicons.Plus24
 import compose.icons.octicons.ThreeBars16
 import compose.icons.tablericons.*
 import kotlinx.coroutines.launch
+import kotlin.reflect.jvm.internal.impl.util.Check
 
 @Composable
 fun TopBar(onClickNew: () -> Unit){
@@ -33,7 +36,7 @@ fun TopBar(onClickNew: () -> Unit){
     fun toggleMenu() { showMenu = !showMenu}
 
     TopAppBar(
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
         modifier= Modifier.fillMaxWidth().heightIn(40.dp,40.dp)) {
 
@@ -42,19 +45,8 @@ fun TopBar(onClickNew: () -> Unit){
             verticalAlignment = Alignment.CenterVertically) {
             //Left side Icon
             Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f).padding(vertical = 4.dp)){
-
-//                Text("NEW")
                 NewButton(onClickNew)
-               /* TODO: "NEW" Button here
-                IconButton(
-                    onClick = { },
-                    enabled = true,
-                ) {
-                    Icon(
-                        imageVector = Octicons.ThreeBars16,
-                        contentDescription = "Back",
-                    )
-                }*/
+
             }
 
             //Title
@@ -63,10 +55,10 @@ fun TopBar(onClickNew: () -> Unit){
                         Text(
                             textAlign = TextAlign.Center,
                             maxLines = 1,
+                            color = MaterialTheme.colors.onSurface,
                             text = "SyncNote",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500,
-                            color = MaterialTheme.colors.onBackground
+                            fontWeight = FontWeight.W500
                         )
                 //}
             }
@@ -80,6 +72,7 @@ fun TopBar(onClickNew: () -> Unit){
                             indication = rememberRipple(bounded = false, radius = 16.dp), // You can also change the color and radius of the ripple
                             onClick = { if(!showMenu) toggleMenu()}),
                         imageVector = Octicons.ThreeBars16,
+
                         contentDescription = "Drawer Button"
                     )
 
@@ -164,7 +157,7 @@ fun MainDropDown(show: Boolean, onDismiss: () -> Unit) {
 
             }) {
             Spacer(modifier = Modifier.width(16.dp))
-            ToggleDark()
+            ToggleDark(ThemeSettingsDesktop.isUserDefined, ThemeSettingsDesktop.isDarkThemeEnabled)
         }
 
         DropdownMenuItem(
@@ -207,20 +200,21 @@ private fun ToggleSync(modifier: Modifier = Modifier) {
         }
 
         Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
-            Switch( //TODO: implement toggling for sync
-                checked = false,
-                onCheckedChange = { },
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .align(alignment = Alignment.End)
+            Checkbox(
+            checked = false,
+            onCheckedChange = { },
+            modifier = Modifier
+                .padding(start = 4.dp)
+                .align(alignment = Alignment.End)
             )
+
         }
     }
 }
 
 
 @Composable
-private fun ToggleDark() {
+private fun ToggleDark(userDefined: Boolean = false, isEnabled:Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -243,12 +237,21 @@ private fun ToggleDark() {
             }
         }
         Column (modifier = Modifier.align(Alignment.CenterVertically).weight(1f)){
-            Switch(
-                checked = ThemeSettings.isDarkThemeEnabled,
-                onCheckedChange = { ThemeSettings.isDarkThemeEnabled = it },
+            val initialState = isSystemInDarkTheme()
+            var darkEnabled by remember { mutableStateOf(if(userDefined) isEnabled else initialState ) }
+            Checkbox(
+                checked = darkEnabled,
+                onCheckedChange = {
+                    it.also { state ->
+                        darkEnabled = state
+                        ThemeSettingsDesktop.isDarkThemeEnabled = state
+                        ThemeSettingsDesktop.isUserDefined = true
+                    }
+                },
                 modifier = Modifier
-                    .padding(start = 8.dp)
+                    .padding(start = 2.dp)
                     .align(alignment = Alignment.End)
+                    .fillMaxHeight(0.5f)
             )
         }
     }

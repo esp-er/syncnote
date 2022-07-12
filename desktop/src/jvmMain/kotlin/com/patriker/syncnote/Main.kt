@@ -18,8 +18,11 @@ import com.patriker.syncnote.ui.SyncNoteDesktopTheme
 import com.patriker.syncnote.ui.screens.SyncScreen
 import org.koin.core.Koin
 
+import java.awt.Toolkit
+
 
 import kotlinx.coroutines.*
+import java.awt.Dimension
 
 
 //import com.raywenderlich.compose.theme.AppTheme
@@ -37,7 +40,6 @@ lateinit var viewModel: MainViewModel
 fun main() = runBlocking {
         koin = initKoin().koin
 
-    /*TODO: Re-enable all android *state* code that was commented out or removed while getting Desktop to compile*/
 
     /*
         val serverJob = launch(Dispatchers.IO){
@@ -50,9 +52,22 @@ fun main() = runBlocking {
 
 
         application {
+
+            val test: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
+            val screenSize: Dimension = Toolkit.getDefaultToolkit().screenSize
+            val (width, height) = listOf(screenSize.width, screenSize.height)
+
+            val x = (width / 2 - 300).dp
+            val y = (height / 2 - 400).dp
+
+            println(test)
+
             val scope = rememberCoroutineScope() //This Scope won't interfere with Compose UI coroutine
             viewModel = MainViewModel(koin.get(), koin.get(), { scope })
-            val state =  rememberWindowState(width = 600.dp, height = 800.dp, position = WindowPosition(1800.dp, 800.dp))
+            val state = rememberWindowState(width = 600.dp, height = 800.dp,
+                //position = WindowPosition(x,y)
+                position = WindowPosition(1950.dp, 630.dp)
+                )
             fun minimize() {
                 state.isMinimized = true
             }
@@ -82,106 +97,3 @@ fun main() = runBlocking {
         }
 
     }
-
-/*
-@Composable
-fun DesktopMenuBar(){
-    //Set up multiple windows
-    var initialized by remember { mutableStateOf(false) }
-    var windowCount by remember { mutableStateOf(1) }
-    val windowList = remember { SnapshotStateList<WindowInfo>() }
-    if (!initialized) {
-        windowList.add(
-            WindowInfo(
-                "Timezone-${windowCount}",
-                rememberWindowState()
-            )
-        )
-        initialized = true
-    }
-
-    windowList.forEachIndexed { i, window ->
-        Window(
-
-            onCloseRequest = {
-                windowList.removeAt(i)
-            },
-
-            state = windowList[i].windowState,
-            title = windowList[i].windowName
-        ) {
-
-            Surface {
-
-                MenuBar {
-                    Menu("File", mnemonic = 'F') {
-                        val nextWindowState = rememberWindowState()
-                        Item(
-                            "New", onClick = {
-                                windowCount++
-                                windowList.add(
-                                    WindowInfo(
-                                        "Timezone-${windowCount}",
-                                        nextWindowState
-                                    )
-                                )
-                            },
-                            shortcut = KeyShortcut(Key.N, ctrl = true)
-                        )
-                        Item(
-                            "Open", onClick = { },
-                            shortcut = KeyShortcut(Key.O, ctrl = true)
-                        )
-                        Item(
-                            "Close",
-                            onClick = { windowList.removeAt(i) },
-                            shortcut = KeyShortcut(Key.W, ctrl = true)
-                        )
-                        Item(
-                            "Save", onClick = { },
-                            shortcut = KeyShortcut(Key.S, ctrl = true)
-                        )
-                        Separator()
-                        Item("Exit", onClick = { windowList.clear() },)
-                    }
-                    Menu("Edit", mnemonic = 'E') {
-                        Item(
-                            "Cut", onClick = { },
-                            shortcut = KeyShortcut(Key.X, ctrl = true)
-                        )
-                        Item(
-                            "Copy", onClick = { },
-                            shortcut = KeyShortcut(Key.C, ctrl = true)
-                        )
-                        Item(
-                            "Paste", onClick = { },
-                            shortcut = KeyShortcut(Key.V, ctrl = true)
-                        )
-                    }
-                }
-            }
-
-        }
-    }
-
-}
-
-
-@Composable
-fun ShowQRCode(bitmap: ImageBitmap, ipaddress: String, port: String, hostname: String){
-        Surface(modifier = Modifier.fillMaxSize()) {
-            MaterialTheme() {
-                Column {
-                    Row {
-                        Text("$ipaddress:${port}")
-                        Spacer(Modifier.width(4.dp))
-                        Text(hostname)
-                    }
-                    Box(modifier = Modifier.size(320.dp, 320.dp)) {
-                        Image(bitmap, "QR code")
-                    }
-                }
-            }
-        }
-}
-*/

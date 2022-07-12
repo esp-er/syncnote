@@ -2,7 +2,6 @@ package com.patriker.syncnote.ui.components
 import androidx.compose.animation.core.*
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,35 +24,39 @@ import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.patriker.syncnote.util.fromHex
 import com.patriker.syncnote.ui.noRippleClickable
+import com.patriker.syncnote.util.setClipboard
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.ui.awt.awtEvent
 import androidx.compose.ui.awt.awtEventOrNull
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
 import com.raywenderlich.jetnotes.domain.Util
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.Octicons
-import compose.icons.octicons.*
+import compose.icons.octicons.Bookmark24
+import compose.icons.octicons.BookmarkFill24
+import compose.icons.octicons.BookmarkSlash24
+import compose.icons.octicons.Copy24
+import compose.icons.octicons.Pencil24
+import compose.icons.octicons.Inbox24
+import compose.icons.octicons.ArrowLeft24
+import compose.icons.octicons.ArrowRight24
+import compose.icons.octicons.Trash24
 import compose.icons.tablericons.AlignJustified
 import compose.icons.tablericons.Dots
-import compose.icons.tablericons.Pin
-import compose.icons.tablericons.PinnedOff
-import io.netty.handler.codec.http.HttpContentDecoder
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import javax.swing.ImageIcon
-import kotlin.math.exp
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun Note(
@@ -83,8 +86,8 @@ fun Note(
 
     val titleIsBlank = note.title.isBlank()
 
-    val maxLines = 6
-    val maxLinesExpanded = 16
+    val maxLines = 8
+    val maxLinesExpanded = 20
     val numLines = remember { note.content.lines().size + if(note.title.isBlank()) 0 else 1 }
     val maxContentLines = maxLines - if(!titleIsBlank) 1 else 0
     val maxContentLinesExpanded = maxLinesExpanded - if(!titleIsBlank) 1 else 0
@@ -98,15 +101,7 @@ fun Note(
             .noRippleClickable(interactionSource = interactionSource){ //this modifier has  adds hoverable
                 expandedState = !expandedState
             }
-            .padding(horizontal = 6.dp, vertical = 4.dp)
-            .onPointerEvent(PointerEventType.Press) {
-                when {
-                    it.buttons.isPrimaryPressed -> when (it.awtEventOrNull?.clickCount) {
-                        2 -> onEditNote(note)
-                        else -> { }
-                    }
-                }
-            },
+            .padding(horizontal = 6.dp, vertical = 4.dp),
         shape = backgroundShape,
         elevation = 4.dp
     ) {
@@ -116,6 +111,14 @@ fun Note(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(32.dp)
+                    .onPointerEvent(PointerEventType.Press) {
+                        when {
+                            it.buttons.isPrimaryPressed -> when (it.awtEventOrNull?.clickCount) {
+                                2 -> onEditNote(note)
+                                else -> { }
+                            }
+                        }
+                    }
             ) {
                 /*Column(modifier = Modifier.widthIn(24.dp,24.dp)) { TODO:fix coloring and reintroduce a badge for the card
                     NoteColor(
@@ -137,7 +140,7 @@ fun Note(
                             text = note.title,
                             color = MaterialTheme.colors.onPrimary,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                            overflow = TextOverflow.Clip,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.W500
                         )
@@ -296,6 +299,7 @@ fun NoteColorPreview() {
     NoteColor(Modifier.padding(4.dp), Color.Yellow, 40.dp, border = 1.dp)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteButtons(
     note: NoteProperty,
@@ -308,9 +312,18 @@ fun NoteButtons(
     isArchive: Boolean = false
 ){
 
+    var copyClickedState by remember { mutableStateOf(false) }
+    LaunchedEffect(copyClickedState){
+        if (copyClickedState){
+            delay(2000)
+            copyClickedState = false
+        }
+    }
+
 
     fun copyClicked(){
-        onSnackMessage("Note text copied.")
+        copyClickedState = true
+        setClipboard(note.content)
     }
 
     Row(
@@ -325,6 +338,7 @@ fun NoteButtons(
            val buttonSpacing = 12.dp
            val buttonSize = 14.dp
            val rightHandModifier = Modifier.padding(horizontal = 2.dp).size(buttonSize)
+
 
            if(!isArchive) {
                Icon(
@@ -351,18 +365,67 @@ fun NoteButtons(
            }
 
            Spacer(modifier= Modifier.width(buttonSpacing))
+           /*TooltipArea( //TODO: Change this to use androidx.compose.ui.window.popup instead
+               tooltip = {
+                       Surface(
+                           color = MaterialTheme.colors.primaryVariant,
+                           shape = RoundedCornerShape(2.dp)
+                       ) {
+
+                           if(copyClickedState) {
+                               Text(
+                                   "Contents copied.",
+                                   modifier = Modifier.padding(5.dp),
+                                   fontSize = 10.sp
+                               )
+                           }
+                       }
+               },
+               delayMillis = 1000
+           ){
+               NoteButton(onClick = {copyClicked()},
+                   imageVector = Octicons.Copy24,
+                   tint = MaterialTheme.colors.onPrimary,
+                   iconSize =  buttonSize,
+                   contentDescription = "Copy Note Button"
+               )
+           }*/
+
            NoteButton(onClick = {copyClicked()},
-                      imageVector = Octicons.Copy24,
-                      tint = MaterialTheme.colors.onPrimary,
-                      iconSize =  buttonSize,
-                      contentDescription = "Copy Note Button"
+               imageVector = Octicons.Copy24,
+               tint = MaterialTheme.colors.onPrimary,
+               iconSize =  buttonSize,
+               contentDescription = "Copy Note Button",
+               content = {}
            )
+
+           if(copyClickedState) {
+               Box {
+                   Popup(
+                       alignment = Alignment.BottomCenter,
+                       offset = IntOffset(-4, -8),
+                       focusable = true, //Note: required for dismiss to work currently
+                       onDismissRequest = {copyClickedState = false}
+                   ){
+                       Surface(color = MaterialTheme.colors.background, shape = RoundedCornerShape(2.dp)) {
+                           //Clipboard utf-8 :"\uD83D\uDCCB",
+                           Text(
+                               text = "Copied!",
+                               modifier = Modifier.padding(5.dp),
+                               fontSize = 10.sp,
+                           )
+                       }
+                   }
+               }
+           }
+
            Spacer(modifier= Modifier.width(buttonSpacing))
            NoteButton(onClick = { onEditNote(note) },
                imageVector = Octicons.Pencil24,
                tint = MaterialTheme.colors.onPrimary,
                iconSize = buttonSize,
-               contentDescription = "Edit Note Button"
+               contentDescription = "Edit Note Button",
+               content = {}
            )
            Spacer(modifier= Modifier.width(buttonSpacing))
            /*
@@ -388,7 +451,8 @@ fun NoteButtons(
 
 @Preview
 @Composable
-fun NoteButton(onClick: () -> Unit, imageVector: ImageVector, iconSize: Dp, tint: Color, contentDescription: String = ""){
+fun NoteButton(onClick: () -> Unit, imageVector: ImageVector, iconSize: Dp, tint: Color, contentDescription: String = "",
+    content: @Composable () -> Unit){
     return Icon(modifier = Modifier
         .clip(RoundedCornerShape(4.dp))
         .padding(horizontal = 4.dp, vertical = 4.dp)
@@ -482,7 +546,8 @@ fun DeleteButton(note: NoteProperty, onDeleteNote: (NoteProperty) -> Unit, butto
             imageVector = Octicons.Trash24,
             iconSize = buttonSize,
             tint = if(isHovered) MaterialTheme.colors.error else MaterialTheme.colors.onPrimary,
-            "Delete Note Button"
+            "Delete Note Button",
+            content = {}
         )
     }
 }
