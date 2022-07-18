@@ -27,7 +27,7 @@ fun NotesList(
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
     onTogglePin: (NoteProperty) -> Unit = {},
-    onSnackMessage: (String) -> Unit = {},
+    expandAllTrigger: Boolean = false,
     isArchive: Boolean = false,
 ) {
     Box(
@@ -41,6 +41,8 @@ fun NotesList(
             notesList.reversed().sortedBy { !(it.isPinned) }
         }
 
+        val expandNotes by derivedStateOf { expandAllTrigger }
+
         val listState = rememberLazyListState()
         LazyColumn(state = listState, modifier = Modifier.padding(end = 6.dp)) {
             items(notesReversed, { note: NoteProperty -> note.id }) { note ->
@@ -53,8 +55,7 @@ fun NotesList(
                     onArchiveNote = onArchiveNote,
                     onDeleteNote = onDeleteNote,
                     onTogglePin = onTogglePin,
-                    isArchivedNote = isArchive,
-                    onSnackMessage = onSnackMessage
+                    expandAllTrigger = expandNotes
                 )
             }
         }

@@ -26,6 +26,9 @@ kotlin {
                 implementation("io.insert-koin:koin-core:${rootProject.extra["koin_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.extra["ktor_version"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+                // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+                //for random strings
+                implementation("org.apache.commons:commons-lang3:3.12.0")
                 api(compose.foundation)
                 api(compose.runtime)
                 api(compose.material)

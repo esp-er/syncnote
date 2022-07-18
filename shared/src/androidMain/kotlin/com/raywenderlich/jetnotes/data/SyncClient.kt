@@ -7,6 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
+import com.raywenderlich.jetnotes.domain.PairingData
+import com.raywenderlich.jetnotes.domain.PairingResponse
+import com.raywenderlich.jetnotes.routing.Screen
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.websocket.*
@@ -27,6 +30,12 @@ class SyncClient(private val cacheRepository: AndroidExternRepository, private v
 
     private val isConnectedState = MutableLiveData(false)
 
+    private var pairingData = PairingData("xiaomi","pairingcode0x0x")
+
+    fun setPairingData(data: PairingData){
+       pairingData = data
+    }
+
     val client = HttpClient {
         install(WebSockets){
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
@@ -36,6 +45,11 @@ class SyncClient(private val cacheRepository: AndroidExternRepository, private v
 
     fun isSocketConnected() : LiveData<Boolean> = isConnectedState
 
+    suspend fun test(){
+        val resp = client.get("http://192.168.0.149:8000")
+        Log.d("KTOOOOOR:", resp.status.toString())
+    }
+
     suspend fun connect(){
         try {
             client.webSocket(
@@ -44,10 +58,21 @@ class SyncClient(private val cacheRepository: AndroidExternRepository, private v
                 port = connectionInfo.port,
                 path = connectionInfo.path) {
 
-                val receiveNotesRoutine = launch { receiveNotes() }
-                isConnectedState.postValue(true)
-
-                receiveNotesRoutine.join() // Wait for completion; either "exit" or error
+                val sendRequestRoutine =  async { sendPairingRequest(pairingData)}
+                sendRequestRoutine.await()
+                val receiveAck = async { receivePairAck() }
+                val pairingOk = receiveAck.await()
+                Log.d("KTORSYNC:","waiting for pairing ACK")
+                if(pairingOk) {
+                    Log.d("KTORSYNC", "SERVER SAID OK")
+                }
+                //val pairingOk = receiveAck.await()
+                if(pairingOk) {
+                    val receiveNotesRoutine = launch { receiveNotes() }
+                    isConnectedState.postValue(true)
+                    receiveNotesRoutine.join() // Wait for completion; either "exit" or error
+                }
+                Log.d("KTOR3:","Closing connection")
                 //messageOutputRoutine.cancelAndJoin()
             }
         }
@@ -69,7 +94,35 @@ class SyncClient(private val cacheRepository: AndroidExternRepository, private v
         cacheRepository.clearAndSaveAll(notes)
     }
 
-    suspend fun DefaultClientWebSocketSession.receiveNotes(){
+    suspend fun DefaultClientWebSocketSession.sendPairingRequest(pairingData: PairingData)  {
+        try {
+            sendSerialized<PairingData>(pairingData)
+        }
+        catch (e: Exception) {
+            if(e is CancellationException){
+                throw e
+            }
+            println(e.localizedMessage)
+        }
+    }
+
+    suspend fun DefaultClientWebSocketSession.receivePairAck(): Boolean {
+        val responseBool =
+        try {
+            val resp = receiveDeserialized<PairingResponse>()
+            resp
+        } catch (e: WebsocketDeserializeException){
+            Log.d("ktor client", "Failed to deserialize network data")
+            PairingResponse(false)
+        }
+        catch(e: ClosedReceiveChannelException){
+            Log.d("ktor client", "Network channel was closed")
+            PairingResponse(false)
+        }
+        return responseBool.ok
+    }
+
+    suspend fun DefaultClientWebSocketSession.receiveNotes() {
         try {
             while (true) {
                 val networkNotes = receiveDeserialized<List<NoteProperty>>()

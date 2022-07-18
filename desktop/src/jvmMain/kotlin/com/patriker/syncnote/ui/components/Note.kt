@@ -67,9 +67,11 @@ fun Note(
     onArchiveNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
     onTogglePin: (NoteProperty) -> Unit = {},
-    onSnackMessage: (String) -> Unit = {},
+    expandAllTrigger: Boolean,
     isArchivedNote: Boolean = false
 ){
+
+
 
     val timeAgoText = remember { Util.timeAgoString(note.editDate, Clock.System.now())}
 
@@ -82,6 +84,9 @@ fun Note(
             durationMillis = 50,
             easing = FastOutSlowInEasing
         ))
+    LaunchedEffect(expandAllTrigger){
+        expandedState = expandAllTrigger
+    }
     val isFullyExpanded by derivedStateOf { expandedAnimatedDp == expandedButtonsHeight}
 
     val titleIsBlank = note.title.isBlank()
@@ -230,7 +235,7 @@ fun Note(
                             onRestoreNote = onRestoreNote,
                             onDeleteNote = onDeleteNote,
                             onTogglePin = onTogglePin,
-                            onSnackMessage = onSnackMessage,
+                            onSnackMessage = {},
                             isArchive = isArchivedNote
                         )
                     }

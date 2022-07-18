@@ -29,7 +29,7 @@ fun AppDrawer(
     closeDrawerAction: () -> Unit,
     isConnected: Boolean = false
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)) {
         AppDrawerHeader()
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
         ScreenNavigationButton(
@@ -43,9 +43,9 @@ fun AppDrawer(
         ScreenNavigationButton(
             icon = TablerIcons.DeviceLaptop,
             label = if(!isConnected) "Desktop Notes" else "Desktop Notes (Connected)",
-            isSelected = currentScreen == Screen.Sync,
+            isSelected = currentScreen == Screen.Synced,
             onClick = {
-                NotesRouter.navigateTo(Screen.Sync)
+                NotesRouter.navigateTo(Screen.Synced)
                 closeDrawerAction()
             }
         )

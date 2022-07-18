@@ -1,5 +1,6 @@
 package com.patriker.syncnote.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,27 +14,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import com.patriker.syncnote.ui.ThemeSettingsDesktop
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import com.raywenderlich.jetnotes.theme.ThemeSettings
 import compose.icons.Octicons
 import compose.icons.TablerIcons
+import compose.icons.LineAwesomeIcons
 import compose.icons.octicons.Inbox24
 import compose.icons.octicons.Plus24
 import compose.icons.octicons.ThreeBars16
-import compose.icons.tablericons.*
-import kotlinx.coroutines.launch
-import kotlin.reflect.jvm.internal.impl.util.Check
+import compose.icons.lineawesomeicons.CaretSquareDown
+import compose.icons.lineawesomeicons.CaretSquareUp
+import compose.icons.tablericons.DeviceMobile
+import compose.icons.tablericons.Refresh
+import compose.icons.tablericons.Moon
+import compose.icons.tablericons.Notebook
 
 @Composable
-fun TopBar(onClickNew: () -> Unit){
+fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit){
     var showMenu by remember { mutableStateOf(false) }
     fun toggleMenu() { showMenu = !showMenu}
+    var expandIcon by remember { mutableStateOf(LineAwesomeIcons.CaretSquareDown) }
+    fun toggleExpandIcon(){
+        expandIcon =
+            when {
+                expandIcon == LineAwesomeIcons.CaretSquareDown -> LineAwesomeIcons.CaretSquareUp
+                else -> LineAwesomeIcons.CaretSquareDown
+            }
+    }
 
     TopAppBar(
         backgroundColor = MaterialTheme.colors.background,
@@ -44,7 +54,7 @@ fun TopBar(onClickNew: () -> Unit){
         Row(Modifier.height(36.dp).padding(horizontal = 4.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
             //Left side Icon
-            Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f).padding(vertical = 4.dp)){
+            Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(vertical = 4.dp).requiredWidth(100.dp)){
                 NewButton(onClickNew)
 
             }
@@ -63,8 +73,30 @@ fun TopBar(onClickNew: () -> Unit){
                 //}
             }
 
+            if(NotesRouter.currentScreen == Screen.Notes || NotesRouter.currentScreen == Screen.Archive) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.width(30.dp).padding(horizontal = 4.dp)
+                ) { //content
+
+                    Icon(
+                        modifier = Modifier
+                            .clickable(interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(
+                                    bounded = false,
+                                    radius = 16.dp
+                                ), // You can also change the color and radius of the ripple
+                                onClick = { toggleExpandIcon(); onToggleExpand() }),
+                        imageVector = expandIcon,
+                        contentDescription = "Toggle expanded notes button",
+
+                        )
+
+                }
+            }
+
             Column(horizontalAlignment = Alignment.End,
-                        modifier = Modifier.width(30.dp).padding(horizontal = 4.dp).weight(1f)) { //content
+                        modifier = Modifier.width(30.dp).padding(horizontal = 4.dp)) { //content
 
                     Icon(
                         modifier = Modifier
@@ -97,7 +129,9 @@ fun MainDropDown(show: Boolean, onDismiss: () -> Unit) {
         expanded = expanded,
         onDismissRequest = {
             onDismiss()
-        }
+        },
+        modifier = Modifier.background(MaterialTheme.colors.surface)
+
     ) { //TODO: lookup a construct like withFontStyleProvider()
         DropdownMenuItem(
             modifier = itemModifier,
@@ -122,7 +156,7 @@ fun MainDropDown(show: Boolean, onDismiss: () -> Unit) {
             modifier = itemModifier,
             contentPadding = PaddingValues(2.dp),
             onClick = {
-                NotesRouter.navigateTo(Screen.Sync)
+                NotesRouter.navigateTo(Screen.Synced)
             }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(

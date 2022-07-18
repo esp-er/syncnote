@@ -9,7 +9,8 @@ sealed class Screen {
   object NewNote : Screen()
   object EditNote : Screen()
   object Archive : Screen()
-  object Sync : Screen()
+  object Synced : Screen()
+  object Pairing : Screen()
  // object Chat: Screen()
 }
 

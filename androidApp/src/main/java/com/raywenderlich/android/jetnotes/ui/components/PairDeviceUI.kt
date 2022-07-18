@@ -20,30 +20,36 @@ import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.ui.text.input.KeyboardType
 import com.raywenderlich.android.jetnotes.domain.QRAnalyzer
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
 
 @Composable
 fun PairDeviceUI() {
-    var startQRScan by remember{ mutableStateOf(false)}
-    Column {
-        if (!startQRScan) {
-            fun Modifier.hcenter() = Modifier.align(CenterHorizontally)
-            Text("Start the desktop application on your computer and navigate to the Pairing screen.")
-            Button(onClick = { startQRScan = !startQRScan }, modifier = Modifier.hcenter()) {
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(0.9f)){
+            fun Modifier.hcenter() = Modifier.align(Alignment.CenterHorizontally)
+            Row(modifier = Modifier.padding(horizontal = 64.dp, vertical = 12.dp).hcenter()){
+                Text("Start the SyncNote desktop app and navigate to the Phone Notes screen.\nBoth devices must be on the same WiFi/LAN.")
+            }
+            Button(onClick = { NotesRouter.navigateTo(Screen.Pairing)}, modifier = Modifier.hcenter().padding(vertical = 6.dp)) {
                 Column {
                     Text("Scan QR code")
                     Icon(
                         imageVector = Icons.Default.QrCode, "QR icon",
-                        modifier = Modifier.hcenter()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 4.dp)
                     )
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Manual pairing configuration:", modifier = Modifier.hcenter())
+            Row(modifier = Modifier.padding(top = 12.dp).hcenter()){
+                Text("Or, Enter the desktop app host information manually:", modifier = Modifier.hcenter())
+            }
             Row(
                 modifier = Modifier
                     .hcenter()
                     .fillMaxWidth()
-                    .padding(horizontal = 64.dp)
+                    .padding(horizontal = 64.dp, vertical = 6.dp)
             ) {
                 var ipString by remember { mutableStateOf("0.0.0.0") }
                 var portStr by remember { mutableStateOf("9000") }
@@ -66,9 +72,6 @@ fun PairDeviceUI() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
-        }
-        else {
-            QrCodeScanner()
         }
     }
 }

@@ -30,10 +30,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.raywenderlich.android.jetnotes.domain.*
+import com.raywenderlich.jetnotes.routing.NotesRouter
+import com.raywenderlich.jetnotes.routing.Screen
+import kotlinx.coroutines.delay
 import java.lang.Exception
 
 @Composable
-fun QrCodeScanner() {
+fun QrCodeScanner(onComplete: () -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -53,46 +56,56 @@ fun QrCodeScanner() {
             hasCameraPermission = granted
         }
     )
+    LaunchedEffect(code){
+        if(code.isNotBlank()){
+            cameraProviderFuture.get().unbindAll() //TODO: check blocking warning here
+            delay(2000) //todo: remove delay
+            onComplete()
+        }
+    }
 
     LaunchedEffect(key1 = true) {
         launcher.launch(Manifest.permission.CAMERA)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        if (hasCameraPermission) {
-            AndroidView(
-                factory = { context ->
-                    val previewView = PreviewView(context)
-                    val preview = Preview.Builder().build()
-                    val selector = CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                        .build()
-                    preview.setSurfaceProvider(previewView.surfaceProvider)
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                    imageAnalysis.setAnalyzer(
-                        ContextCompat.getMainExecutor(context),
-                        QRAnalyzer { result ->
-                            result?.let { code = it }
-                        }
-                    )
-
-                    try {
-                        cameraProviderFuture.get().bindToLifecycle(
-                            lifecycleOwner,
-                            selector,
-                            preview,
-                            imageAnalysis
+        if(code.isBlank()){
+            if (hasCameraPermission) {
+                AndroidView(
+                    factory = { context ->
+                        val previewView = PreviewView(context)
+                        val preview = Preview.Builder().build()
+                        val selector = CameraSelector.Builder()
+                            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                            .build()
+                        preview.setSurfaceProvider(previewView.surfaceProvider)
+                        val imageAnalysis = ImageAnalysis.Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
+                        imageAnalysis.setAnalyzer(
+                            ContextCompat.getMainExecutor(context),
+                            QRAnalyzer { result ->
+                                result?.let { code = it }
+                            }
                         )
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
 
-                    return@AndroidView previewView
-                },
-                modifier = Modifier.weight(1f)
-            )
+                        try {
+                            cameraProviderFuture.get().bindToLifecycle(
+                                lifecycleOwner,
+                                selector,
+                                preview,
+                                imageAnalysis
+                            )
+                        } catch (e: Exception) {
+                            cameraProviderFuture.get().unbindAll()
+                            e.printStackTrace()
+                        }
+
+                        previewView
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             Text(
                 text = code,
                 fontSize = 20.sp,
@@ -101,6 +114,12 @@ fun QrCodeScanner() {
                     .fillMaxWidth()
                     .padding(32.dp)
             )
+        }
+        else{
+            val ip = code.split(":").first()
+            Text("Sent Pairing Request to $ip")
+            //Send request here
+            //Wait for response, add a timeout?
         }
     }
 }

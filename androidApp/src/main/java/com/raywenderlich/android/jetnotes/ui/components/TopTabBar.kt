@@ -1,30 +1,22 @@
 package com.raywenderlich.android.jetnotes.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceLaptop
-import compose.icons.tablericons.Devices2
 import compose.icons.tablericons.Notebook
 
 
@@ -102,7 +94,7 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                     }
                 },
                 selected = state == 1,
-                onClick = { state = 1; NotesRouter.navigateTo(Screen.Sync) }
+                onClick = { state = 1; NotesRouter.navigateTo(Screen.Synced) }
             )
 
             LeadingIconTab( //TODO: find different better looking highlight method for archive

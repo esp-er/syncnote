@@ -29,7 +29,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
     /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
 
     val configuration = LocalConfiguration.current
-    val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.6f
+    val drawerWidth  = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }  / 1.4f
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false);

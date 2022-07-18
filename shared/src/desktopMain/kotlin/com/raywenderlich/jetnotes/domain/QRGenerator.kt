@@ -18,18 +18,18 @@ class QRGenerator{
     private val qrBitmap: MutableStateFlow<ImageBitmap?> by lazy{
         MutableStateFlow(null)
     }
-    private val ip: MutableStateFlow<String> by lazy{
+    private val pairingStr: MutableStateFlow<String> by lazy{
         MutableStateFlow("")
     }
 
     fun getQR(): StateFlow<ImageBitmap?> = qrBitmap.asStateFlow()
-    fun getNetAddr(): StateFlow<String> = ip.asStateFlow()
+    fun getPairingString(): StateFlow<String> = pairingStr.asStateFlow()
 
     suspend fun renderQRBitmap(): Unit = renderQRBitmap(ListNets.getFirstLocalIP())
 
     suspend fun renderQRBitmap(ipAddr: String, port: String = "9009"): Unit = withContext(Dispatchers.IO){
-        val newUUID = UUID().toString()
-        HostKey.value = UUIDStr(newUUID)
+        val newRandomId = random8Id()
+        HostKey.value = newRandomId
         val netAdrr = "$ipAddr:$port"
 
         val primaryVariant = awtColor("0xFF7C7A7C") // light grayI
@@ -38,8 +38,9 @@ class QRGenerator{
         val background = awtColor("0xFF222022") //TODO: get these colors from Theme instead (can't use Composable)
 
 
-        val qrData = QRCode("$netAdrr/$newUUID")
-            .render(30,30, background.rgb, foreground.rgb, background.rgb)
+        val qrData = QRCode("$netAdrr/$newRandomId")
+            //.render()
+            .render(30,30, foreground.rgb, background.rgb, foreground.rgb)
 
         val imageBytes = ByteArrayOutputStream().also {
             qrData.writeImage(it, "PNG")
@@ -47,7 +48,7 @@ class QRGenerator{
 
         val bitmap = org.jetbrains.skia.Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
 
-        ip.value = netAdrr
+        pairingStr.value = "$netAdrr:$newRandomId"
         qrBitmap.value = bitmap
     }
 

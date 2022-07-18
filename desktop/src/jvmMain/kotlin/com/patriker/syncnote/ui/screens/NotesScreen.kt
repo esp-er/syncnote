@@ -29,14 +29,13 @@ fun NotesScreen(viewModel: MainViewModel) {
 
     //val configuration = LocalConfiguration.current
 
-    //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
-    val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
-    val dw = DrawerState(DrawerValue.Closed, { false })
+
+    var expandAllTrigger by remember { mutableStateOf(false) }
 
     val isConnected = viewModel.isSyncing //TODO: change to observable (reactive) value
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick)
+            TopBar(viewModel::onCreateNewNoteClick,  { expandAllTrigger = !expandAllTrigger})
             //horLineSeparator()
             TopTabBar(initState = 0) //Tabs
             NotesList( // here
@@ -47,40 +46,10 @@ fun NotesScreen(viewModel: MainViewModel) {
                 onArchiveNote = { viewModel.archiveNote(it) },
                 onDeleteNote = { viewModel.permaDeleteNote(it) },
                 onTogglePin = { viewModel.togglePin(it) },
+                expandAllTrigger = expandAllTrigger,
                 isArchive = false,
-                onSnackMessage = {}
             )
         }
     }
 
-/*
-    Scaffold ( //TODO: remove scaffold and change this from scaffold to simple layout on desktop
-        topBar =
-        {
-            Column {
-
-            }
-        },
-        scaffoldState = ScaffoldState(dw, scaffoldState.snackbarHostState),
-        snackbarHost = {scaffoldState.snackbarHostState},
-        bottomBar = { SnackbarHost(
-                        hostState = scaffoldState.snackbarHostState,
-                        snackbar = { data ->
-                            Snackbar(
-                                snackbarData = data,
-                                contentColor = MaterialTheme.colors.primary,
-                                backgroundColor =  MaterialTheme.colors.surface
-                            )
-                        })
-            
-                    },
-        drawerGesturesEnabled = false,
-        drawerContent = {},
-        drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
-        //drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
-        //floatingActionButtonPosition = FabPosition.End,
-        content = {
-
-            }
-    )*/
 }

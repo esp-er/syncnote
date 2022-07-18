@@ -18,15 +18,21 @@ object ListNets {
     fun getFirstLocalIP(): String{
         val nets = NetworkInterface.getNetworkInterfaces()
 
-        val firstIf: NetworkInterface =
-                    nets.toList().filterNot{ it.name.startsWith("lo") }
-                        .first()
+        val firstIf: NetworkInterface? =
+                    nets.toList()
+                        .filterNot{ it.name.startsWith("lo") || !it.inetAddresses.hasMoreElements() }
+                        .firstOrNull()
 
-        val ip = firstIf.inetAddresses.toList()
+        val ip = firstIf?.inetAddresses!!.toList()
                     .filterNot{addr -> addr.toString().contains(':')}
-                    .first()
+                    .firstOrNull()
 
-        return ip.toString().drop(1)
+        ip.toString().let { ipstr ->
+            when {
+                ipstr == "null" -> return ipstr
+                else -> return ipstr.drop(1)
+            }
+        }
     }
 
     @Throws(SocketException::class)

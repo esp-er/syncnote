@@ -6,6 +6,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
+import com.patriker.syncnote.networking.SyncServer
 import com.patriker.syncnote.ui.screens.ArchiveScreen
 //import com.patriker.syncnote.ui.screens.ArchiveScreen
 import com.patriker.syncnote.ui.screens.NotesScreen
@@ -41,31 +42,39 @@ fun main() = runBlocking {
         koin = initKoin().koin
 
 
-    /*
         val serverJob = launch(Dispatchers.IO){
-            val server = SyncServer(viewModel.getRepoReference()).apply {
+            val server = SyncServer().apply {
+                println("starting ktor")
+                //testStart()
                 start()
             }
-        }
 
-     */
+            println("ending ktor")
+        }
 
 
         application {
 
-            val test: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
+
+            val corScope = rememberCoroutineScope()
+
+
+            val dpi: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
             val screenSize: Dimension = Toolkit.getDefaultToolkit().screenSize
             val (width, height) = listOf(screenSize.width, screenSize.height)
 
-            val x = (width / 2 - 300).dp
-            val y = (height / 2 - 400).dp
 
-            println(test)
+            val win_w = 600
+            val win_h = 800
+            val center_x= (width / 2 - win_w / 2).dp
+            val center_y = (height / 2 - win_h / 2).dp
 
             val scope = rememberCoroutineScope() //This Scope won't interfere with Compose UI coroutine
-            viewModel = MainViewModel(koin.get(), koin.get(), { scope })
+            fun getCorScope(): CoroutineScope { return scope }
+
+            viewModel = MainViewModel(koin.get(), koin.get(), ::getCorScope)
             val state = rememberWindowState(width = 600.dp, height = 800.dp,
-                //position = WindowPosition(x,y)
+                //position = WindowPosition(center_x,center_y)
                 position = WindowPosition(1950.dp, 630.dp)
                 )
             fun minimize() {
@@ -87,7 +96,7 @@ fun main() = runBlocking {
                             is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
                             is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
                             is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
-                            is Screen.Sync -> SyncScreen(viewModel)
+                            is Screen.Synced -> SyncScreen(viewModel)
                             else -> NotesScreen(viewModel)
                         }
                     }

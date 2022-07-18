@@ -28,7 +28,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
 
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick)
+            TopBar(viewModel::onCreateNewNoteClick, {})
             //horLineSeparator()
             TopTabBar(initState = 2) //Tabs
             NotesList( // here
@@ -39,7 +39,6 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                 onDeleteNote = { viewModel.permaDeleteNote(it) },
                 //onPinNote = {viewModel.pinNote(it)},
                 isArchive = true,
-                onSnackMessage = {}
             )
         }
     }

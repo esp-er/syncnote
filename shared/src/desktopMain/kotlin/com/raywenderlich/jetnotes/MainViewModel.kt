@@ -27,7 +27,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
     val qrgenerator = QRGenerator()
 
     val qrBitmapFlow: StateFlow<ImageBitmap?> = qrgenerator.getQR()
-    val ipFlow: StateFlow<String> = qrgenerator.getNetAddr()
+    val pairingInfoFlow: StateFlow<String> = qrgenerator.getPairingString()
 
 
     val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()

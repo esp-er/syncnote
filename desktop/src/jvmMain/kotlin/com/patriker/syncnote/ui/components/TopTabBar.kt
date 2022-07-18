@@ -1,29 +1,21 @@
 package com.patriker.syncnote.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +26,7 @@ import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.Octicons
 import compose.icons.octicons.Inbox24
-import compose.icons.octicons.KebabHorizontal16
+import compose.icons.octicons.Trash24
 import compose.icons.tablericons.*
 
 
@@ -168,7 +160,7 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                         onClick = {
                             state = 1
                             viewModel.requestQRCode()
-                            NotesRouter.navigateTo(Screen.Sync)
+                            NotesRouter.navigateTo(Screen.Synced)
                         }
                     )
 
@@ -247,7 +239,7 @@ fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit) {
 
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
-                    imageVector = TablerIcons.ClearAll,
+                    imageVector = Octicons.Trash24,
                     "Empty Archive",
                     modifier = Modifier.size(16.dp),
                 )

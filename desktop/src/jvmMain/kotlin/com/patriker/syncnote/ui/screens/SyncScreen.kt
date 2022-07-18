@@ -37,14 +37,14 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     val coroutineScope = rememberCoroutineScope()
     Box(modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick)
+            TopBar(viewModel::onCreateNewNoteClick, {})
             //horLineSeparator()
             TopTabBar(initState = 1) //Tabs
 
             Box(modifier = Modifier.fillMaxSize(0.75f).align(Alignment.CenterHorizontally)) {
                 Column{
                     if (!viewModel.isPaired) {
-                        HostPairWidget(viewModel.qrBitmapFlow, viewModel.ipFlow)
+                        HostPairWidget(viewModel.qrBitmapFlow, viewModel.pairingInfoFlow, {})
                     } else {
                         Text("test")
                     }
