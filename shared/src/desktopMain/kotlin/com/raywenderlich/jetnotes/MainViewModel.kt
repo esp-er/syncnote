@@ -6,6 +6,8 @@ import com.raywenderlich.jetnotes.data.FlowRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.data.Repository
 import com.raywenderlich.jetnotes.domain.QRGenerator
+import com.raywenderlich.jetnotes.networking.ServerControl
+import com.raywenderlich.jetnotes.networking.SyncServer
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.*
@@ -13,12 +15,26 @@ import kotlinx.datetime.Clock
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import com.russhwolf.settings.Settings
 
+lateinit var server: SyncServer
 //Contains the app state
-actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, getCorScope: () -> CoroutineScope) : BaseViewModel() {
+actual class MainViewModel actual constructor(repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     val viewModelScope: CoroutineScope
     init{
         viewModelScope = getCorScope()
+        startServer()
+    }
+
+    fun startServer(){
+        server = SyncServer(this).apply { //TODO: inject syncserver into constructor instead
+            viewModelScope.launch(Dispatchers.IO) {
+                println("starting ktor")
+                //testStart()
+                start()
+            }
+        }
     }
 
     val desktopRepo = FlowRepository(repository)
@@ -32,8 +48,23 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()
 
-    var isSyncing = false
-    var isPaired = false //TODO: add a "settings" repository for both android and desktop which  remembers these settings
+    //var isSyncing: MutableStateFlow<Boolean>
+
+    private var _isPaired = MutableStateFlow(false)
+    //TODO: add a "settings" repository for both android and desktop which  remembers these settings
+    val isPaired  = _isPaired.asStateFlow()
+    fun setPairedState(b: Boolean) =
+        _isPaired.let{
+            it.value = b
+        }
+
+    private var _isSyncing = MutableStateFlow(false)
+    val isSyncing  = _isSyncing.asStateFlow()
+    fun setSyncingState(b: Boolean) =
+        _isSyncing.let{
+            it.value = b
+        }
+
 
     private var _noteEntry = MutableStateFlow(NoteProperty())
 
@@ -44,9 +75,6 @@ actual class MainViewModel actual constructor(private val repository: Repository
         NotesRouter.navigateTo(Screen.NewNote)
     }
 
-    fun getRepoReference(): Repository{ //TODO: remove quick hack to share repo with SyncServer
-        return repository
-    }
 
     fun onNoteClick(note: NoteProperty) { //Pass in an existing note
         _noteEntry.value = note
@@ -67,6 +95,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
         viewModelScope.launch(Dispatchers.IO) {
             desktopRepo.saveNote(note.copy(editDate = Clock.System.now()))
             withContext(Dispatchers.Default) {
+                ServerControl.SyncOutdated.set(true)
                 NotesRouter.navigateTo(Screen.Notes)
                 _noteEntry.value = NoteProperty()
             }
@@ -75,12 +104,20 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun archiveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.IO) {
+            ServerControl.SyncOutdated.set(true)
             desktopRepo.archiveNote(note.id)
+        }
+    }
+
+    fun clearArchive(){
+        viewModelScope.launch(Dispatchers.IO) {
+            desktopRepo.deleteArchivedNotes()
         }
     }
 
     fun togglePin(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.IO){
+            ServerControl.SyncOutdated.set(true)
             if (note.isPinned) desktopRepo.unpinNote(note.id)
             else desktopRepo.pinNote(note.id)
         }
@@ -90,6 +127,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
     fun restoreNoteFromArchive(note: NoteProperty){
         viewModelScope.launch(Dispatchers.IO) {
             desktopRepo.restoreNote(note.id)
+            ServerControl.SyncOutdated.set(true)
             withContext(Dispatchers.Default) { //TODO:perhaps not navigate on desktop?
                 NotesRouter.navigateTo(Screen.Notes)
             }
@@ -97,7 +135,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
     }
 
     fun requestQRCode() {
-        if(!isPaired) {
+        if(!isPaired.value) {
             viewModelScope.launch {
                 qrgenerator.renderQRBitmap()
             }
@@ -108,6 +146,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
         viewModelScope.launch(Dispatchers.IO) {
             desktopRepo.deleteNote(note.id)
+            ServerControl.SyncOutdated.set(true)
             withContext(Dispatchers.Default) {
                 when(NotesRouter.currentScreen) { //TODO: go back to archive if archived note
                     is Screen.NewNote -> NotesRouter.navigateTo(Screen.Notes)

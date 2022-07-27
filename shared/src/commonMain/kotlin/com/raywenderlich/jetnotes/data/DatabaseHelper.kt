@@ -60,6 +60,10 @@ class DatabaseHelper(
         dbRef.notesTableQueries.deleteNote(id)
     }
 
+    fun clearArchive(){
+        dbRef.notesTableQueries.deleteArchivedNotes()
+    }
+
     fun archiveNote(id: String){
         dbRef.notesTableQueries.archiveNote(id)
     }

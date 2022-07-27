@@ -10,10 +10,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.StateFlow
 import com.raywenderlich.jetnotes.domain.NoteProperty
 
@@ -31,21 +36,37 @@ fun NotesList(
     isArchive: Boolean = false,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize().padding(top=4.dp)
+        modifier = Modifier.fillMaxSize().padding(top=4.dp),
     ) {
         val notesList: List<NoteProperty> by notes.collectAsState()
 
-        //TODO: sort notes by last Edited date instead?
-        //TODO: Ordering looks wrong on Archive screen
-        val notesReversed by derivedStateOf {
-            notesList.reversed().sortedBy { !(it.isPinned) }
+        val notesSorted by derivedStateOf {
+            notesList.sortedWith( compareBy<NoteProperty> {!(it.isPinned)}.thenByDescending { it.editDate} )
         }
 
         val expandNotes by derivedStateOf { expandAllTrigger }
 
         val listState = rememberLazyListState()
+
+        if(notesList.isEmpty()){
+            Column(modifier = Modifier.align(Alignment.Center)) {
+                if (isArchive) {
+                    Text(
+                        "Archive Empty!",
+                        style = TextStyle(color = MaterialTheme.colors.onBackground, 14.sp)
+                    )
+                } else {
+                    Text(
+                        "Click +New or Enter CTRL + N to create a note.",
+                        style = TextStyle(color = MaterialTheme.colors.onBackground, 14.sp)
+                    )
+
+                }
+            }
+        }
+
         LazyColumn(state = listState, modifier = Modifier.padding(end = 6.dp)) {
-            items(notesReversed, { note: NoteProperty -> note.id }) { note ->
+            items(notesSorted, { note: NoteProperty -> note.id }) { note ->
                 //var dismissOpacity by remember { mutableStateOf(0f)}
                 Note(
                     note = note,
@@ -55,9 +76,11 @@ fun NotesList(
                     onArchiveNote = onArchiveNote,
                     onDeleteNote = onDeleteNote,
                     onTogglePin = onTogglePin,
-                    expandAllTrigger = expandNotes
+                    expandAllTrigger = expandNotes,
+                    isArchivedNote = isArchive
                 )
             }
+
         }
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(vertical = 4.dp, horizontal = 2.dp),

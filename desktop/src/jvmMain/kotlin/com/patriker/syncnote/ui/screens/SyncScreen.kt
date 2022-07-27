@@ -10,16 +10,11 @@ import androidx.compose.ui.unit.dp
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 
-//import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
-import androidx.compose.material.TopAppBar
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
-import compose.icons.Octicons
-import compose.icons.octicons.ThreeBars16
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
@@ -28,25 +23,30 @@ import kotlinx.coroutines.launch
 @Composable
 fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
 
+    //TODO: implement signals to start listening when on this screen
+    //Add popup for when client sends PairingData
+    //Popup can only appear on this screen
 
-    val isConnected: Boolean = viewModel.isSyncing
+    val isConnected = viewModel.isSyncing.value
     val syncingHost: String = "archlinux"
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
-    val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
-    val coroutineScope = rememberCoroutineScope()
+    //val coroutineScope = rememberCoroutineScope()
     Box(modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()) {
         Column {
             TopBar(viewModel::onCreateNewNoteClick, {})
             //horLineSeparator()
-            TopTabBar(initState = 1) //Tabs
+            TopTabBar(initState = 1, onClearArchive = viewModel::clearArchive)
 
-            Box(modifier = Modifier.fillMaxSize(0.75f).align(Alignment.CenterHorizontally)) {
+            Box(modifier = Modifier.fillMaxSize(1f).align(Alignment.CenterHorizontally)) {
                 Column{
-                    if (!viewModel.isPaired) {
+                    if (!viewModel.isPaired.value) {
+                        viewModel.requestQRCode()
                         HostPairWidget(viewModel.qrBitmapFlow, viewModel.pairingInfoFlow, {})
                     } else {
-                        Text("test")
+                        Text("Pairing Successful. Now Sending Notes to Phone")
+                        if(isConnected)
+                            Text("Currently connected")
                     }
                 }
             }

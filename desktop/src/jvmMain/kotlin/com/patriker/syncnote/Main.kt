@@ -6,7 +6,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import com.patriker.syncnote.networking.SyncServer
 import com.patriker.syncnote.ui.screens.ArchiveScreen
 //import com.patriker.syncnote.ui.screens.ArchiveScreen
 import com.patriker.syncnote.ui.screens.NotesScreen
@@ -17,6 +16,7 @@ import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.patriker.syncnote.ui.SyncNoteDesktopTheme
 import com.patriker.syncnote.ui.screens.SyncScreen
+import com.russhwolf.settings.Settings
 import org.koin.core.Koin
 
 import java.awt.Toolkit
@@ -31,78 +31,58 @@ import java.awt.Dimension
 
 data class WindowInfo(val windowName: String, val windowState: WindowState)
 
-lateinit var koin: Koin
-
-lateinit var viewModel: MainViewModel
-
 
 @ExperimentalMaterialApi
 @OptIn(ExperimentalComposeUiApi::class)
-fun main() = runBlocking {
-        koin = initKoin().koin
+fun main() = application {
 
 
-        val serverJob = launch(Dispatchers.IO){
-            val server = SyncServer().apply {
-                println("starting ktor")
-                //testStart()
-                start()
-            }
-
-            println("ending ktor")
-        }
+    //val dpi: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
+    val screenSize: Dimension = Toolkit.getDefaultToolkit().screenSize
+    val (width, height) = listOf(screenSize.width, screenSize.height)
 
 
-        application {
+    val win_w = 600
+    val win_h = 800
+    val center_x= (width / 2 - win_w / 2).dp
+    val center_y = (height / 2 - win_h / 2).dp
 
 
-            val corScope = rememberCoroutineScope()
+    val state = rememberWindowState(width = 600.dp, height = 800.dp,
+        //position = WindowPosition(center_x,center_y)
+        position = WindowPosition(1950.dp, 630.dp)
+    )
+    fun minimize() {
+        state.isMinimized = true
+    }
 
+    val scope = rememberCoroutineScope() //This Scope won't interfere with Compose UI coroutine
+    fun getCorScope(): CoroutineScope { return scope }
+    val koin = initKoin().koin
+    val viewModel = MainViewModel(koin.get(), koin.get(), koin.get(), ::getCorScope)
 
-            val dpi: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
-            val screenSize: Dimension = Toolkit.getDefaultToolkit().screenSize
-            val (width, height) = listOf(screenSize.width, screenSize.height)
-
-
-            val win_w = 600
-            val win_h = 800
-            val center_x= (width / 2 - win_w / 2).dp
-            val center_y = (height / 2 - win_h / 2).dp
-
-            val scope = rememberCoroutineScope() //This Scope won't interfere with Compose UI coroutine
-            fun getCorScope(): CoroutineScope { return scope }
-
-            viewModel = MainViewModel(koin.get(), koin.get(), ::getCorScope)
-            val state = rememberWindowState(width = 600.dp, height = 800.dp,
-                //position = WindowPosition(center_x,center_y)
-                position = WindowPosition(1950.dp, 630.dp)
-                )
-            fun minimize() {
-                state.isMinimized = true
-            }
-
-            Window(
-                onCloseRequest = ::exitApplication,
-                title = "SyncNote",
-                state = state,
-                transparent = false,
-                undecorated = false,
-                //alwaysOnTop = pinWindow
-            ) {
-                Surface {
-                    SyncNoteDesktopTheme {
-                        when (NotesRouter.currentScreen) {
-                            is Screen.Notes -> NotesScreen(viewModel)
-                            is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
-                            is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
-                            is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
-                            is Screen.Synced -> SyncScreen(viewModel)
-                            else -> NotesScreen(viewModel)
-                        }
-                    }
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "SyncNote",
+        state = state,
+        transparent = false,
+        undecorated = false,
+        //alwaysOnTop = pinWindow
+    ) {
+        Surface {
+            SyncNoteDesktopTheme {
+                when (NotesRouter.currentScreen) {
+                    is Screen.Notes -> NotesScreen(viewModel)
+                    is Screen.NewNote -> SaveNoteScreen(viewModel, "New Note")
+                    is Screen.EditNote -> SaveNoteScreen(viewModel, "Edit Note")
+                    is Screen.Archive -> ArchiveScreen(viewModel) //ArchiveScreen(viewModel)
+                    is Screen.Synced -> SyncScreen(viewModel)
+                    else -> NotesScreen(viewModel)
                 }
             }
-
         }
-
     }
+
+}
+
+

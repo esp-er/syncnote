@@ -1,9 +1,7 @@
 package com.patriker.syncnote.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -14,6 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import com.patriker.syncnote.ui.ThemeSettingsDesktop
@@ -21,27 +21,27 @@ import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.Octicons
 import compose.icons.TablerIcons
-import compose.icons.LineAwesomeIcons
+import compose.icons.octicons.FoldDown24
+import compose.icons.octicons.FoldUp24
 import compose.icons.octicons.Inbox24
 import compose.icons.octicons.Plus24
 import compose.icons.octicons.ThreeBars16
-import compose.icons.lineawesomeicons.CaretSquareDown
-import compose.icons.lineawesomeicons.CaretSquareUp
 import compose.icons.tablericons.DeviceMobile
 import compose.icons.tablericons.Refresh
 import compose.icons.tablericons.Moon
 import compose.icons.tablericons.Notebook
+import androidx.compose.ui.graphics.Color.*
 
 @Composable
 fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit){
     var showMenu by remember { mutableStateOf(false) }
     fun toggleMenu() { showMenu = !showMenu}
-    var expandIcon by remember { mutableStateOf(LineAwesomeIcons.CaretSquareDown) }
+    var expandIcon by remember { mutableStateOf(Octicons.FoldDown24)}
     fun toggleExpandIcon(){
         expandIcon =
             when {
-                expandIcon == LineAwesomeIcons.CaretSquareDown -> LineAwesomeIcons.CaretSquareUp
-                else -> LineAwesomeIcons.CaretSquareDown
+                expandIcon == Octicons.FoldDown24 -> Octicons.FoldUp24
+                else -> Octicons.FoldDown24
             }
     }
 
@@ -76,21 +76,28 @@ fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit){
             if(NotesRouter.currentScreen == Screen.Notes || NotesRouter.currentScreen == Screen.Archive) {
                 Column(
                     horizontalAlignment = Alignment.End,
-                    modifier = Modifier.width(30.dp).padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 ) { //content
 
-                    Icon(
-                        modifier = Modifier
-                            .clickable(interactionSource = remember { MutableInteractionSource() },
-                                indication = rememberRipple(
-                                    bounded = false,
-                                    radius = 16.dp
-                                ), // You can also change the color and radius of the ripple
-                                onClick = { toggleExpandIcon(); onToggleExpand() }),
-                        imageVector = expandIcon,
-                        contentDescription = "Toggle expanded notes button",
+                    Box(modifier = Modifier.width(36.dp)
+                        .border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant), shape = RoundedCornerShape(4.dp))
+                    ){
+                        Icon(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable(interactionSource = remember { MutableInteractionSource() },
+                                    indication = rememberRipple(
+                                        bounded = false,
+                                        radius = 20.dp
+                                    ), // You can also change the color and radius of the ripple
+                                    onClick = { toggleExpandIcon(); onToggleExpand() })
+                                .fillMaxWidth(),
+                            //.border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant)),
+                            imageVector = expandIcon,
+                            contentDescription = "Toggle expanded notes button",
 
-                        )
+                            )
+                    }
 
                 }
             }
@@ -302,7 +309,8 @@ fun NewButton(buttonClicked: () -> Unit){
        Row(modifier = Modifier.padding(horizontal = 2.dp)){
            Icon(
                imageVector = Octicons.Plus24,
-               contentDescription = "Add Note Button" ,
+               contentDescription = "Add Note Button",
+               tint = Color.White,
                modifier = Modifier
                    .align(Alignment.Bottom)
                    .size(24.dp)
@@ -310,7 +318,8 @@ fun NewButton(buttonClicked: () -> Unit){
            //Spacer(modifier = Modifier.padding(horizontal = 2.dp))
            Text("New",
                fontSize = 13.sp,
-               modifier = Modifier.align(Alignment.CenterVertically)
+               modifier = Modifier.align(Alignment.CenterVertically),
+               color = Color.White
            )
        }
    }

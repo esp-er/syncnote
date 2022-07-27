@@ -5,8 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,21 +21,20 @@ import kotlinx.coroutines.launch
 fun ArchiveScreen(viewModel: MainViewModel) {
     /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
 
-    val isConnected = viewModel.isSyncing
-
-    val coroutineScope = rememberCoroutineScope()
+    var expandAllTrigger by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick, {})
+            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger})
             //horLineSeparator()
-            TopTabBar(initState = 2) //Tabs
+            TopTabBar(initState = 2, onClearArchive = viewModel::clearArchive) //Tabs
             NotesList( // here
                 notes = viewModel.notesInArchive,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                 onEditNote = { viewModel.onNoteClick(it) },
                 onRestoreNote = { viewModel.restoreNoteFromArchive(it) },
                 onDeleteNote = { viewModel.permaDeleteNote(it) },
+                expandAllTrigger = expandAllTrigger,
                 //onPinNote = {viewModel.pinNote(it)},
                 isArchive = true,
             )

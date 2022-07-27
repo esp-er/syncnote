@@ -147,19 +147,18 @@ fun Note(
                             maxLines = 1,
                             overflow = TextOverflow.Clip,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.W500
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                     }
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 1.dp),
                         text = note.content,
-                        color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colors.onPrimary.copy(alpha=0.8f),
                         overflow = TextOverflow.Ellipsis,
                         maxLines = if (expandedState) maxContentLinesExpanded else minOf(numLines, maxContentLines),
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
                     )
-                        //Spacer(Modifier.weight(1f))
+                    //Spacer(Modifier.weight(1f))
                     if(!expandedState && numLines > maxLines){ //Vertical overflow case
                         Icon(imageVector = TablerIcons.Dots,
                             "Overflow dots",

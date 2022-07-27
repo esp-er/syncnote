@@ -54,6 +54,7 @@ class AndroidExternRepository(private val cacheRepo: ExternRepository){
     fun clearAndSaveAll(notes: List<NoteProperty>){
         cacheRepo.clearAll()
         saveAll(notes)
+        updateNotesLiveData()
     }
 
     fun deleteNote(id: String) {

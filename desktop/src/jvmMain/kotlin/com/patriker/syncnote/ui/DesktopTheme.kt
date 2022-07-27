@@ -24,15 +24,20 @@ fun SyncNoteDesktopTheme(content: @Composable () -> Unit) {
     var isDarkThemeEnabled = if(ThemeSettingsDesktop.isUserDefined) ThemeSettingsDesktop.isDarkThemeEnabled else isSystemInDarkTheme()
     val colors = if (isDarkThemeEnabled) DarkThemeColors else LightThemeColors
 
-    val fontFamily = FontFamily(
+
+    val fontFamilyDark = FontFamily(
         Font(
-            resource = "Rubik-Variable.ttf",
-            weight = FontWeight.W400,
-            style = FontStyle.Normal
+            resource = "Inter-Light-Hint.ttf",
+        )
+    )
+    val fontFamilyLight = FontFamily(
+        Font(
+            resource = "Inter-Medium-Hint.ttf",
         )
     )
 
-    val typography = Typography(defaultFontFamily = fontFamily)
+    val typography = if(isDarkThemeEnabled) Typography(defaultFontFamily = fontFamilyDark)
+                    else Typography(defaultFontFamily = fontFamilyLight)
 
     MaterialTheme(colors = colors, content = content, typography = typography)
 

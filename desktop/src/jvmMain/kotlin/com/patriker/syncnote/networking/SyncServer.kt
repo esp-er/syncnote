@@ -1,8 +1,10 @@
-package com.patriker.syncnote.networking
+/*package com.patriker.syncnote.networking
 
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.domain.PairingData
 import com.raywenderlich.jetnotes.domain.PairingResponse
+import com.raywenderlich.jetnotes.networking.Connection
+import com.raywenderlich.jetnotes.networking.ServerControl
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.websocket.*
 import java.time.*
@@ -14,7 +16,6 @@ import io.ktor.server.application.*
 import io.ktor.server.cio.*
 
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.websocket.WebSockets
 
 /*
@@ -47,7 +48,7 @@ fun Application.configureRouting(){
 
 
 
-fun Application.configureSocketServer( onClientConnect: () -> Unit) {
+fun Application.configureSocketServer( onClientConnect: (PairingData) -> Unit) {
     install(WebSockets) {
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
         pingPeriod = Duration.ofSeconds(15)
@@ -70,12 +71,12 @@ fun Application.configureSocketServer( onClientConnect: () -> Unit) {
             val thisConnection = Connection(this)
             connections += thisConnection
             ///sendNotes(dataSource.getMainNotes())
-            val validateResult = validatePairing() //TODO: add logic to validate pairing data in this function
+            val (validateResult, data) = validatePairing() //TODO: add logic to validate pairing data in this function
 
             sendPairingResult(PairingResponse(validateResult))
 
             if(validateResult) {
-                onClientConnect()
+                onClientConnect(data)
                 //TODO: Receiver an UUID scanned from the QR Code
                 //Validate the UUID and add a StateFlow that communicates
                 //to ViewModel that a Client wishes to Pair with this computer
@@ -102,8 +103,8 @@ suspend fun DefaultWebSocketServerSession.sendPairingResult(b: PairingResponse) 
     }
 }
 
-suspend fun DefaultWebSocketServerSession.validatePairing(): Boolean {
-    val request =
+suspend fun DefaultWebSocketServerSession.validatePairing(): PairingValidationData {
+    val pairingData =
         try {
             val data = receiveDeserialized<PairingData>()
             data
@@ -111,14 +112,16 @@ suspend fun DefaultWebSocketServerSession.validatePairing(): Boolean {
             PairingData("", "")
         }
 
-    if(request.deviceName.isNotBlank()){
-        println("device connect: ${request.deviceName}")
+    if(pairingData.deviceName.isNotBlank()){
+        println("device connect: ${pairingData.deviceName}")
     }
 
-    if(request.pairingCode.isNotBlank()){
-        println("code: ${request.pairingCode}")
+    if(pairingData.pairingCode.isNotBlank()){
+        println("code: ${pairingData.pairingCode}")
     }
-    return true
+    //Validate here mock
+    val valid = if(pairingData.deviceName == "xiaomi note 10") true else false
+    return PairingValidationData(valid, request)
 }
 
 
@@ -135,15 +138,17 @@ suspend fun DefaultWebSocketServerSession.sendNotes(notes: List<NoteProperty>) =
     }
 
 
+data class PairingValidationData(val valid: Boolean, val pairingData: PairingData)
 class SyncServer(){
     private var clientWishesToPair: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var clientData: MutableStateFlow<PairingData> = MutableStateFlow(PairingData("", ""))
 
     fun clientPairFlow() = clientWishesToPair.asStateFlow()
-    fun clientConnects(){
+    fun clientConnects(clientInfo: PairingData){
         println("Client wishes to pair!")
         clientWishesToPair.value = true
+        clientData.value = clientInfo
     }
-
     /*
 
     fun testStart(){
@@ -152,9 +157,6 @@ class SyncServer(){
         }.start(wait=true)
     }
      */
-
-
-
     fun start(){
         val environment = applicationEngineEnvironment {
             //log = LoggerFactory.getLogger("ktor.application")
@@ -177,3 +179,4 @@ class SyncServer(){
 
 
 }
+*/

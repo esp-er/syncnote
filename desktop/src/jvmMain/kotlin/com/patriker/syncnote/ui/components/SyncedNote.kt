@@ -72,7 +72,7 @@ fun SyncedNote(
                     .background(MaterialTheme.colors.surface, backgroundShape)
                     .drawBehind {
                         drawLine(
-                            lineColor.copy(alpha = 0.7f),
+                            lineColor.copy(alpha = 0.9f),
                             Offset(0f, size.height),
                             Offset(size.width, size.height),
                             0.9f

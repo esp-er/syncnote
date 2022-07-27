@@ -1,5 +1,6 @@
 package com.raywenderlich.jetnotes
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,67 +8,136 @@ import androidx.lifecycle.viewModelScope
 import com.raywenderlich.jetnotes.data.*
 import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
+import com.raywenderlich.jetnotes.domain.PairingData
 //import com.raywenderlich.jetnotes.routing.NotesRouter
 //import com.raywenderlich.jetnotes.routing.Screen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
-import kotlinx.coroutines.CoroutineScope
+import com.russhwolf.settings.Settings
+import com.russhwolf.settings.get
+import kotlinx.coroutines.*
 
 //Contains the app state
-actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, getCorScope: () -> CoroutineScope) : BaseViewModel() {
-    val androrepo = AndroidRepository(repository)
-    val androcache = AndroidExternRepository(cacheRepository)
-
-/*
+actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     init{
-        viewModelScope.launch{
-            val note = NoteProperty(
-                id = "NEW",
-                title = "TEST",
-                content = "test",
-                colorId = 0,
-                false,
-                false,
-                false
+        if (appConfig.getStringOrNull("deviceModel") == null ) 
+            appConfig.putString("deviceModel", android.os.Build.MODEL)
+        val hostIp = appConfig.getStringOrNull("hostAddress")
+        //if (hostIp == null){
+           appConfig.putString("hostAddress", "10.0.2.2")
+        //}
+        appConfig.putInt("port", 9000)
+        appConfig.putBoolean("isPaired", false)
+
+        //TODO: figure out when to append this keys (not here)
+        appConfig.putString("sharedCode", "ASDFQWER")
+    }
+    private val androRepo = AndroidRepository(repository)
+    private val androCache = AndroidExternRepository(cacheRepository)
+
+    val host = HostData(appConfig.getString("hostAddress"),
+        appConfig.getInt("port"),
+        "/syncnote"
+    ) //TODO: save this to settings
+
+    private lateinit var sync: SyncClient
+    fun attemptConnection(testPair: Boolean = true) {
+        val (attemptHost, attemptCode, name) = listOf(
+            appConfig.getStringOrNull("hostAddress"),
+            appConfig.getStringOrNull("sharedCode"),
+            appConfig.getStringOrNull("deviceModel")
+
+        )
+        val attemptPort = appConfig.getIntOrNull("port")
+        if (attemptPort == null || attemptHost == null || name == null || attemptCode == null) {
+            Log.d(
+                "SyncClient:",
+                "host address or port missing, or pairing missing, aborting connection"
             )
-            androcache.saveNote(note)
+            return
+        }
+        sync = SyncClient(
+            this,
+            host = HostData(attemptHost, attemptPort, "/syncnote"),
+            pairingDone = testPair,
+            pairingData = PairingData(name, attemptCode)
+        )
+        sync.apply {
+            viewModelScope.launch(Dispatchers.IO) {
+                //test()
+                connect()
+            }
 
         }
-    }*/
+        isSyncing = sync.isSyncingLive
+        isDevicePaired = sync.isPairingDone
+    }
+    fun attemptPairConnection(host: HostData, sharedCode: String) {
 
-    val host = HostData("10.0.2.2", 8000, "/syncnote") //TODO: save this to settings
-                                                                                // and create a class/function
-                                                                                //that can determine this
-    val hasPairedHost = MutableLiveData(false) //TODO: retreive this from AndroidSettings provider instead
-    val sync = SyncClient(androcache, host).apply {
-        viewModelScope.launch(Dispatchers.IO) {
-            //test()
-            connect()
+        val model = appConfig.getString("deviceModel", android.os.Build.MODEL)
+        sync = SyncClient(
+            this,
+            host = host,
+            pairingDone = false,
+            pairingData = PairingData(model, sharedCode)
+        )
+        sync.apply {
+            viewModelScope.launch(Dispatchers.IO) {
+                //test()
+                connect()
+            }
+
         }
+
+        isSyncing = sync.isSyncingLive
+        isDevicePaired = sync.isPairingDone
     }
 
-    val isSyncing = sync.isSocketConnected()
+    fun testConnect(host: HostData, sharedCode: String) {
+        attemptConnection(false)
+    }
+
+
+    //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
+    var isDevicePaired: LiveData<Boolean> = MutableLiveData(false)
+    /*
+    suspend fun setDevicePaired(b: Boolean) =
+        viewModelScope.launch {
+            _isDevicePaired.let {
+                it.setValue(b)
+                it.postValue(b)
+            }
+            Log.d("ANDROID MAINVIEWCONTROL", "${_isDevicePaired.value}")
+        }
+     */
+
+
+    //val isSyncing = sync.isSocketConnected()
+    //val _isSyncing = MutableLiveData(false)
+    var isSyncing: LiveData<Boolean> = MutableLiveData(false)
+    /*fun setSyncingState(b: Boolean) =
+        viewModelScope.launch {
+            _isSyncing.let {
+                it.setValue(b)
+                it.postValue(b)
+            }
+        }
+     */
 
     val cachedNotes: LiveData<List<NoteProperty>> by lazy {
-        androcache.getNotesLiveData()
+        androCache.getNotesLiveData()
     }
-
     val notes: LiveData<List<NoteProperty>> by lazy {
-        androrepo.getMainNotes()
+        androRepo.getMainNotes()
     }
-
     val notesInArchive: LiveData<List<NoteProperty>> by lazy {
-        androrepo.getArchivedNotes()
+        androRepo.getArchivedNotes()
     }
 
     private var _noteEntry = MutableLiveData(NoteProperty())
     val noteEntry: LiveData<NoteProperty> = _noteEntry
-
 
     val fabPos = MutableLiveData(Offset(0f,0f))
     fun setFabPos(newPos: Offset){
@@ -96,7 +166,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
 
     fun saveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
-            androrepo.saveNote(note.copy(editDate = Clock.System.now()))
+            androRepo.saveNote(note.copy(editDate = Clock.System.now()))
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
                 _noteEntry.value = NoteProperty()
@@ -105,32 +175,42 @@ actual class MainViewModel actual constructor(private val repository: Repository
     }
     fun archiveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
-            androrepo.archiveNote(note.id)
+            androRepo.archiveNote(note.id)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
             }
         }
     }
 
+    fun clearArchive(){
+       // viewModelScope
+    }
+
     fun togglePin(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
-            if(note.isPinned) androrepo.unpinNote(note.id)
-            else androrepo.pinNote(note.id)
+            if(note.isPinned) androRepo.unpinNote(note.id)
+            else androRepo.pinNote(note.id)
         }
     }
 
     fun restoreNoteFromArchive(note: NoteProperty){
         viewModelScope.launch(Dispatchers.Default) {
-            androrepo.restoreNote(note.id)
+            androRepo.restoreNote(note.id)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
             }
         }
     }
 
+    fun clearAndUpdateCache(externNotes: List<NoteProperty>){
+        viewModelScope.launch(Dispatchers.Default) {
+            androCache.clearAndSaveAll(externNotes)
+        }
+    }
+
     fun permaDeleteNote(note: NoteProperty){
         viewModelScope.launch(Dispatchers.Default) {
-            androrepo.deleteNote(note.id)
+            androRepo.deleteNote(note.id)
             withContext(Dispatchers.Main) {
                 /*when(NotesRouter.currentScreen) {
                     is Screen.SaveNote -> NotesRouter.navigateTo(Screen.Archive)

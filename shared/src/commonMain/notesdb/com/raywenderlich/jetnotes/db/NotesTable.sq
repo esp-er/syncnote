@@ -49,8 +49,6 @@ unpinNote:
 UPDATE NotePropertyDb SET isPinned=0
 WHERE id = ?;
 
-
-
 insertUpdateNote:
 INSERT OR REPLACE INTO NotePropertyDb(id, title, content, colorId, canBeChecked, isChecked, isArchived, editDate, isPinned)
 VALUES (?, ?, ?,?,?,?,?,?, ?);
@@ -62,4 +60,8 @@ SET editDate = ? WHERE id = ?;
 deleteNote:
 DELETE FROM NotePropertyDb
 WHERE id = ?;
+
+deleteArchivedNotes:
+DELETE FROM NotePropertyDb
+WHERE isArchived=1;
 

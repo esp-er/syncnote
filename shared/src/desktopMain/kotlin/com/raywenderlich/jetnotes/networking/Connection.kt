@@ -1,4 +1,4 @@
-package com.patriker.syncnote.networking
+package com.raywenderlich.jetnotes.networking
 
 import io.ktor.websocket.*
 import java.util.concurrent.atomic.*

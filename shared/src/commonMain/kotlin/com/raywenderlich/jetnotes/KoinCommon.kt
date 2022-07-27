@@ -27,8 +27,9 @@ object Modules {
         factory { Repository(get()) }
         factory { ExternRepository(get())}
     }
-    val viewModel= module {
-        factory { MainViewModel(get(), get()) }
+    val viewModel = module {
+        //(repository, externRepository, Settings)
+        single { MainViewModel(get(), get(), get()) }
     }
     
 

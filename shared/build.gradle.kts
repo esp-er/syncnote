@@ -26,9 +26,22 @@ kotlin {
                 implementation("io.insert-koin:koin-core:${rootProject.extra["koin_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.extra["ktor_version"]}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+                implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-websockets-jvm:${rootProject.ext["ktor_version"]}")
+                //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
+                //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
+
+                implementation("com.russhwolf:multiplatform-settings:${rootProject.ext["multi_settings_version"]}")
+
+                //implementation("io.ktor:ktor-server-cio:${rootProject.ext["ktor_version"]}")
+                //
                 // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-                //for random strings
+
+                //For random strings
                 implementation("org.apache.commons:commons-lang3:3.12.0")
+
                 api(compose.foundation)
                 api(compose.runtime)
                 api(compose.material)
@@ -50,7 +63,6 @@ kotlin {
                 implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.5.0")
                 implementation("androidx.appcompat:appcompat:1.4.2")
 
-
                 //Ktor
                 implementation("io.ktor:ktor-client-cio:${rootProject.extra["ktor_version"]}")
                 implementation("io.ktor:ktor-client-core:${rootProject.extra["ktor_version"]}")
@@ -58,6 +70,10 @@ kotlin {
                 implementation("io.ktor:ktor-client-websockets:${rootProject.extra["ktor_version"]}")
                 implementation("io.ktor:ktor-client-content-negotiation:${rootProject.extra["ktor_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
+
+                //koin
+                implementation("io.insert-koin:koin-android:${rootProject.extra["koin_version"]}")
+
 
             }
             val androidTest by getting {

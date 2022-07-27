@@ -51,7 +51,7 @@ fun TopAppBar(
             text = title,
             color = MaterialTheme.colors.onPrimary,
             fontSize = 10.sp,
-            fontWeight = FontWeight.W500,
+            fontWeight = FontWeight.W600,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterVertically)

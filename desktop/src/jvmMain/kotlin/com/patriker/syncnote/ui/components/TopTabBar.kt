@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.ui.noRippleClickable
-import com.patriker.syncnote.viewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
@@ -41,7 +40,7 @@ private object NoRippleTheme : RippleTheme {
 
 
 @Composable
-fun TopTabBar(initState: Int, isConnected: Boolean = false) {
+fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -> Unit = {}) {
 
     var state by remember{ mutableStateOf(initState) }
 
@@ -159,7 +158,6 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
                         selected = state == 1,
                         onClick = {
                             state = 1
-                            viewModel.requestQRCode()
                             NotesRouter.navigateTo(Screen.Synced)
                         }
                     )
@@ -206,13 +204,13 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false) {
             }
         }
         Column {
-            ArchiveDropDown(expandArchive, ::dismissArchiveDropDown)
+            ArchiveDropDown(expandArchive, ::dismissArchiveDropDown, onClearArchive)
         }
     }
 }
 
 @Composable
-fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit) {
+fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit, onClearArchive: () -> Unit) {
     val expanded by derivedStateOf { show }
 
     val fontSize = 12.sp
@@ -228,7 +226,7 @@ fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit) {
         DropdownMenuItem(
             modifier = itemModifier.align(Alignment.CenterHorizontally),
             contentPadding = PaddingValues(1.dp),
-            onClick = { TODO("CLEAR ARCHIVE") }
+            onClick = { onClearArchive(); onDismiss() }
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
 

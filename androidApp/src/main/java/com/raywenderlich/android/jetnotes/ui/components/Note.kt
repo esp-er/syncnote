@@ -264,7 +264,7 @@ fun NoteButtons(
     onTogglePin: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
     isArchive: Boolean = false
-){
+){ //TODO: change tint of buttons to lighter /resp / darker, tune size
 
     var dropdownState by rememberSaveable{ mutableStateOf(false) }
     fun dismissDrop(){ dropdownState = false}

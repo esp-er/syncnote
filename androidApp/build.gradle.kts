@@ -50,14 +50,14 @@ android {
 dependencies {
     implementation(project(":shared"))
     //implementation(project(":shared-ui"))
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.activity:activity-compose:1.4.0")
 
     // Material
-    implementation("com.google.android.material:material:1.6.0")
+    implementation("com.google.android.material:material:1.6.1")
 
     // Compose
     implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
@@ -71,11 +71,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01")
 
     // Kotlinx datetime
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     //Database
     implementation("com.squareup.sqldelight:android-driver:${rootProject.extra["sqldelight_version"]}")

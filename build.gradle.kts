@@ -8,6 +8,7 @@ buildscript {
    extra["compose_compiler_version"] = "1.2.0"
    extra["composedesktop_version"] = "1.2.0-alpha01-dev741"
    extra["logback_version"] = "1.2.11"
+   extra["multi_settings_version"] = "0.9"
 
     repositories {
         google()

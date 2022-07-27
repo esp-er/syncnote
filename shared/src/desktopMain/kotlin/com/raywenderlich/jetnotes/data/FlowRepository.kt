@@ -57,6 +57,11 @@ class FlowRepository(private val repo: Repository){
         updateNotesState()
     }
 
+    fun deleteArchivedNotes(){
+        repo.deleteArchivedNotes()
+        updateArchivedNotes()
+    }
+
     fun restoreNote(id: String){
         repo.restoreNote(id)
         updateNotesState()
@@ -87,6 +92,13 @@ class FlowRepository(private val repo: Repository){
     private fun updateNotesState() {
         mainNotesLiveData.value = repo.getMainNotes()
         archivedNotesLiveData.value  = repo.getArchivedNotes()
+    }
+
+    private fun updateArchivedNotes() {
+        archivedNotesLiveData.value  = repo.getArchivedNotes()
+    }
+    private fun updateMainNotes() {
+        mainNotesLiveData.value = repo.getMainNotes()
     }
 
 }

@@ -46,12 +46,12 @@ kotlin {
                 //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
-                implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-cio:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth-jwt:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.ext["ktor_version"]}")
                 //implementation("ch.qos.logback:logback-classic:${rootProject.ext["logback_version"]}")
+                implementation("com.russhwolf:multiplatform-settings:${rootProject.ext["multi_settings_version"]}")
 
                 //Tabler icons
                 implementation("br.com.devsrsouza.compose.icons.jetbrains:tabler-icons:1.0.0")
@@ -75,14 +75,15 @@ tasks.named<Copy>("jvmProcessResources") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+
+
+//Note: This does nothing at the moment
 tasks.named<ShadowJar>("shadowJar"){
     exclude("**/org/sqlite/Windows/*")
     exclude(".so")
     exclude("**/Mac/*")
-        //dependsOn(tasks.named("minifyJar"))
-        //from("minifyJar")
-
-        //archiveFileName.set("syncnote-shadow.jar")
+    //dependsOn(tasks.named("minifyJar"))
+    //archiveFileName.set("syncnote-shadow.jar")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

@@ -17,6 +17,7 @@ object AppColors{
   val darkBrown = Color(0xFF723712)
   val primaryGreen = Color(0xFF05745B)
   val outlineGrey = Color(0xFF494749)
+  val darkGrey = Color(0xFF111111)
 }
 
 
@@ -37,7 +38,7 @@ private val DarkThemeColors = darkColors(
 //TODO: change the green to something else
 private val LightThemeColors = lightColors(
   primary = AppColors.primaryGreen,
-  primaryVariant = Color(0xFF00F884),
+  primaryVariant = Color(0xFFE6E6E6),
   secondaryVariant = AppColors.primaryGreen,
   secondary = AppColors.lightBrown,
   error = Color(0xFFc01c28),

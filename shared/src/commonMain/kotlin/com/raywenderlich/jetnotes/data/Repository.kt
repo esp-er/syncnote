@@ -37,6 +37,10 @@ class Repository(
         databaseHelper.removeNote(id)
     }
 
+    fun deleteArchivedNotes(){
+        databaseHelper.clearArchive()
+    }
+
     fun saveNote(note: NoteProperty){
         val newId = if(note.id == NEW_UUID) UUID().toString() else note.id
         databaseHelper.insert(
@@ -73,6 +77,7 @@ class Repository(
     fun archiveNote(id: String){
         databaseHelper.archiveNote(id)
     }
+
 
     fun restoreNote(id: String){
         databaseHelper.unarchiveNote(id)

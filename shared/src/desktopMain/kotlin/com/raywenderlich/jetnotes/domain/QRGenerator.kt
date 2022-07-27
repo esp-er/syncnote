@@ -4,6 +4,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import com.raywenderlich.jetnotes.theme.ThemeSettings
 import io.github.g0dkar.qrcode.QRCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,15 +33,24 @@ class QRGenerator{
         HostKey.value = newRandomId
         val netAdrr = "$ipAddr:$port"
 
-        val primaryVariant = awtColor("0xFF7C7A7C") // light grayI
-        val surface = awtColor("0xFF363436")
-        val foreground = awtColor("0xFF7C7A7C")
-        val background = awtColor("0xFF222022") //TODO: get these colors from Theme instead (can't use Composable)
+        //val primaryVariant = awtColor("0xFF7C7A7C") // light gray
+        //val surface = awtColor("0xFF363436")
+        val foreground = awtColor("0xFF333333")
+        val background = awtColor("0xFFFFFFFF")
+        val foregroundDark = awtColor("0xFF7C7A7C")
+        val backgroundDark = awtColor("0xFF222022")
+
+        val (pickFG, pickBG) = if(ThemeSettings.isDarkThemeEnabledProp)
+                                Pair(foregroundDark, backgroundDark)
+                               else
+                                Pair(foreground, background)
+
+
 
 
         val qrData = QRCode("$netAdrr/$newRandomId")
             //.render()
-            .render(30,30, foreground.rgb, background.rgb, foreground.rgb)
+            .render(30,30, pickBG.rgb, pickFG.rgb, pickBG.rgb)
 
         val imageBytes = ByteArrayOutputStream().also {
             qrData.writeImage(it, "PNG")
