@@ -4,7 +4,7 @@ buildscript {
    extra["kotlin_version"] = "1.7.0"
    extra["koin_version"] = "3.1.5"
    extra["sqldelight_version"] = "1.5.3"
-   extra["compose_version"] = "1.2.0-rc03"
+   extra["compose_version"] = "1.2.0"
    extra["compose_compiler_version"] = "1.2.0"
    extra["composedesktop_version"] = "1.2.0-alpha01-dev741"
    extra["logback_version"] = "1.2.11"

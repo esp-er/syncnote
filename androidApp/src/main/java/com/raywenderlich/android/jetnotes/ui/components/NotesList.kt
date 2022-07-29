@@ -50,15 +50,14 @@ fun NotesList(
     val notes: List<NoteProperty> by notes
         .observeAsState(listOf())
 
-    //TODO: sort notes by last Edited date instead?
-    val notesReversed by derivedStateOf {
-        notes.reversed().sortedBy { !(it.isPinned) }
+    val notesSorted by derivedStateOf {
+        notes.sortedWith( compareBy<NoteProperty> {!(it.isPinned)}.thenByDescending { it.editDate} )
     }
 
     LazyColumn(state = listState) {
 
         //TODO: list pinned notes on top!
-        items(notesReversed,  { note: NoteProperty -> note.id}) { note ->
+        items(notesSorted,  { note: NoteProperty -> note.id}) { note ->
             //var dismissOpacity by remember { mutableStateOf(0f)}
             var dismissState = rememberDismissState()
             if(dismissState.isDismissed(DismissDirection.StartToEnd)){

@@ -17,7 +17,7 @@ object AppColors{
   val darkBrown = Color(0xFF723712)
   val primaryGreen = Color(0xFF05745B)
   val outlineGrey = Color(0xFF494749)
-  val darkGrey = Color(0xFF111111)
+  val darkGrey = Color(0xFF222222)
 }
 
 
@@ -37,19 +37,20 @@ private val DarkThemeColors = darkColors(
 
 //TODO: change the green to something else
 private val LightThemeColors = lightColors(
-  primary = AppColors.primaryGreen,
+  primary = SharedAppColors.primaryGreen,
   primaryVariant = Color(0xFFE6E6E6),
-  secondaryVariant = AppColors.primaryGreen,
-  secondary = AppColors.lightBrown,
+  secondaryVariant = SharedAppColors.primaryGreen,
+  secondary = SharedAppColors.lightBrown,
   error = Color(0xFFc01c28),
   onPrimary = Color.Black,
+  onSurface = SharedAppColors.darkGrey,
   onSecondary = Color.White,
 )
 
 
 @Composable
 fun SyncNoteTheme(content: @Composable () -> Unit) {
-  val isDarkThemeEnabled = isSystemInDarkTheme() || ThemeSettings.isDarkThemeEnabled
+  val isDarkThemeEnabled = isSystemInDarkTheme() || ThemeSettingsShared.isDarkThemeEnabled
   val colors = if (isDarkThemeEnabled) DarkThemeColors else LightThemeColors
 
   MaterialTheme(colors = colors, content = content)

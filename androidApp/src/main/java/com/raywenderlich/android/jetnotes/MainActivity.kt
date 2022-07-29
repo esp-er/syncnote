@@ -1,23 +1,17 @@
 package com.raywenderlich.android.jetnotes
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewModelScope
 import com.raywenderlich.android.jetnotes.ui.screens.*
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import com.raywenderlich.jetnotes.theme.SyncNoteTheme
 import com.raywenderlich.jetnotes.MainViewModel
-import com.raywenderlich.jetnotes.data.SyncClient
-import com.raywenderlich.jetnotes.initKoin
-import kotlinx.coroutines.*
 import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 
 /**

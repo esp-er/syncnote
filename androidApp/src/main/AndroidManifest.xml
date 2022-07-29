@@ -13,6 +13,10 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.JetNotes">
 
+
+    <!-- android:debuggable="false" -->
+
+
     <!-- Splash Activity -->
     <activity
       android:name=".SplashActivity"

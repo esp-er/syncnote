@@ -1,5 +1,5 @@
 -dontobfuscate
--dontoptimize
+#-dontoptimize
 -dontwarn kotlinx.**
 -dontwarn kotlin.**
 

@@ -1,10 +1,8 @@
 package com.raywenderlich.jetnotes.domain
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import com.raywenderlich.jetnotes.theme.ThemeSettings
+import com.raywenderlich.jetnotes.theme.ThemeSettingsShared
 import io.github.g0dkar.qrcode.QRCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import io.github.g0dkar.qrcode.render.Colors
 
 
 class QRGenerator{
@@ -40,7 +37,7 @@ class QRGenerator{
         val foregroundDark = awtColor("0xFF7C7A7C")
         val backgroundDark = awtColor("0xFF222022")
 
-        val (pickFG, pickBG) = if(ThemeSettings.isDarkThemeEnabledProp)
+        val (pickFG, pickBG) = if(ThemeSettingsShared.isDarkThemeEnabledProp)
                                 Pair(foregroundDark, backgroundDark)
                                else
                                 Pair(foreground, background)

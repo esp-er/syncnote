@@ -52,7 +52,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.padding(top = 12.dp).hcenter()){
-                Text("Or, Enter the desktop app host information manually:", modifier = Modifier.hcenter())
+                Text("Or, Enter the desktop pairing information manually:", modifier = Modifier.hcenter())
             }
             Spacer(modifier = Modifier.height(8.dp))
             val codeMaxChars = 8

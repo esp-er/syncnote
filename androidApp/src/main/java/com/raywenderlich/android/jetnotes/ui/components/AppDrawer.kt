@@ -12,11 +12,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.raywenderlich.jetnotes.theme.SyncNoteTheme
-import com.raywenderlich.jetnotes.theme.ThemeSettings
+import com.raywenderlich.jetnotes.theme.ThemeSettingsShared
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Archive
@@ -242,8 +241,8 @@ private fun LightDarkThemeItem() {
         }
         Column (modifier = Modifier.align(Alignment.CenterVertically).weight(1f)){
             Switch(
-                checked = ThemeSettings.isDarkThemeEnabled,
-                onCheckedChange = { ThemeSettings.isDarkThemeEnabled = it },
+                checked = ThemeSettingsShared.isDarkThemeEnabled,
+                onCheckedChange = { ThemeSettingsShared.isDarkThemeEnabled = it },
                 modifier = Modifier
                     .padding(start = 8.dp, end = 32.dp)
                     .align(alignment = Alignment.End)

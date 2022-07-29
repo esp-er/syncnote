@@ -16,12 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.jetnotes.theme.SyncNoteTheme
+import com.raywenderlich.jetnotes.theme.SyncNoteThemeShared
 import compose.icons.Octicons
 import compose.icons.octicons.ThreeBars16
 
@@ -63,7 +61,7 @@ fun TopAppBar(
 @Preview
 @Composable
 fun TopAppBarPreview(){
-    SyncNoteTheme { //note easy way to switch out themes
+    SyncNoteThemeShared { //note easy way to switch out themes
         TopAppBar(
             title = "JetNotes",
             icon = Octicons.ThreeBars16,

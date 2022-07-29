@@ -29,6 +29,8 @@ import com.patriker.syncnote.util.setClipboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -70,8 +72,6 @@ fun Note(
     expandAllTrigger: Boolean,
     isArchivedNote: Boolean = false
 ){
-
-
 
     val timeAgoText = remember { Util.timeAgoString(note.editDate, Clock.System.now())}
 
@@ -211,8 +211,6 @@ fun Note(
             }
 
             Box(modifier=Modifier.heightIn(14.dp,14.dp)){ //TODO: Separate card into text column and right-hand col properly
-                //TODO: fix rendering of this box(background clips)
-                //TODO: create Utility function to calculate "hrs / days / weeks / months ago" for this timestamp
                 Row(modifier = Modifier.padding(horizontal = 2.dp)){
                     Spacer(Modifier.weight(1f))
                     Text(timeAgoText, fontSize = 9.sp, style = TextStyle(MaterialTheme.colors.onSecondary))
@@ -252,22 +250,22 @@ fun NoteColor(
     size: Dp,
     border: Dp
 ) {
-    val shape = RoundedCornerShape(corner = CornerSize(4.dp))
+    val shape = CircleShape
     Box(
         modifier = modifier
             .size(size)
             .clip(shape) //must set shape before background
             .background(color)
-            .border(BorderStroke(border, Color.DarkGray), shape),
+            .border(BorderStroke(border, MaterialTheme.colors.onSurface), shape),
     ) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Icon(
                 modifier = Modifier
-                    .size(size)
-                    .padding(0.dp)
+                    .fillMaxSize()
+                    .padding(3.dp)
                     .matchParentSize(),
                 imageVector = TablerIcons.AlignJustified,
-                tint = Color.Black.copy(alpha = 0.4f),
+                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                 contentDescription = "Restore Note Button"
             )
             /*
@@ -281,6 +279,8 @@ fun NoteColor(
         }
     }
 }
+
+
 
 @Composable
 fun NoteDropDownMenu(onDismiss: () -> Unit, onDelete: () -> Unit){

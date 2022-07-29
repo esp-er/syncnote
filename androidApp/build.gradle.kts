@@ -20,7 +20,8 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
     buildFeatures {
@@ -53,8 +54,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.activity:activity-ktx:1.4.0")
-    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.activity:activity-ktx:1.5.1")
+    implementation("androidx.activity:activity-compose:1.5.1")
 
     // Material
     implementation("com.google.android.material:material:1.6.1")
@@ -87,10 +88,10 @@ dependencies {
     // Zxing (QR)
     implementation("com.google.zxing:core:3.3.3")
 
-    //CameraX (for QR)
-    implementation( "androidx.camera:camera-camera2:1.0.2")
+    //CameraX (for QR)~
+    implementation("androidx.camera:camera-camera2:1.0.2")
     implementation("androidx.camera:camera-lifecycle:1.0.2")
-    implementation("androidx.camera:camera-view:1.0.0-alpha31")
+    implementation("androidx.camera:camera-view:1.0.0-alpha32")
 
     //FluentUI icons
     //implementation("com.microsoft.design:fluent-system-icons:1.1.172@aar")

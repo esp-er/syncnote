@@ -227,10 +227,9 @@ private fun SaveNoteContent(
         )
         ContentTextField(
             modifier = Modifier
-                .heightIn(max = 240.dp)
-                .padding(top = 16.dp),
-            label = "Body",
-
+                .padding(top = 16.dp)
+                .fillMaxHeight(0.5f),
+        label = "Body",
             text = note.content,
             onTextChange = { newContent ->
                 onNoteChange.invoke(note.copy(content = newContent))
@@ -246,7 +245,12 @@ private fun SaveNoteContent(
             }
         )*/
         //PickedColor(color = note.color, onOpenColorPickerClick) //TODO: fix coloring in new model
-        PickedColor(color = ColorModel.DEFAULT, onOpenColorPickerClick) //TODO: fix coloring in new model
+        Row{
+            PickedColor(
+                color = ColorModel.DEFAULT,
+                onOpenColorPickerClick
+            ) //TODO: fix coloring in new model
+        }
     }
 }
 @Preview(showBackground = true)
@@ -296,14 +300,14 @@ private fun PickedColor(color: ColorModel, onOpenColorPickerClick: () -> Unit) {
             .padding(top = 16.dp)
     ) {
         Text(
-            text = "Picked color",
+            text = "Pick Note Color",
             modifier = Modifier
-                .weight(1f)
                 .align(Alignment.CenterVertically)
         )
+        Spacer(modifier = Modifier.width(32.dp))
         NoteColor(
             color = Color.fromHex(color.hex),
-            size = 40.dp,
+            size = 24.dp,
             border = 1.dp,
             modifier = Modifier
                 .padding(4.dp)
