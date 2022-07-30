@@ -1,7 +1,10 @@
 package com.patriker.syncnote.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.StateFlow
 import com.raywenderlich.jetnotes.domain.NoteProperty
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun NotesList(
@@ -44,8 +52,9 @@ fun NotesList(
             notesList.sortedWith( compareBy<NoteProperty> {!(it.isPinned)}.thenByDescending { it.editDate} )
         }
 
-        val expandNotes by derivedStateOf { expandAllTrigger }
 
+        val expandNotes by derivedStateOf { expandAllTrigger }
+        val corScope = rememberCoroutineScope()
         val listState = rememberLazyListState()
 
         if(notesList.isEmpty()){
@@ -65,7 +74,33 @@ fun NotesList(
             }
         }
 
-        LazyColumn(state = listState, modifier = Modifier.padding(end = 6.dp)) {
+
+        var prevDelta by remember { mutableStateOf(0f) }
+        LazyColumn(state = listState, modifier = Modifier
+            .padding(end = 7.dp)
+            .draggable(rememberDraggableState { delta ->
+                corScope.launch {
+
+                    val deriv = if(prevDelta +1 < delta) -2
+                                else if(prevDelta - 1 > delta) 2
+                                else if(prevDelta < delta) -1
+                                else if(prevDelta > delta) 1
+                                else 0
+                                prevDelta = delta
+
+                    listState.scrollBy(-delta)
+
+                    when(deriv) {
+                        -2 -> listState.animateScrollBy(8 * -delta)
+                        2 -> listState.animateScrollBy(8 * -delta)
+                        -1 -> listState.animateScrollBy(2 * -delta)
+                        1 -> listState.animateScrollBy(2 * -delta)
+                        else -> listState.animateScrollBy(-delta)
+                    }
+                }
+            }, orientation = Orientation.Vertical)
+
+        ) {
             items(notesSorted, { note: NoteProperty -> note.id }) { note ->
                 //var dismissOpacity by remember { mutableStateOf(0f)}
                 Note(
