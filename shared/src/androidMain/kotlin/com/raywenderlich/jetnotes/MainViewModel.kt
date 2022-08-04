@@ -26,7 +26,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
             appConfig.putString("deviceModel", android.os.Build.MODEL)
         val hostIp = appConfig.getStringOrNull("hostAddress")
         //if (hostIp == null){
-           appConfig.putString("hostAddress", "10.0.2.2")
+           appConfig.putString("hostAddress", "192.168.0.149")
         //}
         appConfig.putInt("port", 9000)
         appConfig.putBoolean("isPaired", false)
@@ -58,73 +58,70 @@ actual class MainViewModel actual constructor(private val repository: Repository
             )
             return
         }
+
         sync = SyncClient(
             this,
             host = HostData(attemptHost, attemptPort, "/syncnote"),
             pairingDone = testPair,
             pairingData = PairingData(name, attemptCode)
         )
-        sync.apply {
-            viewModelScope.launch(Dispatchers.IO) {
-                //test()
-                connect()
+        /*MainScope().launch(Dispatchers.IO) {
+        }*/
+        MainScope().launch{
+            sync.connect()
+        }
+        viewModelScope.launch(Dispatchers.Main) {
+            //_isSyncing = sync.isSyncingLive
+            //_isDevicePaired.value = true
+            launch {
+                sync.isSyncingLive.collect {
+                    _isSyncing.postValue(it)
+                }
+            }
+            launch{
+                sync.isPairingDone.collect {
+                    _isDevicePaired.postValue(it)
+                }
             }
 
         }
-        isSyncing = sync.isSyncingLive
-        isDevicePaired = sync.isPairingDone
     }
-    fun attemptPairConnection(host: HostData, sharedCode: String) {
-
-        val model = appConfig.getString("deviceModel", android.os.Build.MODEL)
-        sync = SyncClient(
-            this,
-            host = host,
-            pairingDone = false,
-            pairingData = PairingData(model, sharedCode)
-        )
-        sync.apply {
-            viewModelScope.launch(Dispatchers.IO) {
-                //test()
-                connect()
+fun attemptPairConnection(host: HostData, sharedCode: String) {
+    val model = appConfig.getString("deviceModel", android.os.Build.MODEL)
+    sync = SyncClient(
+        this,
+        host = HostData(host.address, host.port, "/syncnote"),
+        pairingDone = false,
+        pairingData = PairingData(model, sharedCode)
+    )
+    MainScope().launch {
+        sync.connect()
+    }
+    viewModelScope.launch(Dispatchers.Main) {
+        launch {
+            sync.isSyncingLive.collect {
+                _isSyncing.postValue(it)
             }
-
+        }
+        launch {
+            sync.isPairingDone.collect {
+                _isDevicePaired.postValue(it)
+            }
         }
 
-        isSyncing = sync.isSyncingLive
-        isDevicePaired = sync.isPairingDone
     }
+}
 
-    fun testConnect(host: HostData, sharedCode: String) {
+    fun testConnect(host: HostData, sharedCode: String = "ASDFQWER") {
         attemptConnection(false)
     }
 
-
     //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
-    var isDevicePaired: LiveData<Boolean> = MutableLiveData(false)
-    /*
-    suspend fun setDevicePaired(b: Boolean) =
-        viewModelScope.launch {
-            _isDevicePaired.let {
-                it.setValue(b)
-                it.postValue(b)
-            }
-            Log.d("ANDROID MAINVIEWCONTROL", "${_isDevicePaired.value}")
-        }
-     */
+    private val _isDevicePaired: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isDevicePaired = _isDevicePaired
 
-
-    //val isSyncing = sync.isSocketConnected()
-    //val _isSyncing = MutableLiveData(false)
-    var isSyncing: LiveData<Boolean> = MutableLiveData(false)
-    /*fun setSyncingState(b: Boolean) =
-        viewModelScope.launch {
-            _isSyncing.let {
-                it.setValue(b)
-                it.postValue(b)
-            }
-        }
-     */
+    private val _isSyncing: MutableLiveData<Boolean> = MutableLiveData(false)
+    var isSyncing: LiveData<Boolean> = _isSyncing
 
     val cachedNotes: LiveData<List<NoteProperty>> by lazy {
         androCache.getNotesLiveData()

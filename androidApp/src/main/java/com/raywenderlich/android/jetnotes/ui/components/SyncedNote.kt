@@ -35,7 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpSize
 import com.raywenderlich.android.jetnotes.domain.model.ColorModel
 import com.raywenderlich.android.jetnotes.domain.model.NoteModel
+import com.raywenderlich.jetnotes.domain.Util
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Pin
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
@@ -45,15 +49,18 @@ fun SyncedNote(
     onCloneNote: (NoteProperty) -> Unit = {},
     onDeleteNote: (NoteProperty) -> Unit = {},
     onSnackMessage: (String) -> Unit = {},
+    isArchivedNote: Boolean = false
 ){
 
     val expandedButtonsHeight = 32.dp
+
+    val timeAgoText = remember { Util.timeAgoString(note.editDate, Clock.System.now())}
 
     var expandedState by rememberSaveable { mutableStateOf(false) }
     val expandedAnimatedDp by animateDpAsState(
         if(expandedState) expandedButtonsHeight else 0.dp ,
         animationSpec = tween(
-            durationMillis = 100,
+            durationMillis = 125,
             easing = FastOutSlowInEasing
         ))
     val isFullyExpanded by derivedStateOf { expandedAnimatedDp == expandedButtonsHeight}
@@ -70,30 +77,22 @@ fun SyncedNote(
         onClick = { expandedState = !expandedState },
         elevation = 4.dp
     ) {
-        val lineColor = MaterialTheme.colors.onPrimary
-        Column(horizontalAlignment = Alignment.End) {
+        Column(horizontalAlignment = Alignment.End, modifier = Modifier.background(MaterialTheme.colors.surface)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(42.dp)
                     .background(MaterialTheme.colors.surface, backgroundShape)
-                    .drawBehind {
-                        drawLine(
-                            lineColor.copy(alpha = 0.7f),
-                            Offset(0f, size.height),
-                            Offset(size.width, size.height),
-                            0.9f
-                        )
-                    }
+
                 //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiers
             ) {
                 NoteColor(
                     modifier = Modifier
                         .align(Alignment.Top)
-                        .padding(top = 12.dp, start = 10.dp, bottom = 12.dp),
+                        .padding(top = 4.dp, start = 4.dp),
                     color = Color.fromHex(ColorModel.DEFAULT.hex), //TODO: fix coloring
-                    24.dp,
-                    border = 0.8.dp
+                    size = 8.dp,
+                    border = 0.5.dp
                 )
                 Column(
                     modifier = Modifier
@@ -129,31 +128,43 @@ fun SyncedNote(
                         )
                 }
 
-                //Could use a better abstraction
-                //than null for "no checkbox"
-                if (note.canBeChecked) {
-                    Checkbox(
-                        checked = note.isChecked,
-                        onCheckedChange = { checkedState ->
-                            val newNote = note.copy(isChecked = checkedState)
-                            //onNoteCheckedChange(newNote)
-                            //note: see how the state is copied and passed on in an new obj!
-                        },
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .align(Alignment.CenterVertically)
-                    )
+                Column(horizontalAlignment = Alignment.End) {
+                    if (!isArchivedNote && note.isPinned) // fix this conditional to a cleaner solution
+                    {
+                        Icon(
+                            modifier = Modifier.size(20.dp).padding(2.dp),
+                            imageVector = TablerIcons.Pin,
+                            tint = MaterialTheme.colors.onSecondary,
+                            contentDescription = "Restore Note Button"
+                        )
+                    }
                 }
 
             }
 
+            //TODO: line should be drawn below this box
+            Box(modifier=Modifier.heightIn(14.dp,14.dp)){ //TODO: Separate card into text column and right-hand col properly
+                Row(modifier = Modifier.padding(horizontal = 3.dp)){
+                    Spacer(Modifier.weight(1f))
+                    Text(timeAgoText, fontSize = 11.sp, style = TextStyle(MaterialTheme.colors.onSurface.copy(alpha=0.75f)))
+                }
+            }
+
+
             Box( modifier = Modifier.height(expandedAnimatedDp) ) {
                 if(isFullyExpanded) {
-                    SyncedNoteButtons(
-                        note,
-                        onDeleteNote = onDeleteNote,
-                        onSnackMessage = onSnackMessage,
-                    )
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(0.7.dp)
+                                .background(MaterialTheme.colors.primaryVariant)
+                        )
+                        SyncedNoteButtons(
+                            note,
+                            onDeleteNote = onDeleteNote,
+                            onSnackMessage = onSnackMessage,
+                        )
+                    }
                 }
             }
 

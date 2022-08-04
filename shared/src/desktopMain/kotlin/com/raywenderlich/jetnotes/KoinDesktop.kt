@@ -20,6 +20,7 @@ actual val platformModule = module {
     }
 
     single<SqlDriver> {
+        //Note: we can specify path to .db file here
         val driver = JdbcSqliteDriver("jdbc:sqlite:OpenNotesDb.db")
         //TODO: enable automatic creation of this file (if does not exist)
         //OpenNotesDb.Schema.create(driver)

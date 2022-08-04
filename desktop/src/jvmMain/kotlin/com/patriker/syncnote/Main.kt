@@ -56,9 +56,9 @@ fun main(): Unit {
 
 
         val state = rememberWindowState(
-            width = 600.dp, height = 800.dp,
+            width = 600.dp, height = 500.dp,
             //position = WindowPosition(center_x,center_y)
-            position = WindowPosition(1950.dp, 630.dp)
+            position = WindowPosition(3250.dp, 830.dp)
         )
 
         fun minimize() {

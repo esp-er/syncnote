@@ -15,8 +15,9 @@ import com.patriker.syncnote.ui.components.*
 import com.raywenderlich.jetnotes.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-
+import kotlin.coroutines.CoroutineContext
 
 
 @ExperimentalMaterialApi
@@ -27,8 +28,14 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     //Add popup for when client sends PairingData
     //Popup can only appear on this screen
 
-    val isConnected = viewModel.isSyncing.value
+    val isConnected = viewModel.isSyncing.collectAsState()
+    val devicePaired = viewModel.isPaired.collectAsState()
     val syncingHost: String = "archlinux"
+
+    fun onAcceptPairing(deviceName: String) {
+        viewModel.hostAcceptedPairing()
+    }
+
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     //val coroutineScope = rememberCoroutineScope()
@@ -40,12 +47,12 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
 
             Box(modifier = Modifier.fillMaxSize(1f).align(Alignment.CenterHorizontally)) {
                 Column{
-                    if (!viewModel.isPaired.value) {
+                    if(!devicePaired.value) {
                         viewModel.requestQRCode()
-                        HostPairWidget(viewModel.qrBitmapFlow, viewModel.pairingInfoFlow, {})
+                        HostPairWidget( viewModel = viewModel, onFinishedPairing = ::onAcceptPairing)
                     } else {
                         Text("Pairing Successful. Now Sending Notes to Phone")
-                        if(isConnected)
+                        if(isConnected.value)
                             Text("Currently connected")
                     }
                 }

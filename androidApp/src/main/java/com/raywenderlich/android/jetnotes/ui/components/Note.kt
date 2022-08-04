@@ -95,7 +95,7 @@ fun Note(
                         .align(Alignment.Top)
                         .padding(top = 4.dp, start = 4.dp),
                     color = Color.fromHex(ColorModel.DEFAULT.hex), //TODO: fix coloring
-                    12.dp,
+                    size = 8.dp,
                     border = 0.5.dp
                 )
                 Column(

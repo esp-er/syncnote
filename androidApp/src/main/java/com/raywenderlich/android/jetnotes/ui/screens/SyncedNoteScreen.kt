@@ -141,7 +141,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
                     onSnackMessage = ::snackBarShort
                 )
             else{
-                PairDeviceUI(viewModel::testConnect)
+                PairDeviceUI(viewModel::attemptPairConnection)
             }
         }
     )

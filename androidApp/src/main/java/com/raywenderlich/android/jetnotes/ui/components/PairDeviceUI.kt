@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.raywenderlich.android.jetnotes.domain.QRAnalyzer
 import com.raywenderlich.jetnotes.data.SyncClient
@@ -33,15 +34,16 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(0.9f)){
 
-            var ipString by remember { mutableStateOf("0.0.0.0") }
+            var ipString by remember { mutableStateOf("192.168.0.149") }
             var portStr by remember { mutableStateOf("9000") }
             var sharedCode by remember { mutableStateOf("") }
 
             fun Modifier.hcenter() = Modifier.align(Alignment.CenterHorizontally)
             Row(modifier = Modifier.padding(horizontal = 64.dp, vertical = 12.dp).hcenter()){
-                Text("Start the SyncNote desktop app and navigate to the Phone Notes screen.\nBoth devices must be on the same WiFi/LAN.")
+                Text("Start the SyncNote desktop app and navigate to the Phone Notes screen.\nBoth devices must be on the same WiFi/LAN.\nPress Button to start scan:")
+
             }
-            Button(onClick = { NotesRouter.navigateTo(Screen.Pairing)}, modifier = Modifier.hcenter().padding(vertical = 6.dp)) {
+            Button(onClick = { NotesRouter.navigateTo(Screen.Pairing)}, modifier = Modifier.hcenter().padding(top = 24.dp)) {
                 Column {
                     Text("Scan QR code")
                     Icon(
@@ -50,22 +52,31 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(modifier = Modifier.padding(top = 12.dp).hcenter()){
+            Spacer(modifier = Modifier.height(48.dp))
+            Row(modifier = Modifier.padding(top = 48.dp).hcenter()){
                 Text("Or, Enter the desktop pairing information manually:", modifier = Modifier.hcenter())
             }
             Spacer(modifier = Modifier.height(8.dp))
             val codeMaxChars = 8
             TextField(
                 value = sharedCode,
-                onValueChange = { if(it.length <= codeMaxChars) sharedCode = it },
+                onValueChange = { if(it.length <= codeMaxChars && isLettersOnly(it)) sharedCode = it.uppercase()},
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
                     .padding(horizontal = 40.dp),
                 singleLine = true,
-                label = { Text("Pairing Code") },
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                placeholder = {
+                    Row {
+                        Spacer(Modifier.fillMaxWidth(0.25f))
+                        Text(
+                            "Pairing Code (8 Letters)",
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp
+                        )
+                        Spacer(Modifier.fillMaxWidth(0.25f))
+                    } },
+                textStyle = LocalTextStyle.current.copy(fontSize = 20.sp, textAlign = TextAlign.Center),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
             Row(
@@ -86,10 +97,11 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                 val portMaxChars = 5
                 TextField(
                     value = portStr,
-                    onValueChange = { if(it.length <= portMaxChars) portStr = it },
+                    onValueChange = { if(it.length <= portMaxChars) portStr = it},
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 1.5.dp),
+                    placeholder = { Text("(8 Letters)")},
                     label = { Text("Port") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -101,7 +113,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                     onClick = {
                         onConnect(
                             HostData(ipString, portStr.toInt(), "/syncnote"),
-                            sharedCode
+                            "ASDFQWER"
                         )
                     }
                 ){
@@ -110,4 +122,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
             }
         }
     }
+}
+fun isLettersOnly(string: String): Boolean {
+    return string.filter { it in 'A'..'Z' || it in 'a'..'z' }.length == string.length
 }

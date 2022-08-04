@@ -5,8 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,20 +15,28 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.rememberDialogState
 import com.raywenderlich.jetnotes.MainViewModel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.coroutines.EmptyCoroutineContext
 
 //fun HostPairWidget(QRFlow: StateFlow<ImageBitmap?>, ipFlow: StateFlow<String>, pairRequestDevice: StateFlow<String>, onFinishedPairing: (String) -> Unit){
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HostPairWidget(QRFlow: StateFlow<ImageBitmap?>, ipFlow: StateFlow<String>, onFinishedPairing: (String) -> Unit){
+fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit){
 
-    val qrImage: State<ImageBitmap?> = QRFlow.collectAsState()
-    val ip: State<String> = ipFlow.collectAsState()
+    val qrImage: State<ImageBitmap?> = viewModel.qrBitmapFlow.collectAsState()
+    val ip: State<String> = viewModel.pairingInfoFlow.collectAsState()
     //val pairDevice: State<String> = pairRequestDevice.collectAsState()
-    var pairDevice:MutableStateFlow<String> = MutableStateFlow("")
+    var pairDevice: MutableStateFlow<String> = MutableStateFlow("")
     val pairingRequest by derivedStateOf { pairDevice.value.isNotBlank() }
+    val pairingIncoming: State<Boolean> = viewModel.clientPairRequest.collectAsState()
+    var showDialog by remember { mutableStateOf(true) }
+
+    val coroutineScope =  rememberCoroutineScope()
 
     Box(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
@@ -37,7 +44,53 @@ fun HostPairWidget(QRFlow: StateFlow<ImageBitmap?>, ipFlow: StateFlow<String>, o
     ){
         Column(modifier = Modifier.align(Alignment.TopCenter)){ //TODO: generate new QR code when theme changes (dark/light)
             val foreground = MaterialTheme.colors.onSurface
-           if(!pairingRequest) {
+               //if(pairingIncoming.value && showDialog){
+               if(pairingIncoming.value && showDialog){
+                   /*Dialog(
+                       onCloseRequest = { showDialog = false; onFinishedPairing("asdf")},
+                       state = rememberDialogState(position = WindowPosition(Alignment.Center))
+                   ) {
+                       Text("Accept Pairing with new device?")
+                   }*/
+                   AlertDialog(
+                       modifier = Modifier.fillMaxWidth(0.75f).fillMaxHeight(0.25f),
+                       onDismissRequest = {
+                           // Dismiss the dialog when the user clicks outside the dialog or on the back
+                           // button. If you want to disable that functionality, simply use an empty
+                           // onCloseRequest.
+                           showDialog = false
+                       },
+                       title = {
+                           Text(text = "Pairing Request")
+                       },
+                       text = {
+                           Text("Would you like to pair with `device name`?")
+                       },
+                       confirmButton = {
+                           Button(
+                               onClick = {
+                                   coroutineScope.launch {
+                                       delay(100)
+                                       showDialog = false
+                                       onFinishedPairing("asdf")
+                                   }
+                               }) {
+                               Text("Confirm Pairing")
+                           }
+                       },
+                       dismissButton = {
+                           Button(
+                               onClick = {
+                                   showDialog = false
+                               }) {
+                               Text("Cancel")
+                           }
+                       },
+                       shape = RoundedCornerShape(8.dp)
+                   )
+
+
+               }
 
                Text("Pair SyncNote with your phone to start syncing.",
                    style = TextStyle(foreground),
@@ -80,12 +133,11 @@ fun HostPairWidget(QRFlow: StateFlow<ImageBitmap?>, ipFlow: StateFlow<String>, o
                        }
                }
            }
-            else{
+            /*else{
                Row {
                    Text("Now pairing with $pairDevice.value")
                }
-           }
-        }
+           }*/
     }
 
 }

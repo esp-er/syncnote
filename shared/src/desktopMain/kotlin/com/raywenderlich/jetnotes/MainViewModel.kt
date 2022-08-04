@@ -1,6 +1,7 @@
 package com.raywenderlich.jetnotes
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.raywenderlich.jetnotes.data.ExternFlowRepository
 import com.raywenderlich.jetnotes.data.ExternRepository
 import com.raywenderlich.jetnotes.data.FlowRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
@@ -17,12 +18,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.russhwolf.settings.Settings
+import javax.swing.plaf.nimbus.State
 
-lateinit var server: SyncServer
 //Contains the app state
 actual class MainViewModel actual constructor(repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     val viewModelScope: CoroutineScope
+
+    lateinit var server: SyncServer
     init{
+        if(appConfig.getIntOrNull("port") == null)
+            appConfig.putInt("port", 9000)
+        if(appConfig.getBooleanOrNull("isPaired") == null)
+            appConfig.putBoolean("isPaired", false)
+
         viewModelScope = getCorScope()
         startServer()
     }
@@ -32,12 +40,27 @@ actual class MainViewModel actual constructor(repository: Repository, private va
             viewModelScope.launch(Dispatchers.IO) {
                 println("starting ktor")
                 //testStart()
-                start()
+                start(listenPort = appConfig.getInt("port"))
+            }
+        }
+        println("server started")
+        //_clientPairRequest = server.clientWishesToPair
+
+        //Important scoping here!! TODO: Add this to android
+        viewModelScope.launch{
+            _clientPairRequest = server.clientWishesToPair //Note the way we propagate stateflow is not clean...
+            clientPairRequest = _clientPairRequest
+            _isPaired = server.isPairingDone
+            isPaired = _isPaired
+            server.receivedNotes.collect{
+                it.forEach { note -> println(note.title) }
             }
         }
     }
 
     val desktopRepo = FlowRepository(repository)
+    val cacheRepo = ExternFlowRepository(cacheRepository)
+
     val notes: StateFlow<List<NoteProperty>> get() = desktopRepo.getMainNotes()
     val notesInArchive: StateFlow<List<NoteProperty>> get() = desktopRepo.getArchivedNotes()
     val qrgenerator = QRGenerator()
@@ -46,17 +69,23 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     val pairingInfoFlow: StateFlow<String> = qrgenerator.getPairingString()
 
 
-    val cachedNotes: List<NoteProperty> get() = cacheRepository.getNotes()
+    val cachedNotes: StateFlow<List<NoteProperty>>
+        get() = cacheRepo.getNotesFlow()
+
+    val networkNotes: MutableStateFlow<List<NoteProperty>>
+        get(){
+            return if(this::server.isInitialized) server.receivedNotes else MutableStateFlow(emptyList())
+        }
 
     //var isSyncing: MutableStateFlow<Boolean>
 
-    private var _isPaired = MutableStateFlow(false)
+
+    private var _clientPairRequest: StateFlow<Boolean> = MutableStateFlow(false)
+    var clientPairRequest: StateFlow<Boolean> = _clientPairRequest
+
+    private var _isPaired: StateFlow<Boolean> = MutableStateFlow(false)
     //TODO: add a "settings" repository for both android and desktop which  remembers these settings
-    val isPaired  = _isPaired.asStateFlow()
-    fun setPairedState(b: Boolean) =
-        _isPaired.let{
-            it.value = b
-        }
+    var isPaired  = _isPaired
 
     private var _isSyncing = MutableStateFlow(false)
     val isSyncing  = _isSyncing.asStateFlow()
@@ -69,6 +98,10 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     private var _noteEntry = MutableStateFlow(NoteProperty())
 
     val noteEntry: StateFlow<NoteProperty> = _noteEntry
+
+    fun hostAcceptedPairing(){
+        ServerControl.PairAccept.set(true)
+    }
 
     fun onCreateNewNoteClick() {
         _noteEntry.value = NoteProperty() //Create a new note

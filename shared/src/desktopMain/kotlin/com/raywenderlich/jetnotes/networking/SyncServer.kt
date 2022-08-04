@@ -1,9 +1,11 @@
 package com.raywenderlich.jetnotes.networking
 
 import com.raywenderlich.jetnotes.MainViewModel
+import com.raywenderlich.jetnotes.domain.HostKey
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.domain.PairingData
 import com.raywenderlich.jetnotes.domain.PairingResponse
+import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.websocket.*
 import java.time.*
@@ -26,7 +28,9 @@ import io.ktor.server.response.*
 import io.ktor.server.request.*
  */
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 
@@ -52,21 +56,44 @@ fun Application.configureRouting(){
 data class PairingValidationData(val valid: Boolean, val pairingData: PairingData)
 
 class SyncServer(private val viewModel: MainViewModel){
-    private var clientWishesToPair: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var clientData: MutableStateFlow<PairingData> = MutableStateFlow(PairingData("", ""))
 
-    fun clientPairFlow() = clientWishesToPair.asStateFlow()
-    fun clientConnects(clientInfo: PairingData){
+    private var _clientWishesToPair = MutableStateFlow(false)
+    val clientWishesToPair: StateFlow<Boolean> = _clientWishesToPair
+    private var _clientData = MutableStateFlow(PairingData("", ""))
+    var clientData = _clientData.asStateFlow()
+
+    private val _isSyncingLive = MutableStateFlow(false)
+    val isSyncingLive: StateFlow<Boolean> = _isSyncingLive
+    private val _isPairingDone = MutableStateFlow(false)
+    val isPairingDone: StateFlow<Boolean> = _isPairingDone
+
+    val receivedNotes: MutableStateFlow<List<NoteProperty>> by lazy {
+        MutableStateFlow(emptyList())
+    }
+
+
+    suspend fun clientConnects(clientInfo: PairingData){
         println("Client wishes to pair!")
-        clientWishesToPair.value = true
-        clientData.value = clientInfo
+        _clientWishesToPair.value = true
+        _clientData.value = clientInfo
+
+        println("waiting for pair accept........")
+        while(!ServerControl.PairAccept.getAndSet(false)){
+            delay(10)
+        }
         //if already paired just set is syncing
         //if clientData is OK and Host user interactively clicks ok
-        viewModel.setPairedState(true) //perhaps pass client data here
-        println("Set paired true")
+        //viewModel.setPairedState(true) //perhaps pass client data here
+        _clientWishesToPair.value = false
+        _isPairingDone.value = true
+        println("Accepted pairing")
         //TODO: Receiver an UUID scanned from the QR Code
         //Validate the UUID and add a StateFlow that communicates
         //to ViewModel that a Client wishes to Pair with this computer
+    }
+
+    fun updateReceivedNotes(notes: List<NoteProperty>){
+        receivedNotes.value = notes
     }
     /*
 
@@ -76,16 +103,16 @@ class SyncServer(private val viewModel: MainViewModel){
         }.start(wait=true)
     }
      */
-    fun start(){
+    fun start(listenAddr: String = "0.0.0.0", listenPort: Int = 9000){
         val environment = applicationEngineEnvironment {
             //log = LoggerFactory.getLogger("ktor.application")
             connector {
-                port = 9000
-                host = "0.0.0.0"
+                host = listenAddr
+                port = listenPort
             }
             module{
                 //configureRouting()
-                configureSocketServer(::clientConnects)
+                configureSocketServer()
             }
         }
 
@@ -94,7 +121,7 @@ class SyncServer(private val viewModel: MainViewModel){
         ).start(wait = true)
     }
 
-    fun Application.configureSocketServer( onClientConnect: (PairingData) -> Unit) {
+    fun Application.configureSocketServer() {
         install(WebSockets) {
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
             pingPeriod = java.time.Duration.ofSeconds(15)
@@ -117,21 +144,24 @@ class SyncServer(private val viewModel: MainViewModel){
                 val thisConnection = Connection(this)
                 connections += thisConnection
                 ///sendNotes(dataSource.getMainNotes())
-                val (validateResult, data) = validatePairing() //TODO: add logic to validate pairing data in this function
-
+                val (validateResult, data) = validatePairing()
+                //TODO: Now we must save the key and device in Settings if valid
+                //Display pairing failed if invalid?
+                //TODO: we need a client indication to whether we want to pair
+                //if(PairingData wantToPair)
+                clientConnects(data)//do this after next step instead?
                 sendPairingResult(PairingResponse(validateResult))
-
                 if(validateResult) {
-                    onClientConnect(data)
                     viewModel.setSyncingState(true)
+                    _isSyncingLive.value = true
                     println("Now sending Notes!")
                     while (true) {
                         ensureActive()
                         //if (ServerControl.SyncOutdated.getAndSet(false)) { //Set this flag whenever notes are out of date
                             sendNotes(viewModel.notes.value) //TODO: add observability and check if notes changed first
                             println("server sending ${viewModel.notes.value.size} notes")
-                        //}
-                        delay(25)
+                            receiveNotes()
+                            delay(50)
                     }
                 }
                 connections -= thisConnection
@@ -140,9 +170,9 @@ class SyncServer(private val viewModel: MainViewModel){
             }
         }
     }
-    suspend fun DefaultWebSocketServerSession.sendPairingResult(b: PairingResponse) = withContext(Dispatchers.IO) {
+    suspend fun DefaultWebSocketServerSession.sendPairingResult(pairResp: PairingResponse) = withContext(Dispatchers.IO) {
         try {
-            sendSerialized(b)
+            sendSerialized(pairResp)
         }
         catch(e: Exception){
             e.printStackTrace()
@@ -171,7 +201,7 @@ class SyncServer(private val viewModel: MainViewModel){
             println("code: ${pairingData.pairingCode}")
         }
         //Validate here mock
-        val valid = if(pairingData.pairingCode == "ASDFQWER") true else false
+        val valid = pairingData.pairingCode == HostKey.value || pairingData.pairingCode == "ASDFQWER"
         println("CODE!!!: ${pairingData.pairingCode}")
         return PairingValidationData(valid, pairingData)
     }
@@ -186,6 +216,23 @@ class SyncServer(private val viewModel: MainViewModel){
                     throw e
                 }
                 println(e.localizedMessage)
+            }
+        }
+
+
+    suspend fun DefaultWebSocketServerSession.receiveNotes() =
+        withContext(Dispatchers.IO){
+            try {
+                val networkNotes = receiveDeserialized<List<NoteProperty>>()
+                updateReceivedNotes(networkNotes)
+                println("Received notes from client!!")
+            }catch (e: Exception) {
+                if(e is WebsocketDeserializeException) {
+                    throw e
+                }
+                if(e is ClosedReceiveChannelException) {
+                    throw e
+                }
             }
         }
 
