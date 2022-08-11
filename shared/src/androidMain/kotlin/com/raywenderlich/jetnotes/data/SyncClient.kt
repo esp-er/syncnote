@@ -1,9 +1,6 @@
 package com.raywenderlich.jetnotes.data
 
-
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.data.network.HostData
 import com.raywenderlich.jetnotes.domain.NoteProperty
@@ -11,11 +8,8 @@ import com.raywenderlich.jetnotes.domain.PairingData
 import com.raywenderlich.jetnotes.domain.PairingResponse
 import com.raywenderlich.jetnotes.domain.random8Id
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.http.*
 import io.ktor.serialization.*
@@ -28,8 +22,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
-import org.koin.androidx.viewmodel.dsl.*
-import org.koin.androidx.viewmodel.scope.*
 import java.net.ConnectException
 
 
@@ -41,6 +33,7 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
 
     private val _isSyncingLive = MutableStateFlow(false)
     val isSyncingLive  = _isSyncingLive.asStateFlow()
+    //private val _isPairingDone = MutableStateFlow(pairingDone)
     private val _isPairingDone = MutableStateFlow(pairingDone)
     val isPairingDone = _isPairingDone.asStateFlow()
 
@@ -169,17 +162,4 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
         }
     }
 
-    suspend fun DefaultClientWebSocketSession.inputMessages() {
-        while (true) {
-            delay(1000)
-            /*val message = readLine() ?: ""
-            if (message.equals("exit", true)) return
-            try {
-                send(message)
-            } catch (e: Exception) {
-                println("Error while sending: " + e.localizedMessage)
-                return
-            }*/
-        }
-    }
 }

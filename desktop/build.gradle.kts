@@ -2,9 +2,10 @@ import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.ir.backend.js.compile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.compose.desktop.application.dsl.JvmApplication
 
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
     id("org.jetbrains.compose").version("1.2.0-alpha01-dev741")
     id("com.github.johnrengelman.shadow").version("7.1.2")
 }
@@ -12,24 +13,27 @@ plugins {
 group = "com.patriker.syncnote"
 version = "1.0.0"
 
+
+with(tasks) {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.majorVersion
+    }
+}
+
 // 3
 kotlin {
+    /*
     jvm { //Set up jvm target
         withJava()
         compilations.all {
             kotlinOptions.jvmTarget = "17"
         }
-    }
-
-
+    }*/
 
     //sources and resources for the jvm
-    sourceSets {
+        //val jvmMain by getting {
 
-
-        val jvmMain by getting {
-
-            kotlin.srcDirs("src/jvmMain/kotlin")
+            //kotlin.srcDirs("src/jvmMain/kotlin")
             dependencies {
 
                 implementation(project(":shared"))
@@ -67,15 +71,12 @@ kotlin {
                 api(compose.ui)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
             }
-        }
-    }
+        //}
 }
 
-tasks.named<Copy>("jvmProcessResources") {
+/*tasks.named<Copy>("jvmProcessResources") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-
+}*/
 
 //Note: This does nothing at the moment
 tasks.named<ShadowJar>("shadowJar"){
@@ -90,24 +91,76 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     //kotlinOptions.freeCompilerArgs += "-Xuse-experimental=androidx.compose.ui.ExperimentalComposeUiApi"
 }
 
+//val minifyJar by registering(proguard.gradle.ProGuardTask::class)
+//val minifyJar by tasks.registering(proguard.gradle.ProGuardTask::class)
+
 compose.desktop {
     application {
         mainClass = "com.patriker.syncnote.MainKt"
+        //disableDefaultConfiguration()
+        //fromFiles(minifyJar.outputs.files.asFileTree)
+        //mainJar.set(tasks.getByName("minifyJar").outputs.files.first())
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi,
-                TargetFormat.Deb)
-            packageName = "OpenNotes"
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "SyncNote"
             macOS {
                 bundleID = "com.raywenderlich.jetnotes"
             }
         }
+
+        //configureProguard()
+
+        //disableDefaultConfiguration()
+        //fromFiles(obfuscate.get().outputs.files.asFileTree)
+        //mainJar.set(tasks["jar"].outputs.files.forEach{ RegularFile { mapObfuscatedJarFile(it.archiveFile.get().asFile) } })
     }
 }
 
+fun JvmApplication.configureProguard() {
+    val jarTask = tasks.named<Jar>("jar")
+    val allJars =
+        jarTask.get().outputs.files + sourceSets.get("main").runtimeClasspath.filter { it.path.endsWith(".jar") }
+            // workaround https://github.com/JetBrains/compose-jb/issues/1971
+            .filterNot { it.name.startsWith("skiko-awt-") && !it.name.startsWith("skiko-awt-runtime-") }
+            .distinctBy { it.name } // Prevent duplicate jars
+
+    // Split the Jars to get the ones that need obfuscation and those that do not
+    val (obfuscateJars, otherJars) = allJars.partition {
+        !it.name.contains("slf4j", ignoreCase = true)
+            .or(it.name.contains("logback", ignoreCase = true))
+    }
+
+    // Proguard Task definition!
+    val proguard by tasks.register<proguard.gradle.ProGuardTask>("proguard") {
+        dependsOn(jarTask)
+        println("Config ProGuard")
+        for (file in obfuscateJars) {
+            injars(file)
+            outjars(mapObfuscatedJarFile(file))
+        }
+        val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
+        libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
+        libraryjars(otherJars)
+        configuration("proguard-rules-linux.pro")
+    }
+
+    // Disable Compose Desktop default config and add your own Jars
+    disableDefaultConfiguration()
+    fromFiles(proguard.outputs.files.asFileTree)
+    fromFiles(otherJars)
+    mainJar.set(jarTask.map { RegularFile { mapObfuscatedJarFile(it.archiveFile.get().asFile) } })
+}
+
+// Map Files to a known path
+fun mapObfuscatedJarFile(file: File) =
+    File("${project.buildDir}/tmp/obfuscated/${file.nameWithoutExtension}.min.jar")
+
 
 tasks.register<proguard.gradle.ProGuardTask>("minifyJar") {
+//minifyJar.configure{
     val packageUberJarForCurrentOS by tasks.getting
+    //val packageUberJarForCurrentOS = tasks.get("packageUberJarForCurrentOS")
     dependsOn(packageUberJarForCurrentOS)
     val files = packageUberJarForCurrentOS.outputs.files
     injars(files)

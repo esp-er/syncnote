@@ -1,5 +1,6 @@
 package com.raywenderlich.jetnotes
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.ImageBitmap
 import com.raywenderlich.jetnotes.data.ExternFlowRepository
 import com.raywenderlich.jetnotes.data.ExternRepository
@@ -7,6 +8,7 @@ import com.raywenderlich.jetnotes.data.FlowRepository
 import com.raywenderlich.jetnotes.domain.NoteProperty
 import com.raywenderlich.jetnotes.data.Repository
 import com.raywenderlich.jetnotes.domain.QRGenerator
+import com.raywenderlich.jetnotes.networking.PairingResult
 import com.raywenderlich.jetnotes.networking.ServerControl
 import com.raywenderlich.jetnotes.networking.SyncServer
 import com.raywenderlich.jetnotes.routing.NotesRouter
@@ -14,10 +16,13 @@ import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 
+import java.util.prefs.Preferences
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.flow.collect
 import javax.swing.plaf.nimbus.State
 
 //Contains the app state
@@ -25,22 +30,31 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     val viewModelScope: CoroutineScope
 
     lateinit var server: SyncServer
+    lateinit var serverJob: Job
     init{
         if(appConfig.getIntOrNull("port") == null)
             appConfig.putInt("port", 9000)
         if(appConfig.getBooleanOrNull("isPaired") == null)
             appConfig.putBoolean("isPaired", false)
 
+        println("paired?: + ${appConfig.getBoolean("isPaired", false)} " )
+        println("device?: + ${appConfig.getString("pairedDevice", "none")} " )
+        println("PREFSDIR: ${System.getProperty("java.util.prefs.userRoot")}")
+        println("PREFSDIR2: ${Preferences.userRoot().absolutePath()}")
+
         viewModelScope = getCorScope()
         startServer()
     }
 
+
     fun startServer(){
-        server = SyncServer(this).apply { //TODO: inject syncserver into constructor instead
-            viewModelScope.launch(Dispatchers.IO) {
-                println("starting ktor")
-                //testStart()
-                start(listenPort = appConfig.getInt("port"))
+        server = SyncServer(this, appConfig.getBoolean("isPaired", false)).apply { //TODO: inject syncserver into constructor instead
+            serverJob = viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    println("starting ktor")
+                    //testStart()
+                    start(listenPort = appConfig.getInt("port"))
+                }
             }
         }
         println("server started")
@@ -49,12 +63,30 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         //Important scoping here!! TODO: Add this to android
         viewModelScope.launch{
             _clientPairRequest = server.clientWishesToPair //Note the way we propagate stateflow is not clean...
-            clientPairRequest = _clientPairRequest
-            _isPaired = server.isPairingDone
-            isPaired = _isPaired
-            server.receivedNotes.collect{
-                it.forEach { note -> println(note.title) }
+            //_isPaired = server.isPairingDone
+            _pairDeviceName = server.deviceName
+            launch {
+                server.receivedNotes.collect {
+                    if(it.isNotEmpty())
+                        clearAndUpdateCache(it)
+                }
             }
+            launch{
+                server.pairingResult.collect{
+                    if(!appConfig.getBoolean("isPaired",false)) {
+                        println("saving $it")
+                        savePairingState(it)
+                        _isPaired.value = it.Paired
+                    }
+                }
+            }
+        }
+    }
+
+    fun stopServer(){
+        if(this::server.isInitialized){
+            serverJob.cancel()
+            server.stop()
         }
     }
 
@@ -68,6 +100,10 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     val qrBitmapFlow: StateFlow<ImageBitmap?> = qrgenerator.getQR()
     val pairingInfoFlow: StateFlow<String> = qrgenerator.getPairingString()
 
+    suspend fun savePairingState(dataToSave: PairingResult) = withContext(Dispatchers.IO){
+        appConfig.putBoolean("isPaired", dataToSave.Paired)
+        appConfig.putString("pairedDevice", dataToSave.deviceName)
+    }
 
     val cachedNotes: StateFlow<List<NoteProperty>>
         get() = cacheRepo.getNotesFlow()
@@ -81,18 +117,30 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
 
     private var _clientPairRequest: StateFlow<Boolean> = MutableStateFlow(false)
-    var clientPairRequest: StateFlow<Boolean> = _clientPairRequest
+    val clientPairRequest: StateFlow<Boolean>
+        get(){
+            return if(this::server.isInitialized) _clientPairRequest else MutableStateFlow(false)
+        }
 
-    private var _isPaired: StateFlow<Boolean> = MutableStateFlow(false)
-    //TODO: add a "settings" repository for both android and desktop which  remembers these settings
-    var isPaired  = _isPaired
+    private var _isPaired: MutableStateFlow<Boolean> = MutableStateFlow(appConfig.getBoolean("isPaired", false))
+    val isPaired: StateFlow<Boolean> = _isPaired
 
     private var _isSyncing = MutableStateFlow(false)
-    val isSyncing  = _isSyncing.asStateFlow()
-    fun setSyncingState(b: Boolean) =
-        _isSyncing.let{
+    val isSyncing: StateFlow<Boolean>
+        get(){
+            return if(this::server.isInitialized) _isSyncing else MutableStateFlow(false)
+        }
+    private var _pairDeviceName: StateFlow<String> = MutableStateFlow("Unknown")
+    //var pairDeviceName  = _pairDeviceName
+    val pairDeviceName: StateFlow<String>
+        get(){
+            return if(this::server.isInitialized) _pairDeviceName else MutableStateFlow("Unknown")
+        }
+    fun setSyncingState(b: Boolean) {
+        _isSyncing.let {
             it.value = b
         }
+    }
 
 
     private var _noteEntry = MutableStateFlow(NoteProperty())
@@ -164,6 +212,11 @@ actual class MainViewModel actual constructor(repository: Repository, private va
             withContext(Dispatchers.Default) { //TODO:perhaps not navigate on desktop?
                 NotesRouter.navigateTo(Screen.Notes)
             }
+        }
+    }
+    fun clearAndUpdateCache(externNotes: List<NoteProperty>){
+        viewModelScope.launch(Dispatchers.IO) {
+            cacheRepo.clearAndSaveAll(externNotes)
         }
     }
 

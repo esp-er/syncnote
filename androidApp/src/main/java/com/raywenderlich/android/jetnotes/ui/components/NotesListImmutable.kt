@@ -54,7 +54,7 @@ fun SyncedNoteList(
             SyncedNote(
                 note = note,
                 onCloneNote = onCloneNote,
-                onSnackMessage = onSnackMessage
+                onSnackMessage = onSnackMessage,
             )
 
         }

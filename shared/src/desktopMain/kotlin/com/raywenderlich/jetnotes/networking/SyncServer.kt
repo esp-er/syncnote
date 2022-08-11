@@ -54,8 +54,9 @@ fun Application.configureRouting(){
 
 
 data class PairingValidationData(val valid: Boolean, val pairingData: PairingData)
+data class PairingResult(val Paired: Boolean, val deviceName: String)
 
-class SyncServer(private val viewModel: MainViewModel){
+class SyncServer(private val viewModel: MainViewModel, private val pairingInitial: Boolean = false){
 
     private var _clientWishesToPair = MutableStateFlow(false)
     val clientWishesToPair: StateFlow<Boolean> = _clientWishesToPair
@@ -64,28 +65,33 @@ class SyncServer(private val viewModel: MainViewModel){
 
     private val _isSyncingLive = MutableStateFlow(false)
     val isSyncingLive: StateFlow<Boolean> = _isSyncingLive
-    private val _isPairingDone = MutableStateFlow(false)
-    val isPairingDone: StateFlow<Boolean> = _isPairingDone
+    private val _pairingResult = MutableStateFlow(PairingResult(pairingInitial, "Unknown"))
+    val pairingResult: StateFlow<PairingResult> = _pairingResult
+    private val _deviceName = MutableStateFlow("Unknown Device")
+    val deviceName: StateFlow<String> = _deviceName
+
+    private lateinit var serverEngine: ApplicationEngine
 
     val receivedNotes: MutableStateFlow<List<NoteProperty>> by lazy {
         MutableStateFlow(emptyList())
     }
 
-
     suspend fun clientConnects(clientInfo: PairingData){
         println("Client wishes to pair!")
         _clientWishesToPair.value = true
         _clientData.value = clientInfo
+        _deviceName.value = clientInfo.deviceName
 
         println("waiting for pair accept........")
         while(!ServerControl.PairAccept.getAndSet(false)){
             delay(10)
+            yield()
         }
         //if already paired just set is syncing
         //if clientData is OK and Host user interactively clicks ok
         //viewModel.setPairedState(true) //perhaps pass client data here
         _clientWishesToPair.value = false
-        _isPairingDone.value = true
+        _pairingResult.value = PairingResult(true, clientInfo.deviceName)
         println("Accepted pairing")
         //TODO: Receiver an UUID scanned from the QR Code
         //Validate the UUID and add a StateFlow that communicates
@@ -103,6 +109,11 @@ class SyncServer(private val viewModel: MainViewModel){
         }.start(wait=true)
     }
      */
+
+    fun stop(){
+        if(this::serverEngine.isInitialized)
+            serverEngine.stop(200,400)
+    }
     fun start(listenAddr: String = "0.0.0.0", listenPort: Int = 9000){
         val environment = applicationEngineEnvironment {
             //log = LoggerFactory.getLogger("ktor.application")
@@ -124,9 +135,9 @@ class SyncServer(private val viewModel: MainViewModel){
     fun Application.configureSocketServer() {
         install(WebSockets) {
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
-            pingPeriod = java.time.Duration.ofSeconds(15)
-            timeout = java.time.Duration.ofSeconds(30)
-            maxFrameSize = kotlin.Long.MAX_VALUE
+            pingPeriod = Duration.ofSeconds(15)
+            timeout = Duration.ofSeconds(30)
+            maxFrameSize = Long.MAX_VALUE
             masking = false
         }
 
@@ -161,7 +172,7 @@ class SyncServer(private val viewModel: MainViewModel){
                             sendNotes(viewModel.notes.value) //TODO: add observability and check if notes changed first
                             println("server sending ${viewModel.notes.value.size} notes")
                             receiveNotes()
-                            delay(50)
+                            delay(25)
                     }
                 }
                 connections -= thisConnection

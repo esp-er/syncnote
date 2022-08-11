@@ -6,7 +6,7 @@ buildscript {
    extra["sqldelight_version"] = "1.5.3"
    extra["compose_version"] = "1.2.0"
    extra["compose_compiler_version"] = "1.2.0"
-   extra["composedesktop_version"] = "1.2.0-alpha01-dev741"
+   extra["composedesktop_version"] = "1.2.0-alpha01-dev755"
    extra["logback_version"] = "1.2.11"
    extra["multi_settings_version"] = "0.9"
 
@@ -19,8 +19,8 @@ buildscript {
 
     dependencies {
 
-        classpath("com.guardsquare:proguard-gradle:7.2.0")
-        classpath("com.android.tools.build:gradle:7.2.1")
+        classpath("com.guardsquare:proguard-gradle:7.2.2")
+        classpath("com.android.tools.build:gradle:7.2.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${project.extra["kotlin_version"]}")
         classpath("com.squareup.sqldelight:gradle-plugin:${project.extra["sqldelight_version"]}")
         classpath("io.insert-koin:koin-core:${project.extra["koin_version"]}")

@@ -22,8 +22,7 @@ import kotlinx.coroutines.*
 //Contains the app state
 actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     init{
-        if (appConfig.getStringOrNull("deviceModel") == null ) 
-            appConfig.putString("deviceModel", android.os.Build.MODEL)
+        appConfig.putString("deviceModel", "${android.os.Build.BRAND} ${android.os.Build.MODEL}")
         val hostIp = appConfig.getStringOrNull("hostAddress")
         //if (hostIp == null){
            appConfig.putString("hostAddress", "192.168.0.149")
@@ -74,21 +73,17 @@ actual class MainViewModel actual constructor(private val repository: Repository
             //_isSyncing = sync.isSyncingLive
             //_isDevicePaired.value = true
             launch {
-                sync.isSyncingLive.collect {
-                    _isSyncing.postValue(it)
-                }
+                sync.isSyncingLive.collect { _isSyncing.postValue(it) }
             }
             launch{
-                sync.isPairingDone.collect {
-                    _isDevicePaired.postValue(it)
-                }
+                sync.isPairingDone.collect { _isDevicePaired.postValue(it) }
             }
 
         }
     }
 fun attemptPairConnection(host: HostData, sharedCode: String) {
-    val model = appConfig.getString("deviceModel", android.os.Build.MODEL)
-    sync = SyncClient(
+    val model = appConfig.getString("deviceModel", "${android.os.Build.BRAND} ${android.os.Build.MODEL}")
+            sync = SyncClient(
         this,
         host = HostData(host.address, host.port, "/syncnote"),
         pairingDone = false,
@@ -118,7 +113,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
 
     //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
     private val _isDevicePaired: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isDevicePaired = _isDevicePaired
+    var isDevicePaired: LiveData<Boolean> = _isDevicePaired
 
     private val _isSyncing: MutableLiveData<Boolean> = MutableLiveData(false)
     var isSyncing: LiveData<Boolean> = _isSyncing

@@ -58,7 +58,7 @@ fun main(): Unit {
         val state = rememberWindowState(
             width = 600.dp, height = 500.dp,
             //position = WindowPosition(center_x,center_y)
-            position = WindowPosition(3250.dp, 830.dp)
+            position = WindowPosition(1900.dp, 830.dp)
         )
 
         fun minimize() {
@@ -74,7 +74,7 @@ fun main(): Unit {
         val viewModel = MainViewModel(koin.get(), koin.get(), koin.get(), ::getCorScope)
 
         Window(
-            onCloseRequest = ::exitApplication,
+            onCloseRequest = { viewModel.stopServer(); exitApplication() },
             title = "SyncNote",
             state = state,
             transparent = false,

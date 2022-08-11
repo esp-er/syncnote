@@ -44,18 +44,16 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
             TopBar(viewModel::onCreateNewNoteClick, {})
             //horLineSeparator()
             TopTabBar(initState = 1, onClearArchive = viewModel::clearArchive)
-
-            Box(modifier = Modifier.fillMaxSize(1f).align(Alignment.CenterHorizontally)) {
+            if(!devicePaired.value) {
+                Box(modifier = Modifier.fillMaxSize(1f).align(Alignment.CenterHorizontally)) {
                 Column{
-                    if(!devicePaired.value) {
                         viewModel.requestQRCode()
                         HostPairWidget( viewModel = viewModel, onFinishedPairing = ::onAcceptPairing)
-                    } else {
-                        Text("Pairing Successful. Now Sending Notes to Phone")
-                        if(isConnected.value)
-                            Text("Currently connected")
                     }
                 }
+            }
+            else{
+                NotesListImmutable(viewModel.cachedNotes, {}, {}, {})
             }
         }
     }

@@ -12,7 +12,7 @@ import java.util.prefs.Preferences
 actual val platformModule = module {
 
     single {
-        Preferences.userRoot()
+        Preferences.userRoot().node(System.getProperty("user.name", "prefs") + "syncnote")
     }
 
     single<Settings> {

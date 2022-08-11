@@ -37,7 +37,7 @@ fun AppDrawer(
             isSelected = currentScreen == Screen.Notes,
             onClick = {
                 NotesRouter.navigateTo(Screen.Notes)
-            }
+            },
         )
         ScreenNavigationButton(
             icon = TablerIcons.DeviceLaptop,
@@ -110,7 +110,7 @@ private fun ScreenNavigationButton(
 
     Surface( // 1
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.95f)
             .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         color = backgroundColor,
         shape = MaterialTheme.shapes.small
@@ -118,7 +118,7 @@ private fun ScreenNavigationButton(
         Row( // 2
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = Modifie
                 .clickable(onClick = onClick)
                 .fillMaxWidth()
                 .padding(4.dp)
@@ -168,8 +168,8 @@ fun AppDrawerHeaderPreview() {
 private fun SyncToggleItem(modifier: Modifier = Modifier) {
     Row(
         Modifier
-            .padding(8.dp)
-            .fillMaxWidth(0.8f)
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(0.9f)
     ) {
 
         Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
@@ -217,8 +217,8 @@ fun SyncToggleItemPreview() {
 private fun LightDarkThemeItem() {
     Row(
         Modifier
-            .padding(8.dp)
-            .fillMaxWidth(0.8f)
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(0.9f)
     ) {
         Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)){
             Row{

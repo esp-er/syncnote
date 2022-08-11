@@ -15,10 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import com.patriker.syncnote.ui.noRippleClickable
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
@@ -26,6 +25,8 @@ import compose.icons.TablerIcons
 import compose.icons.Octicons
 import compose.icons.octicons.Inbox24
 import compose.icons.octicons.Trash24
+import compose.icons.octicons.X24
+import compose.icons.octicons.XCircle16
 import compose.icons.tablericons.*
 
 
@@ -53,9 +54,15 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -
     val isHovered3  by interactionSource3.collectIsHoveredAsState()
     //TODO: make a new composable that can individually encapsulate interactionsource and hovered state
 
+
     var expandArchive by remember { mutableStateOf(false) }
+    var expandPairing by remember { mutableStateOf(false) }
+    var rowSize by remember { mutableStateOf(IntSize.Zero) }
+
     fun dismissArchiveDropDown() { expandArchive = false }
-    Row {
+    fun dismissPairingDropDown() { expandPairing = false }
+
+    Row(modifier = Modifier.onSizeChanged { rowSize = it } ) {
         Column {
             CustomTabRow(
                 modifier = Modifier.padding(horizontal = 8.dp),
@@ -125,31 +132,51 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -
                         modifier = Modifier.tabHover(1),
                         text = {},
                         icon = {
-                            Column(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(top = 4.dp, bottom = 4.dp)
+                                    .padding(top = 4.dp, bottom = 4.dp),
+                                contentAlignment = Alignment.TopCenter
                             )
                             {
 
+                                val interactionSource = remember { MutableInteractionSource() }
+                                val hoverDots by interactionSource.collectIsHoveredAsState()
+
                                 @Composable
-                                fun DeviceIcon(tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)) {
+                                fun DeviceIcon(tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current), modifier: Modifier) {
                                     Icon(
-                                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                                        //modifier = Modifier.align(Alignment.CenterHorizontally),
                                         imageVector = TablerIcons.DeviceMobile,
                                         tint = tint,
-                                        contentDescription = "Sync Notes Tab"
+                                        contentDescription = "Sync Notes Tab",
+                                        modifier = modifier
                                     )
                                 }
 
-                                if (isConnected)
-                                    DeviceIcon(Color.Companion.Green)
-                                else
-                                    DeviceIcon()
+                                Column{
+                                    if (isConnected)
+                                        DeviceIcon(Color.Companion.Green, modifier = Modifier.align(Alignment.CenterHorizontally))
+                                    else
+                                        DeviceIcon(modifier = Modifier.align(Alignment.CenterHorizontally))
 
-                                Text(
-                                    "Phone Notes", fontSize = 12.sp,
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    Text(
+                                        "Phone Notes", fontSize = 12.sp,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    )
+                                }
+
+                                Icon(
+                                    imageVector = TablerIcons.Dots,
+                                    "Device Context Menu",
+                                    modifier = Modifier
+                                        .rotate(90f).requiredSizeIn(6.dp).size(15.dp)
+                                        .align(Alignment.CenterEnd)
+                                        .absoluteOffset(2.dp, -12.dp)
+                                        .noRippleClickable(interactionSource = interactionSource) { //this modifier has  adds hoverable
+                                            expandPairing = true
+                                        },
+                                    tint = if (hoverDots) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary
                                 )
 
 
@@ -204,10 +231,51 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -
             }
         }
         Column {
-            ArchiveDropDown(expandArchive, ::dismissArchiveDropDown, onClearArchive)
+            Row{
+                PairingDropDown(expandPairing, ::dismissPairingDropDown, {}, (rowSize.width / 6 - 10).dp)
+                ArchiveDropDown(expandArchive, ::dismissArchiveDropDown, onClearArchive)
+            }
         }
     }
 }
+@Composable
+fun PairingDropDown(show: Boolean, onDismiss: ()->Unit, onClearPairing: () -> Unit, xOffset: Dp) {
+    val expanded by derivedStateOf { show }
+    val fontSize = 12.sp
+    val itemModifier = Modifier.padding(vertical = 0.dp, horizontal = 4.dp).heightIn(18.dp, 18.dp)
+    DropdownMenu(
+        offset = DpOffset(xOffset, 48.dp),
+        expanded = expanded,
+        onDismissRequest = {
+            onDismiss()
+        },
+        modifier = Modifier.background(MaterialTheme.colors.surface)
+    ) { //TODO: lookup a construct like withFontStyleProvider()
+        DropdownMenuItem(
+            modifier = itemModifier.align(Alignment.CenterHorizontally),
+            contentPadding = PaddingValues(1.dp),
+            onClick = { onClearPairing(); onDismiss() }
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                Text(
+                    "Remove Pairing with `device`",
+                    fontSize = fontSize
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Octicons.XCircle16,
+                    "Remove Pairing",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colors.error
+                )
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit, onClearArchive: () -> Unit) {
@@ -216,7 +284,7 @@ fun ArchiveDropDown(show: Boolean, onDismiss: ()->Unit, onClearArchive: () -> Un
     val fontSize = 12.sp
     val itemModifier = Modifier.padding(vertical = 0.dp, horizontal = 4.dp).heightIn(18.dp, 18.dp)
     DropdownMenu(
-        offset = DpOffset(10.dp, 34.dp),
+        offset = DpOffset(10.dp, 48.dp),
         expanded = expanded,
         onDismissRequest = {
             onDismiss()

@@ -13,7 +13,7 @@ data class NoteProperty(
     val id: String = NEW_UUID,
     val title: String = "",
     val content: String = "",
-    val colorId: Long = 0, //TODO: Create a Color representation class?
+    val colorId: Long = -1,
     val canBeChecked: Boolean = false,
     val isChecked: Boolean = false,
     val isArchived: Boolean = false,
