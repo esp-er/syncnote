@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import com.patriker.syncnote.ui.noRippleClickable
+import com.raywenderlich.jetnotes.MainViewModel
 import com.raywenderlich.jetnotes.routing.NotesRouter
 import com.raywenderlich.jetnotes.routing.Screen
 import compose.icons.TablerIcons
@@ -41,9 +42,11 @@ private object NoRippleTheme : RippleTheme {
 
 
 @Composable
-fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -> Unit = {}) {
+fun TopTabBar(initState: Int, viewModel: MainViewModel, isConnected: Boolean = false, onClearArchive: () -> Unit = {}) {
 
     var state by remember{ mutableStateOf(initState) }
+    val devicePaired by viewModel.isPaired.collectAsState()
+    val deviceName by viewModel.pairDeviceName.collectAsState()
 
     val textStyle = TextStyle(color = MaterialTheme.colors.onSecondary, fontSize = 12.sp)
     val interactionSource = remember { MutableInteractionSource() }
@@ -166,20 +169,20 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -
                                     )
                                 }
 
-                                Icon(
-                                    imageVector = TablerIcons.Dots,
-                                    "Device Context Menu",
-                                    modifier = Modifier
-                                        .rotate(90f).requiredSizeIn(6.dp).size(15.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .absoluteOffset(2.dp, -12.dp)
-                                        .noRippleClickable(interactionSource = interactionSource) { //this modifier has  adds hoverable
-                                            expandPairing = true
-                                        },
-                                    tint = if (hoverDots) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary
-                                )
-
-
+                                if(devicePaired) {
+                                    Icon(
+                                        imageVector = TablerIcons.Dots,
+                                        "Device Context Menu",
+                                        modifier = Modifier
+                                            .rotate(90f).requiredSizeIn(6.dp).size(15.dp)
+                                            .align(Alignment.CenterEnd)
+                                            .absoluteOffset(2.dp, -12.dp)
+                                            .noRippleClickable(interactionSource = interactionSource) { //this modifier has  adds hoverable
+                                                expandPairing = true
+                                            },
+                                        tint = if (hoverDots) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary
+                                    )
+                                }
                             }
                         },
                         selected = state == 1,
@@ -232,14 +235,14 @@ fun TopTabBar(initState: Int, isConnected: Boolean = false, onClearArchive: () -
         }
         Column {
             Row{
-                PairingDropDown(expandPairing, ::dismissPairingDropDown, {}, (rowSize.width / 6 - 10).dp)
+                PairingDropDown(expandPairing, deviceName, ::dismissPairingDropDown, viewModel::resetPairing, (rowSize.width / 6 - 10).dp)
                 ArchiveDropDown(expandArchive, ::dismissArchiveDropDown, onClearArchive)
             }
         }
     }
 }
 @Composable
-fun PairingDropDown(show: Boolean, onDismiss: ()->Unit, onClearPairing: () -> Unit, xOffset: Dp) {
+fun PairingDropDown(show: Boolean, deviceName: String, onDismiss: ()->Unit, onClearPairing: () -> Unit, xOffset: Dp) {
     val expanded by derivedStateOf { show }
     val fontSize = 12.sp
     val itemModifier = Modifier.padding(vertical = 0.dp, horizontal = 4.dp).heightIn(18.dp, 18.dp)
@@ -259,7 +262,7 @@ fun PairingDropDown(show: Boolean, onDismiss: ()->Unit, onClearPairing: () -> Un
             Row(verticalAlignment = Alignment.CenterVertically) {
 
                 Text(
-                    "Remove Pairing with `device`",
+                    "Reset Pairing with $deviceName",
                     fontSize = fontSize
                 )
 

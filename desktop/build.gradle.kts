@@ -6,7 +6,7 @@ import org.jetbrains.compose.desktop.application.dsl.JvmApplication
 
 plugins {
     kotlin("jvm")
-    id("org.jetbrains.compose")
+    id("org.jetbrains.compose").version("1.2.0-alpha01-dev755")
     id("com.github.johnrengelman.shadow").version("7.1.2")
 }
 
@@ -43,6 +43,7 @@ kotlin {
 
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
+              //  implementation("org.jetbrains.compose:compose-gradle-plugin:1.2.0-alpha-custom") //Present on mavenLocal
                 //Ktor deps
                 implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
@@ -100,8 +101,14 @@ compose.desktop {
         //disableDefaultConfiguration()
         //fromFiles(minifyJar.outputs.files.asFileTree)
         //mainJar.set(tasks.getByName("minifyJar").outputs.files.first())
-        jvmArgs += listOf("-XX:+AutoCreateSharedArchive", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
-            "-Dskiko.vsync.enabled=false", "-XX:SharedArchiveFile=syncnote.jsa")
+        val releaseBuild = System.getenv("RELEASE").toBoolean()
+        val extraArgs = if(releaseBuild)
+                            listOf("-XX:+AutoCreateSharedArchive",
+                            "-XX:SharedArchiveFile=syncnote.jsa", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
+                            "-Dskiko.vsync.enabled=false")
+                        else listOf("-XX:TieredStopAtLevel=1", "-Dskiko.vsync.enabled=false")
+        jvmArgs += extraArgs
+            //"-Dskiko.vsync.enabled=false", "-XX:SharedArchiveFile=syncnote.jsa")
 
 
         nativeDistributions {
@@ -154,9 +161,9 @@ fun JvmApplication.configureProguard() {
         }
         //val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
         val library = "jmods"
-        //libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
+        libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
         //libraryjars("${System.getProperty("java.home")}/$library")
-        libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
+        //libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
         libraryjars(otherJars)
         configuration("proguard-rules-linux.pro")
     }

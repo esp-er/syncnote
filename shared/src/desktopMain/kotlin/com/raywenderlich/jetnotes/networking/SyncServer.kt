@@ -56,7 +56,8 @@ fun Application.configureRouting(){
 data class PairingValidationData(val valid: Boolean, val pairingData: PairingData)
 data class PairingResult(val Paired: Boolean, val deviceName: String)
 
-class SyncServer(private val viewModel: MainViewModel, private val pairingInitial: Boolean = false){
+class SyncServer(private val viewModel: MainViewModel, private val pairingInitial: Boolean = false,
+private val deviceInitial: String = "Unknown"){
 
     private var _clientWishesToPair = MutableStateFlow(false)
     val clientWishesToPair: StateFlow<Boolean> = _clientWishesToPair
@@ -65,9 +66,9 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
 
     private val _isSyncingLive = MutableStateFlow(false)
     val isSyncingLive: StateFlow<Boolean> = _isSyncingLive
-    private val _pairingResult = MutableStateFlow(PairingResult(pairingInitial, "Unknown"))
+    private val _pairingResult = MutableStateFlow(PairingResult(pairingInitial, deviceInitial))
     val pairingResult: StateFlow<PairingResult> = _pairingResult
-    private val _deviceName = MutableStateFlow("Unknown Device")
+    private val _deviceName = MutableStateFlow(deviceInitial)
     val deviceName: StateFlow<String> = _deviceName
 
     private lateinit var serverEngine: ApplicationEngine
@@ -78,9 +79,9 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
 
     suspend fun clientConnects(clientInfo: PairingData){
         println("Client wishes to pair!")
+        _deviceName.value = clientInfo.deviceName
         _clientWishesToPair.value = true
         _clientData.value = clientInfo
-        _deviceName.value = clientInfo.deviceName
 
         println("waiting for pair accept........")
         while(!ServerControl.PairAccept.getAndSet(false)){

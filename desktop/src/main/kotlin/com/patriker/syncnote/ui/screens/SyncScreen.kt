@@ -43,7 +43,7 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
         Column {
             TopBar(viewModel::onCreateNewNoteClick, {})
             //horLineSeparator()
-            TopTabBar(initState = 1, onClearArchive = viewModel::clearArchive)
+            TopTabBar(initState = 1, viewModel, onClearArchive = viewModel::clearArchive)
             if(!devicePaired.value) {
                 Box(modifier = Modifier.fillMaxSize(1f).align(Alignment.CenterHorizontally)) {
                 Column{

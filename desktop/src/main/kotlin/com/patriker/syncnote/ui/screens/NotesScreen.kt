@@ -37,7 +37,7 @@ fun NotesScreen(viewModel: MainViewModel) {
         Column {
             TopBar(viewModel::onCreateNewNoteClick,  { expandAllTrigger = !expandAllTrigger})
             //horLineSeparator()
-            TopTabBar(initState = 0, onClearArchive = viewModel::clearArchive) //Tabs
+            TopTabBar(initState = 0, viewModel, onClearArchive = viewModel::clearArchive) //Tabs
             NotesList( // here
                 notes = viewModel.notes,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },

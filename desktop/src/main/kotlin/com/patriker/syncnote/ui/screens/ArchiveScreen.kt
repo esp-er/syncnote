@@ -27,7 +27,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         Column {
             TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger})
             //horLineSeparator()
-            TopTabBar(initState = 2, onClearArchive = viewModel::clearArchive) //Tabs
+            TopTabBar(initState = 2, viewModel, onClearArchive = viewModel::clearArchive) //Tabs
             NotesList( // here
                 notes = viewModel.notesInArchive,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },

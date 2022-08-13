@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.russhwolf.settings.Settings
+import com.russhwolf.settings.get
 import kotlinx.coroutines.flow.collect
 import javax.swing.plaf.nimbus.State
 
@@ -37,35 +38,35 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         if(appConfig.getBooleanOrNull("isPaired") == null)
             appConfig.putBoolean("isPaired", false)
 
-        println("paired?: + ${appConfig.getBoolean("isPaired", false)} " )
-        println("device?: + ${appConfig.getString("pairedDevice", "none")} " )
-        println("PREFSDIR: ${System.getProperty("java.util.prefs.userRoot")}")
-        println("PREFSDIR2: ${Preferences.userRoot().absolutePath()}")
+        println("isPaired?: + ${appConfig.getBoolean("isPaired", false)} " )
+        println("paired Device: + ${appConfig.getString("pairedDevice", "none")} " )
+        println("prefs DIR: ${System.getProperty("java.util.prefs.userRoot")}")
+        //println("PREFSDIR2: ${Preferences.userRoot().absolutePath()}")
 
         viewModelScope = getCorScope()
         startServer()
     }
-
-
     fun startServer(){
-        server = SyncServer(this, appConfig.getBoolean("isPaired", false)).apply { //TODO: inject syncserver into constructor instead
+        server = SyncServer(this, appConfig.getBoolean("isPaired", false), appConfig.getString("pairedDevice", "Unknown")).apply { //TODO: inject syncserver into constructor instead
             GlobalScope.launch {
                 withContext(Dispatchers.IO) {
-                    println("starting ktor")
                     //testStart()
                     start(listenPort = appConfig.getInt("port"))
                     yield()
                 }
             }
         }
-        println("server started")
         //_clientPairRequest = server.clientWishesToPair
 
         //Important scoping here!! TODO: Add this to android
         updateJob = viewModelScope.launch{
+            launch{
+                server.clientWishesToPair.collect(){
+                    _pairDeviceName.value = server.deviceName.value
+                }
+            }
             _clientPairRequest = server.clientWishesToPair //Note the way we propagate stateflow is not clean...
             //_isPaired = server.isPairingDone
-            _pairDeviceName = server.deviceName
             launch {
                 server.receivedNotes.collect {
                     if(it.isNotEmpty())
@@ -76,9 +77,13 @@ actual class MainViewModel actual constructor(repository: Repository, private va
             launch{
                 server.pairingResult.collect{
                     if(!appConfig.getBoolean("isPaired",false)) {
-                        println("saving $it")
-                        savePairingState(it)
-                        _isPaired.value = it.Paired
+                        println("Saving isPaired:$it")
+                        if(it.Paired != _isPaired.value) {
+                            savePairingState(it)
+                            _pairDeviceName.value = it.deviceName
+                            _isPaired.value = it.Paired
+                            println("INCOMING device name ${it.deviceName}")
+                        }
                     }
                     yield()
                 }
@@ -133,16 +138,23 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         get(){
             return if(this::server.isInitialized) _isSyncing else MutableStateFlow(false)
         }
-    private var _pairDeviceName: StateFlow<String> = MutableStateFlow("Unknown")
+    private var _pairDeviceName = MutableStateFlow(appConfig.getString("pairedDevice", "None"))
     //var pairDeviceName  = _pairDeviceName
-    val pairDeviceName: StateFlow<String>
-        get(){
-            return if(this::server.isInitialized) _pairDeviceName else MutableStateFlow("Unknown")
-        }
+    val pairDeviceName: StateFlow<String> = _pairDeviceName
+
     fun setSyncingState(b: Boolean) {
         _isSyncing.let {
             it.value = b
         }
+    }
+
+    fun resetPairing(){
+        stopServer()
+        _isPaired.value = false
+        _pairDeviceName.value = "None"
+        _isSyncing.value = false
+        appConfig.putBoolean("isPaired", false)
+        appConfig.putString("pairedDevice", "None")
     }
 
 

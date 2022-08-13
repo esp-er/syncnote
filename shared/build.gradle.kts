@@ -2,7 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("com.squareup.sqldelight")
-    id("org.jetbrains.compose")
+    id("org.jetbrains.compose").version("1.2.0-alpha01-dev755")
     id("org.jetbrains.kotlin.plugin.serialization").version("1.7.0")
 
 }

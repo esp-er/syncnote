@@ -118,7 +118,7 @@ private fun ScreenNavigationButton(
         Row( // 2
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifie
+            modifier = Modifier
                 .clickable(onClick = onClick)
                 .fillMaxWidth()
                 .padding(4.dp)
