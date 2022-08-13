@@ -111,7 +111,9 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
                         MaterialTheme.colors.onBackground,
                         RoundedCornerShape(12.dp)
                     )
-                    .fillMaxHeight(0.8f)
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .fillMaxHeight(0.8f),
+                contentAlignment = Alignment.Center
             ) {
                 qrImage.value?.let { image ->
                     Image(image, "QR code")

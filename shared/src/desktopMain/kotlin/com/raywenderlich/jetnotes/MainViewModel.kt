@@ -30,7 +30,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     val viewModelScope: CoroutineScope
 
     lateinit var server: SyncServer
-    lateinit var serverJob: Job
+    lateinit var updateJob: Job
     init{
         if(appConfig.getIntOrNull("port") == null)
             appConfig.putInt("port", 9000)
@@ -49,11 +49,12 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun startServer(){
         server = SyncServer(this, appConfig.getBoolean("isPaired", false)).apply { //TODO: inject syncserver into constructor instead
-            serverJob = viewModelScope.launch {
+            GlobalScope.launch {
                 withContext(Dispatchers.IO) {
                     println("starting ktor")
                     //testStart()
                     start(listenPort = appConfig.getInt("port"))
+                    yield()
                 }
             }
         }
@@ -61,7 +62,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         //_clientPairRequest = server.clientWishesToPair
 
         //Important scoping here!! TODO: Add this to android
-        viewModelScope.launch{
+        updateJob = viewModelScope.launch{
             _clientPairRequest = server.clientWishesToPair //Note the way we propagate stateflow is not clean...
             //_isPaired = server.isPairingDone
             _pairDeviceName = server.deviceName
@@ -69,6 +70,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
                 server.receivedNotes.collect {
                     if(it.isNotEmpty())
                         clearAndUpdateCache(it)
+                    yield()
                 }
             }
             launch{
@@ -78,6 +80,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
                         savePairingState(it)
                         _isPaired.value = it.Paired
                     }
+                    yield()
                 }
             }
         }
@@ -85,7 +88,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun stopServer(){
         if(this::server.isInitialized){
-            serverJob.cancel()
+            updateJob.cancel()
             server.stop()
         }
     }

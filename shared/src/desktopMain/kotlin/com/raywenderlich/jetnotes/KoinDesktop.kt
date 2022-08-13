@@ -7,6 +7,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import org.koin.dsl.module
 import java.util.prefs.Preferences
+import java.io.File
 
 @ExperimentalSettingsImplementation
 actual val platformModule = module {
@@ -21,9 +22,17 @@ actual val platformModule = module {
 
     single<SqlDriver> {
         //Note: we can specify path to .db file here
-        val driver = JdbcSqliteDriver("jdbc:sqlite:OpenNotesDb.db")
+        val homeDir = System.getProperty("user.home", "/")
+        val dbDir = File("$homeDir/.SyncNote")
+        if(!dbDir.exists())
+            dbDir.mkdir()
+        val dbFilename = "SyncNote_db.db"
+        val dbPath = File("$dbDir/$dbFilename")
+        val driver = JdbcSqliteDriver("jdbc:sqlite:$dbPath")
         //TODO: enable automatic creation of this file (if does not exist)
-        //OpenNotesDb.Schema.create(driver)
+        if(!dbPath.exists()) {
+            OpenNotesDb.Schema.create(driver)
+        }
         driver
     }
 }

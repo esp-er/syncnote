@@ -4,6 +4,15 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.patriker.syncnote.ui.screens.ArchiveScreen
@@ -26,6 +35,7 @@ import java.awt.Toolkit
 
 import kotlinx.coroutines.*
 import java.awt.Dimension
+import javax.swing.text.StyleConstants.Size
 
 
 //import com.raywenderlich.compose.theme.AppTheme
@@ -38,7 +48,7 @@ data class WindowInfo(val windowName: String, val windowState: WindowState)
 @OptIn(ExperimentalComposeUiApi::class)
 fun main(): Unit {
 
-    System.setProperty("sun.java2d.uiScale", "1.5")
+    System.setProperty("sun.java2d.uiScale", "1.0")
     application {
         val scale = System.getProperty("sun.java2d.uiScale")
         println("java2d scale: $scale")
@@ -81,6 +91,12 @@ fun main(): Unit {
             undecorated = false,
             //alwaysOnTop = pinWindow
         ) {
+            val icon = painterResource("sync2_256.png")
+            val density = LocalDensity.current
+            SideEffect {
+                window.iconImage = icon.toAwtImage(density, LayoutDirection.Ltr, Size(256f, 256f))
+            }
+
             Surface {
                 SyncNoteDesktopTheme {
                     when (NotesRouter.currentScreen) {

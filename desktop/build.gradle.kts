@@ -6,7 +6,7 @@ import org.jetbrains.compose.desktop.application.dsl.JvmApplication
 
 plugins {
     kotlin("jvm")
-    id("org.jetbrains.compose").version("1.2.0-alpha01-dev741")
+    id("org.jetbrains.compose")
     id("com.github.johnrengelman.shadow").version("7.1.2")
 }
 
@@ -100,16 +100,29 @@ compose.desktop {
         //disableDefaultConfiguration()
         //fromFiles(minifyJar.outputs.files.asFileTree)
         //mainJar.set(tasks.getByName("minifyJar").outputs.files.first())
+        jvmArgs += listOf("-XX:+AutoCreateSharedArchive", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
+            "-Dskiko.vsync.enabled=false", "-XX:SharedArchiveFile=syncnote.jsa")
+
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "SyncNote"
             macOS {
                 bundleID = "com.raywenderlich.jetnotes"
             }
+            linux {
+                iconFile.set(project.file("syncicon_128.png"))
+            }
+            windows{
+                iconFile.set(project.file("syncicon_ico.ico"))
+            }
+            modules("java.base", "java.desktop", "java.sql", "java.logging")
         }
 
-        //configureProguard()
+        //if OPTIMIZE is set to true in env
+        if (System.getenv("OPTIMIZE").toBoolean()) {
+            configureProguard()
+        }
 
         //disableDefaultConfiguration()
         //fromFiles(obfuscate.get().outputs.files.asFileTree)
@@ -139,8 +152,11 @@ fun JvmApplication.configureProguard() {
             injars(file)
             outjars(mapObfuscatedJarFile(file))
         }
-        val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
-        libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
+        //val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
+        val library = "jmods"
+        //libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
+        //libraryjars("${System.getProperty("java.home")}/$library")
+        libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
         libraryjars(otherJars)
         configuration("proguard-rules-linux.pro")
     }
