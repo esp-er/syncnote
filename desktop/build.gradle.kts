@@ -6,7 +6,7 @@ import org.jetbrains.compose.desktop.application.dsl.JvmApplication
 
 plugins {
     kotlin("jvm")
-    id("org.jetbrains.compose").version("1.2.0-alpha01-dev755")
+    id("org.jetbrains.compose")
     id("com.github.johnrengelman.shadow").version("7.1.2")
 }
 
@@ -14,12 +14,12 @@ group = "com.patriker.syncnote"
 version = "1.0.0"
 
 
+
 with(tasks) {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_17.majorVersion
     }
 }
-
 // 3
 kotlin {
     /*
@@ -29,7 +29,6 @@ kotlin {
             kotlinOptions.jvmTarget = "17"
         }
     }*/
-
     //sources and resources for the jvm
         //val jvmMain by getting {
 
@@ -41,9 +40,9 @@ kotlin {
                 //Koin depinjection
                 implementation("io.insert-koin:koin-core:${rootProject.ext["koin_version"]}")
 
+
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-              //  implementation("org.jetbrains.compose:compose-gradle-plugin:1.2.0-alpha-custom") //Present on mavenLocal
                 //Ktor deps
                 implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
@@ -101,24 +100,36 @@ compose.desktop {
         //disableDefaultConfiguration()
         //fromFiles(minifyJar.outputs.files.asFileTree)
         //mainJar.set(tasks.getByName("minifyJar").outputs.files.first())
+        val s = "s"
         val releaseBuild = System.getenv("RELEASE").toBoolean()
         val extraArgs = if(releaseBuild)
                             listOf("-XX:+AutoCreateSharedArchive",
-                            "-XX:SharedArchiveFile=syncnote.jsa", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
+                            "-XX:SharedArchiveFile=../lib/app/resources/syncnote.jsa", "-Xms8M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
                             "-Dskiko.vsync.enabled=false")
-                        else listOf("-XX:TieredStopAtLevel=1", "-Dskiko.vsync.enabled=false")
+                        else listOf("-XX:TieredStopAtLevel=1", "-Xmx100M", "-Dskiko.vsync.enabled=false")
+
+        val winArgs = listOf("-XX:+AutoCreateSharedArchive",
+            "-XX:SharedArchiveFile=syncnote.jsa", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
+            "-Dskiko.vsync.enabled=false")
         jvmArgs += extraArgs
             //"-Dskiko.vsync.enabled=false", "-XX:SharedArchiveFile=syncnote.jsa")
-
-
         nativeDistributions {
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "SyncNote"
             macOS {
                 bundleID = "com.raywenderlich.jetnotes"
             }
             linux {
+                menuGroup = "SyncNote"
                 iconFile.set(project.file("syncicon_128.png"))
+                packageVersion = "0.1.0"
+                // a version only for the deb package
+                debPackageVersion = "0.1.0"
+                // a version only for the rpm package
+                rpmPackageVersion = "0.1.0"
+
             }
             windows{
                 iconFile.set(project.file("syncicon_ico.ico"))
@@ -161,9 +172,11 @@ fun JvmApplication.configureProguard() {
         }
         //val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
         val library = "jmods"
-        libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
-        //libraryjars("${System.getProperty("java.home")}/$library")
-        //libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
+        val customCompose = System.getenv("CUSTOMCOMPOSE").toBoolean()
+        if(customCompose)
+            libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
+        else
+            libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")
         libraryjars(otherJars)
         configuration("proguard-rules-linux.pro")
     }

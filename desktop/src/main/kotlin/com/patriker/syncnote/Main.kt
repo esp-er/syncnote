@@ -47,8 +47,7 @@ data class WindowInfo(val windowName: String, val windowState: WindowState)
 @ExperimentalMaterialApi
 @OptIn(ExperimentalComposeUiApi::class)
 fun main(): Unit {
-
-    System.setProperty("sun.java2d.uiScale", "1.0")
+    //System.setProperty("sun.java2d.uiScale", "1.0")
     application {
         val scale = System.getProperty("sun.java2d.uiScale")
         println("java2d scale: $scale")

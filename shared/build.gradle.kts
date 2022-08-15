@@ -1,15 +1,17 @@
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("com.squareup.sqldelight")
-    id("org.jetbrains.compose").version("1.2.0-alpha01-dev755")
-    id("org.jetbrains.kotlin.plugin.serialization").version("1.7.0")
-
+    id("org.jetbrains.kotlin.plugin.serialization").version("1.7.10")
+    id("org.jetbrains.compose")
 }
 
 version = "1.0"
 
 kotlin {
+
+
     android() //Define android target
 
     jvm("desktop") {
@@ -18,22 +20,27 @@ kotlin {
         }
     }
 
-
     sourceSets {
         val commonMain by getting {
             dependencies {
+                //compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.2.0-alpha-custom") //Present on mavenLocal
+
+               //implementation("org.jetbrains.compose:compose-gradle-plugin:1.2.0-alpha01-dev755") //Present on mavenLocal
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("io.insert-koin:koin-core:${rootProject.extra["koin_version"]}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${rootProject.extra["ktor_version"]}")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
                 implementation("io.ktor:ktor-server-content-negotiation:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-core-jvm:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-websockets-jvm:${rootProject.ext["ktor_version"]}")
+
                 //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
 
                 implementation("com.russhwolf:multiplatform-settings:${rootProject.ext["multi_settings_version"]}")
+
+                //compileOnly("org.jetbrains.compose:org.jetbrains.compose.gradle.plugin:1.2.0-alpha-custom2")
 
                 //implementation("io.ktor:ktor-server-cio:${rootProject.ext["ktor_version"]}")
                 //

@@ -162,7 +162,7 @@ private val deviceInitial: String = "Unknown"){
                 //TODO: we need a client indication to whether we want to pair
                 //if(PairingData wantToPair)
                 clientConnects(data)//do this after next step instead?
-                sendPairingResult(PairingResponse(validateResult))
+                sendPairingResult(PairingResponse(validateResult, data.pairingCode))
                 if(validateResult) {
                     viewModel.setSyncingState(true)
                     _isSyncingLive.value = true

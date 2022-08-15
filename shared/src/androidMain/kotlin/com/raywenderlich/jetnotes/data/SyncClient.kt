@@ -115,11 +115,11 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
             resp
         } catch (e: WebsocketDeserializeException){
             Log.d("ktor client", "Failed to deserialize network data")
-            PairingResponse(false)
+            PairingResponse(false, "")
         }
         catch(e: ClosedReceiveChannelException){
             Log.d("ktor client", "Network channel was closed")
-            PairingResponse(false)
+            PairingResponse(false, "")
         }
         return responseBool.ok
     }
