@@ -5,19 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.material.Text
-import androidx.compose.ui.unit.dp
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
 
 import androidx.compose.ui.Alignment
 import com.patriker.syncnote.ui.components.*
-import com.raywenderlich.jetnotes.MainViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
+import com.patriker.syncnote.MainViewModel
 
 
 @ExperimentalMaterialApi
@@ -32,6 +23,7 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     val devicePaired = viewModel.isPaired.collectAsState()
     val syncingHost: String = "archlinux"
 
+    var expandAllTrigger by remember { mutableStateOf(false) }
     fun onAcceptPairing(deviceName: String) {
         viewModel.hostAcceptedPairing()
     }
@@ -41,7 +33,8 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     //val coroutineScope = rememberCoroutineScope()
     Box(modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick, {})
+            //TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, showExpandNotes = viewModel.isPaired.value)
+            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, false)  //DEBUG
             //horLineSeparator()
             TopTabBar(initState = 1, viewModel, onClearArchive = viewModel::clearArchive)
             if(!devicePaired.value) {
@@ -53,7 +46,7 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
                 }
             }
             else{
-                NotesListImmutable(viewModel.cachedNotes, {}, {}, {})
+                NotesListImmutable(viewModel.cachedNotes, {}, {}, {}, expandAllTrigger = expandAllTrigger)
             }
         }
     }

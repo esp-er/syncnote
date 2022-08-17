@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import com.patriker.syncnote.ui.ThemeSettingsDesktop
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
+import com.patriker.syncnote.routing.NotesRouter
+import com.patriker.syncnote.routing.Screen
 import compose.icons.Octicons
 import compose.icons.TablerIcons
 import compose.icons.octicons.FoldDown24
@@ -30,10 +30,9 @@ import compose.icons.tablericons.DeviceMobile
 import compose.icons.tablericons.Refresh
 import compose.icons.tablericons.Moon
 import compose.icons.tablericons.Notebook
-import androidx.compose.ui.graphics.Color.*
 
 @Composable
-fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit){
+fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit, showExpandNotes: Boolean = true){
     var showMenu by remember { mutableStateOf(false) }
     fun toggleMenu() { showMenu = !showMenu}
     var expandIcon by remember { mutableStateOf(Octicons.FoldDown24)}
@@ -54,73 +53,84 @@ fun TopBar(onClickNew: () -> Unit, onToggleExpand: () -> Unit){
         Row(Modifier.height(36.dp).padding(horizontal = 4.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
             //Left side Icon
-            Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(vertical = 4.dp).requiredWidth(100.dp)){
+            Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(vertical = 4.dp).requiredWidthIn(min=80.dp)){
                 NewButton(onClickNew)
 
             }
 
+
             //Title
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)){
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f).requiredWidthIn(min=80.dp)){
                 //ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                        Text(
-                            textAlign = TextAlign.Center,
-                            maxLines = 1,
-                            color = MaterialTheme.colors.onSurface,
-                            text = "SyncNote",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
-                        )
+                Text(
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    color = MaterialTheme.colors.onSurface,
+                    text = "SyncNote",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.W500
+                )
                 //}
             }
 
-            if(NotesRouter.currentScreen == Screen.Notes || NotesRouter.currentScreen == Screen.Archive) {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) { //content
+            Column(horizontalAlignment = Alignment.End){
+                Row(Modifier
+                    .requiredWidthIn(min=40.dp, max=100.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End){
 
-                    Box(modifier = Modifier.width(36.dp)
-                        .border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant), shape = RoundedCornerShape(4.dp))
-                    ){
-                        Icon(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .clickable(interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(
-                                        bounded = false,
-                                        radius = 20.dp
-                                    ), // You can also change the color and radius of the ripple
-                                    onClick = { toggleExpandIcon(); onToggleExpand() })
-                                .fillMaxWidth(),
-                            //.border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant)),
-                            imageVector = expandIcon,
-                            contentDescription = "Toggle expanded notes button",
+                    //Spacer(Modifier.fillMaxWidth())
+                    Column(
+                        modifier = Modifier.requiredWidthIn(min = 40.dp).padding(horizontal = 4.dp)
+                    ) { //content
 
-                            )
+                        if(showExpandNotes) {
+                            Box(modifier = Modifier.requiredWidthIn(max=40.dp)
+                                .border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant), shape = RoundedCornerShape(4.dp))
+                            ){
+                                Icon(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .clickable(interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple(
+                                                bounded = false,
+                                                radius = 20.dp
+                                            ), // You can also change the color and radius of the ripple
+                                            onClick = { toggleExpandIcon(); onToggleExpand() })
+                                        .fillMaxWidth(),
+                                    //.border(BorderStroke(1.dp, color = MaterialTheme.colors.primaryVariant)),
+                                    imageVector = expandIcon,
+                                    contentDescription = "Toggle expanded notes button",
+
+                                    )
+                            }
+
+                        }
                     }
 
+
+                    Column(
+                        modifier = Modifier.requiredWidthIn(min=30.dp).padding(horizontal = 8.dp)) { //content
+                        Icon(
+                            modifier = Modifier
+                                .clickable(interactionSource = remember { MutableInteractionSource() },
+                                    indication = rememberRipple(bounded = false, radius = 16.dp), // You can also change the color and radius of the ripple
+                                    onClick = { if(!showMenu) toggleMenu()}),
+                            imageVector = Octicons.ThreeBars16,
+
+
+                            contentDescription = "Drawer Button"
+                        )
+
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        MainDropDown(showMenu, ::toggleMenu)
+                    }
                 }
             }
 
-            Column(horizontalAlignment = Alignment.End,
-                        modifier = Modifier.width(30.dp).padding(horizontal = 4.dp)) { //content
 
-                    Icon(
-                        modifier = Modifier
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(bounded = false, radius = 16.dp), // You can also change the color and radius of the ripple
-                            onClick = { if(!showMenu) toggleMenu()}),
-                        imageVector = Octicons.ThreeBars16,
-
-                        contentDescription = "Drawer Button"
-                    )
-
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                MainDropDown(showMenu, ::toggleMenu)
-            }
         }
-
     }
 }
 

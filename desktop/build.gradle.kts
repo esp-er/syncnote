@@ -100,7 +100,6 @@ compose.desktop {
         //disableDefaultConfiguration()
         //fromFiles(minifyJar.outputs.files.asFileTree)
         //mainJar.set(tasks.getByName("minifyJar").outputs.files.first())
-        val s = "s"
         val releaseBuild = System.getenv("RELEASE").toBoolean()
         val extraArgs = if(releaseBuild)
                             listOf("-XX:+AutoCreateSharedArchive",
@@ -109,9 +108,11 @@ compose.desktop {
                         else listOf("-XX:TieredStopAtLevel=1", "-Xmx100M", "-Dskiko.vsync.enabled=false")
 
         val winArgs = listOf("-XX:+AutoCreateSharedArchive",
-            "-XX:SharedArchiveFile=syncnote.jsa", "-Xms4M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
+            "-XX:SharedArchiveFile=syncnote.jsa", "-Xms8M","-Xmx50M","-Xss500K","-XX:TieredStopAtLevel=1",
             "-Dskiko.vsync.enabled=false")
+
         jvmArgs += extraArgs
+        //jvmArgs += listOf("-Dsun.java2d.uiScale=2.0")
             //"-Dskiko.vsync.enabled=false", "-XX:SharedArchiveFile=syncnote.jsa")
         nativeDistributions {
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))

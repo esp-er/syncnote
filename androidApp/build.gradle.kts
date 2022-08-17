@@ -9,7 +9,7 @@ plugins {
 android {
     compileSdk = 32
     defaultConfig {
-        applicationId = "com.raywenderlich.android.jetnotes"
+        applicationId = "com.patriker.android.jetnotes"
         minSdk = 23
         targetSdk = 32
         versionCode = 1

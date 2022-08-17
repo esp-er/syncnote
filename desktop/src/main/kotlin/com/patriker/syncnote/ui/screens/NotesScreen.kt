@@ -1,26 +1,15 @@
 package com.patriker.syncnote.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 //import androidx.compose.runtime.livedata.observeAsState
-import com.raywenderlich.jetnotes.routing.Screen
 
 //import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import com.patriker.syncnote.ui.components.*
-import com.raywenderlich.jetnotes.MainViewModel
-import compose.icons.TablerIcons
-import compose.icons.tablericons.SquarePlus
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-
-
+import com.patriker.syncnote.MainViewModel
 
 
 @ExperimentalMaterialApi

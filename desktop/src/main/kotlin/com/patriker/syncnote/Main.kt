@@ -2,16 +2,11 @@ package com.patriker.syncnote
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.useResource
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
@@ -19,23 +14,16 @@ import com.patriker.syncnote.ui.screens.ArchiveScreen
 //import com.patriker.syncnote.ui.screens.ArchiveScreen
 import com.patriker.syncnote.ui.screens.NotesScreen
 import com.patriker.syncnote.ui.screens.SaveNoteScreen
-import com.raywenderlich.jetnotes.initKoin
-import com.raywenderlich.jetnotes.MainViewModel
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
+import com.patriker.syncnote.routing.NotesRouter
+import com.patriker.syncnote.routing.Screen
 import com.patriker.syncnote.ui.SyncNoteDesktopTheme
-import com.patriker.syncnote.ui.getScaleFactor
 import com.patriker.syncnote.ui.screens.SyncScreen
-import java.awt.Component
-import com.russhwolf.settings.Settings
-import org.koin.core.Koin
 
 import java.awt.Toolkit
 
 
 import kotlinx.coroutines.*
 import java.awt.Dimension
-import javax.swing.text.StyleConstants.Size
 
 
 //import com.raywenderlich.compose.theme.AppTheme
@@ -44,13 +32,14 @@ import javax.swing.text.StyleConstants.Size
 data class WindowInfo(val windowName: String, val windowState: WindowState)
 
 
+
 @ExperimentalMaterialApi
-@OptIn(ExperimentalComposeUiApi::class)
-fun main(): Unit {
-    //System.setProperty("sun.java2d.uiScale", "1.0")
+fun main(args: Array<String>) =
     application {
         val scale = System.getProperty("sun.java2d.uiScale")
+        val vsync = System.getProperty("skiko.vsync.enabled")
         println("java2d scale: $scale")
+        println("vsync: $vsync")
 
 
         //val dpi: Int = Toolkit.getDefaultToolkit().screenResolution //gets DPI
@@ -90,7 +79,7 @@ fun main(): Unit {
             undecorated = false,
             //alwaysOnTop = pinWindow
         ) {
-            val icon = painterResource("sync2_256.png")
+            val icon = painterResource("syncicon_256.png")
             val density = LocalDensity.current
             SideEffect {
                 window.iconImage = icon.toAwtImage(density, LayoutDirection.Ltr, Size(256f, 256f))
@@ -110,7 +99,3 @@ fun main(): Unit {
             }
         }
     }
-
-}
-
-

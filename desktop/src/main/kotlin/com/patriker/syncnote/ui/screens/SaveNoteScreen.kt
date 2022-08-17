@@ -22,21 +22,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 //import com.patriker.syncnote.ui.components.NoteColor
-import com.raywenderlich.jetnotes.MainViewModel
-import com.raywenderlich.jetnotes.domain.NoteProperty
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
+import com.patriker.syncnote.MainViewModel
+import com.patriker.syncnote.domain.NoteProperty
+import com.patriker.syncnote.routing.NotesRouter
+import com.patriker.syncnote.routing.Screen
 import compose.icons.Octicons
-import compose.icons.TablerIcons
 import compose.icons.octicons.ArrowLeft24
 import compose.icons.octicons.Inbox24
 import compose.icons.octicons.Check24
 import compose.icons.octicons.People24
 import compose.icons.octicons.Trash24
-import compose.icons.tablericons.Palette
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -155,14 +152,6 @@ private fun SaveNoteTopAppBar(
                     contentDescription = "Save Note"
                 )
             }
-            // Open color picker action icon
-            IconButton(onClick = onOpenColorPickerClick) {
-                Icon(
-                    imageVector = TablerIcons.Palette,
-                    contentDescription = "Open Color Picker Button",
-                    tint = MaterialTheme.colors.onPrimary
-                )
-            }
             if(enableTrash){
                 IconButton(onClick = onDeleteNoteClick){
                     Icon(
@@ -176,7 +165,7 @@ private fun SaveNoteTopAppBar(
                 //Restore Function
                 IconButton(onClick = onRestoreNote ) {
                     Icon(
-                        imageVector = Octicons.People24, //TODO: Change this to "unarchive"
+                        imageVector = Octicons.People24,
                         tint = MaterialTheme.colors.onPrimary,
                         contentDescription = "Restore Note Button"
                     )

@@ -3,7 +3,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 
@@ -13,16 +12,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.jetnotes.domain.NoteProperty
-import com.patriker.syncnote.util.fromHex
+import com.patriker.syncnote.domain.NoteProperty
 import com.patriker.syncnote.ui.noRippleClickable
 import com.patriker.syncnote.util.setClipboard
 
@@ -30,7 +26,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,9 +34,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
-import com.raywenderlich.jetnotes.domain.Util
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
+import com.patriker.syncnote.domain.Util
 import compose.icons.TablerIcons
 import compose.icons.Octicons
 import compose.icons.octicons.Bookmark24

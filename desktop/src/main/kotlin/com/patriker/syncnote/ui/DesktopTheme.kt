@@ -1,6 +1,5 @@
 package com.patriker.syncnote.ui
 
-import com.raywenderlich.jetnotes.theme.*
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
@@ -10,6 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.font.FontFamily
+import com.patriker.syncnote.theme.DarkThemeColorsShared
+import com.patriker.syncnote.theme.LightThemeColorsShared
 
 
 @Composable

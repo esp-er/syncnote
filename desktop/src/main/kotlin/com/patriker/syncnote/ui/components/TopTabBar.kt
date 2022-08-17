@@ -19,14 +19,13 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import com.patriker.syncnote.ui.noRippleClickable
-import com.raywenderlich.jetnotes.MainViewModel
-import com.raywenderlich.jetnotes.routing.NotesRouter
-import com.raywenderlich.jetnotes.routing.Screen
+import com.patriker.syncnote.MainViewModel
+import com.patriker.syncnote.routing.NotesRouter
+import com.patriker.syncnote.routing.Screen
 import compose.icons.TablerIcons
 import compose.icons.Octicons
 import compose.icons.octicons.Inbox24
 import compose.icons.octicons.Trash24
-import compose.icons.octicons.X24
 import compose.icons.octicons.XCircle16
 import compose.icons.tablericons.*
 

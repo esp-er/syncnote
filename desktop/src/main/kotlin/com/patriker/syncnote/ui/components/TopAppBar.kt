@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.raywenderlich.jetnotes.theme.SyncNoteThemeShared
+import com.patriker.syncnote.theme.SyncNoteThemeShared
 import compose.icons.Octicons
 import compose.icons.octicons.ThreeBars16
 
