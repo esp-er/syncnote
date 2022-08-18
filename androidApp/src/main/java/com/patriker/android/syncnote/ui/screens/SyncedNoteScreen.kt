@@ -90,7 +90,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
                         backgroundColor = MaterialTheme.colors.background,
                         title = {
                             Text(
-                                text = "Open Notes",
+                                text = "SyncNote",
                                 fontSize = 18.sp
                             )
                         },

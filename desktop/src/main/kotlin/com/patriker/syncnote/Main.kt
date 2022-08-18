@@ -47,16 +47,16 @@ fun main(args: Array<String>) =
         val (width, height) = listOf(screenSize.width, screenSize.height)
 
 
-        val win_w = 600
-        val win_h = 800
+        val win_w = 500
+        val win_h = 600
         val center_x = (width / 2 - win_w / 2).dp
         val center_y = (height / 2 - win_h / 2).dp
 
 
         val state = rememberWindowState(
-            width = 600.dp, height = 500.dp,
-            //position = WindowPosition(center_x,center_y)
-            position = WindowPosition(1900.dp, 830.dp)
+            width = win_w.dp, height = win_h.dp,
+            position = WindowPosition(center_x,center_y)
+            //position = WindowPosition(1900.dp, 830.dp)
         )
 
         fun minimize() {
@@ -79,7 +79,7 @@ fun main(args: Array<String>) =
             undecorated = false,
             //alwaysOnTop = pinWindow
         ) {
-            val icon = painterResource("syncicon_256.png")
+            val icon = painterResource("syncicon_128.png")
             val density = LocalDensity.current
             SideEffect {
                 window.iconImage = icon.toAwtImage(density, LayoutDirection.Ltr, Size(256f, 256f))

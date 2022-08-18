@@ -151,7 +151,7 @@ private fun AppDrawerHeader() {
             modifier = Modifier.padding(16.dp)
         )
         Text(
-            text = "JetNotes",
+            text = "SyncNote",
             modifier = Modifier.align(alignment = Alignment.CenterVertically)
         )
     }

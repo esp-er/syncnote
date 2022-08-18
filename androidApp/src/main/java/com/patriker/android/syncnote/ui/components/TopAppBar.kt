@@ -67,7 +67,7 @@ fun TopAppBar(
 fun TopAppBarPreview(){
     SyncNoteTheme { //note easy way to switch out themes
         TopAppBar(
-            title = "JetNotes",
+            title = "SyncNote",
             icon = Icons.Filled.Menu,
             onIconClick = {})
     }

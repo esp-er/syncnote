@@ -9,7 +9,7 @@ plugins {
 android {
     compileSdk = 32
     defaultConfig {
-        applicationId = "com.patriker.android.jetnotes"
+        applicationId = "com.patriker.android.syncnote"
         minSdk = 23
         targetSdk = 32
         versionCode = 1

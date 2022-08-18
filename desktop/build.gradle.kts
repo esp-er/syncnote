@@ -133,7 +133,12 @@ compose.desktop {
 
             }
             windows{
-                iconFile.set(project.file("syncicon_ico.ico"))
+                iconFile.set(project.file("syncicon_win.ico"))
+                console = false
+                perUserInstall = true
+                dirChooser = true
+                menuGroup = "SyncNote"
+                shortcut = true
             }
             modules("java.base", "java.desktop", "java.sql", "java.logging")
         }
@@ -174,6 +179,9 @@ fun JvmApplication.configureProguard() {
         //val library = if (System.getProperty("java.version").startsWith("1.")) "lib/rt.jar" else "jmods"
         val library = "jmods"
         val customCompose = System.getenv("CUSTOMCOMPOSE").toBoolean()
+        val windowsBuild = System.getenv("WINDOWSBUILD").toBoolean()
+        if(windowsBuild)
+            libraryjars("C:/java/zulu18fx/$library")
         if(customCompose)
             libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
         else
