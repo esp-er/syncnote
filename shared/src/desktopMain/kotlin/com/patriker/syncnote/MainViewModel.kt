@@ -18,13 +18,14 @@ import kotlinx.datetime.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.russhwolf.settings.Settings
+import org.apache.commons.lang3.ThreadUtils.sleep
 
 //Contains the app state
 actual class MainViewModel actual constructor(repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
     val viewModelScope: CoroutineScope
 
     lateinit var server: SyncServer
-    lateinit var updateJob: Job
+    lateinit var serverJob: Job
     init{
         if(appConfig.getIntOrNull("port") == null)
             appConfig.putInt("port", 9000)
@@ -39,24 +40,26 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         viewModelScope = getCorScope()
         startServer()
     }
-    fun startServer(){
+    fun startServer(wasRestarted: Boolean = false){
+        ServerControl.SyncOutdated.set(true)
         server = SyncServer(this, appConfig.getBoolean("isPaired", false), appConfig.getString("pairedDevice", "Unknown")).apply { //TODO: inject syncserver into constructor instead
-            GlobalScope.launch {
-                withContext(Dispatchers.IO) {
+            serverJob = CoroutineScope(Dispatchers.IO).launch {
+
+                var configPort = appConfig.getInt("port")
+                val port = if(wasRestarted) configPort + 1 else configPort
                     //testStart()
-                    start(listenPort = appConfig.getInt("port"))
-                    yield()
-                }
+                start(listenPort = port)
             }
         }
         //_clientPairRequest = server.clientWishesToPair
 
         //Important scoping here!! TODO: Add this to android
-        updateJob = viewModelScope.launch{
+        viewModelScope.launch{
             launch{
                 server.clientWishesToPair.collect(){
                     _clientPairRequest.value = server.clientWishesToPair.value
                     _pairDeviceName.value = server.deviceName.value
+                    yield()
                 }
             }
             //_isPaired = server.isPairingDone
@@ -86,16 +89,16 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun stopServer(){
         if(this::server.isInitialized){
-            updateJob.cancel()
             server.stop()
+            serverJob.cancel()
         }
     }
 
     val desktopRepo = FlowRepository(repository)
     val cacheRepo = ExternFlowRepository(cacheRepository)
 
-    val notes: StateFlow<List<NoteProperty>> get() = desktopRepo.getMainNotes()
-    val notesInArchive: StateFlow<List<NoteProperty>> get() = desktopRepo.getArchivedNotes()
+    val notes: StateFlow<List<NoteProperty>> by lazy{ desktopRepo.getMainNotes() }
+    val notesInArchive: StateFlow<List<NoteProperty>> by lazy { desktopRepo.getArchivedNotes() }
     val qrgenerator = QRGenerator()
 
     val qrBitmapFlow: StateFlow<ImageBitmap?> = qrgenerator.getQR()
@@ -140,11 +143,13 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun resetPairing(){
         stopServer()
+        clearAndUpdateCache(listOf<NoteProperty>())
         _isPaired.value = false
         _pairDeviceName.value = "None"
         _isSyncing.value = false
         appConfig.putBoolean("isPaired", false)
         appConfig.putString("pairedDevice", "None")
+        startServer(wasRestarted = true)
     }
 
 
@@ -190,8 +195,8 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun archiveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.IO) {
-            ServerControl.SyncOutdated.set(true)
             desktopRepo.archiveNote(note.id)
+            ServerControl.SyncOutdated.set(true)
         }
     }
 
@@ -203,9 +208,9 @@ actual class MainViewModel actual constructor(repository: Repository, private va
 
     fun togglePin(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.IO){
-            ServerControl.SyncOutdated.set(true)
             if (note.isPinned) desktopRepo.unpinNote(note.id)
             else desktopRepo.pinNote(note.id)
+            ServerControl.SyncOutdated.set(true)
         }
     }
 

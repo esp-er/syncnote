@@ -34,7 +34,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(false)
-    val isPaired by derivedStateOf { viewModel.isDevicePaired.value }
+    val isPaired by viewModel.isDevicePaired.observeAsState(false)
     val syncingHost: String = "archlinux"
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
@@ -134,7 +134,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
         drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = { pad ->
             //val isPaired = viewModel.isDevicePaired.value ?: false
-            if(isPaired ?: false)
+            if(isPaired)
                 SyncedNoteList( // here
                     notes = viewModel.cachedNotes,
                     onDeleteNote = { },

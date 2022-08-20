@@ -36,7 +36,7 @@ kotlin {
 
                 //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
-                implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
 
                 implementation("com.russhwolf:multiplatform-settings:${rootProject.ext["multi_settings_version"]}")
 

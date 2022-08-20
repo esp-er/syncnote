@@ -3,8 +3,11 @@ package com.patriker.syncnote.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,7 +40,6 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
     ){
         Column(modifier = Modifier.align(Alignment.TopCenter)){ //TODO: generate new QR code when theme changes (dark/light)
             val foreground = MaterialTheme.colors.onSurface
-            //if(pairingIncoming.value && showDialog){
             if(pairingIncoming.value && showDialog){
                 /*Dialog(
                     onCloseRequest = { showDialog = false; onFinishedPairing("asdf")},
@@ -119,20 +121,18 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
             Row {
                 listOf("Address:", "Port:", "Pairing Code:").zip(ip.value.split(":"))
                     .forEach { (label, value) ->
-                        Text(
-                            "$label $value ",
-                            style = TextStyle(color = foreground),
-                            fontSize = 15.sp
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
+                        SelectionContainer {
+                            Text(
+                                "$label $value ",
+                                style = TextStyle(color = foreground),
+                                fontSize = 15.sp
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
                     }
             }
-        }
-            /*else{
-               Row {
-                   Text("Now pairing with $pairDevice.value")
-               }
-           }*/
-    }
 
+        }
+    }
 }
+

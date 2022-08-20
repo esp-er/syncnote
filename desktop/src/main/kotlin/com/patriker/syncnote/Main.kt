@@ -3,8 +3,11 @@ package com.patriker.syncnote
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
@@ -18,6 +21,7 @@ import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
 import com.patriker.syncnote.ui.SyncNoteDesktopTheme
 import com.patriker.syncnote.ui.screens.SyncScreen
+import com.patriker.syncnote.util.captureKeyboardShortcut
 
 import java.awt.Toolkit
 
@@ -33,6 +37,7 @@ data class WindowInfo(val windowName: String, val windowState: WindowState)
 
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 fun main(args: Array<String>) =
     application {
@@ -77,6 +82,9 @@ fun main(args: Array<String>) =
             state = state,
             transparent = false,
             undecorated = false,
+            onKeyEvent = {
+                captureKeyboardShortcut(it, viewModel)
+            }
             //alwaysOnTop = pinWindow
         ) {
             val icon = painterResource("syncicon_128.png")
@@ -85,7 +93,7 @@ fun main(args: Array<String>) =
                 window.iconImage = icon.toAwtImage(density, LayoutDirection.Ltr, Size(256f, 256f))
             }
 
-            Surface {
+            Surface{
                 SyncNoteDesktopTheme {
                     when (NotesRouter.currentScreen) {
                         is Screen.Notes -> NotesScreen(viewModel)

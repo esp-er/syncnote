@@ -49,7 +49,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-websockets-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-netty:${rootProject.ext["ktor_version"]}")
-                implementation("io.ktor:ktor-server-cio-jvm:${rootProject.ext["ktor_version"]}")
+                implementation("io.ktor:ktor-server-netty-jvm:${rootProject.ext["ktor_version"]}")
                 //implementation("io.ktor:ktor-server-cio:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth:${rootProject.ext["ktor_version"]}")
                 implementation("io.ktor:ktor-server-auth-jwt:${rootProject.ext["ktor_version"]}")

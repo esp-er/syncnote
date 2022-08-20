@@ -27,10 +27,17 @@ actual class MainViewModel actual constructor(private val repository: Repository
            appConfig.putString("hostAddress", "192.168.0.149")
         //}
         appConfig.putInt("port", 9000)
-        appConfig.putBoolean("isPaired", false)
+        //appConfig.putBoolean("isPaired", false)
 
         //TODO: figure out when to append this keys (not here)
         appConfig.putString("sharedCode", "ASDFQWER")
+        if(appConfig.getBoolean("isPaired", false)) {
+            Log.d("SyncNote:", "Attempting connection to saved Host")
+            this.attemptConnection(true)
+        }
+        else{
+            Log.d("SyncNote:", "NOT PAIRED")
+        }
     }
     private val androRepo = AndroidRepository(repository)
     private val androCache = AndroidExternRepository(cacheRepository)
@@ -41,13 +48,12 @@ actual class MainViewModel actual constructor(private val repository: Repository
     ) //TODO: save this to settings
 
     private lateinit var sync: SyncClient
-    fun attemptConnection(testPair: Boolean = true) {
-        val (attemptHost, attemptCode, name) = listOf(
-            appConfig.getStringOrNull("hostAddress"),
-            appConfig.getStringOrNull("sharedCode"),
-            appConfig.getStringOrNull("deviceModel")
+    fun attemptConnection(pairingState: Boolean = true) {
+        val (attemptHost, attemptCode, name) =
+                listOf(appConfig.getStringOrNull("hostAddress"),
+                    appConfig.getStringOrNull("sharedCode"),
+                    appConfig.getStringOrNull("deviceModel"))
 
-        )
         val attemptPort = appConfig.getIntOrNull("port")
         if (attemptPort == null || attemptHost == null || name == null || attemptCode == null) {
             Log.d(
@@ -60,7 +66,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
         sync = SyncClient(
             this,
             host = HostData(attemptHost, attemptPort, "/syncnote"),
-            pairingDone = testPair,
+            pairingDone = pairingState,
             pairingData = PairingData(name, attemptCode)
         )
         /*MainScope().launch(Dispatchers.IO) {
@@ -75,11 +81,17 @@ actual class MainViewModel actual constructor(private val repository: Repository
                 sync.isSyncingLive.collect { _isSyncing.postValue(it) }
             }
             launch{
-                sync.isPairingDone.collect { _isDevicePaired.postValue(it) }
+                sync.isPairingDone.collect { _isDevicePaired.postValue(it); saveAppConfig(it)}
             }
 
         }
     }
+
+    fun saveAppConfig(isPaired: Boolean){
+        Log.d("SyncNote", "SAVING isPaired $isPaired")
+       appConfig.putBoolean("isPaired", isPaired)
+    }
+
 fun attemptPairConnection(host: HostData, sharedCode: String) {
     val model = appConfig.getString("deviceModel", "${android.os.Build.BRAND} ${android.os.Build.MODEL}")
             sync = SyncClient(
@@ -100,6 +112,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
         launch {
             sync.isPairingDone.collect {
                 _isDevicePaired.postValue(it)
+                saveAppConfig(it)
             }
         }
 
@@ -111,8 +124,8 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
     }
 
     //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
-    private val _isDevicePaired: MutableLiveData<Boolean> = MutableLiveData(false)
-    var isDevicePaired: LiveData<Boolean> = _isDevicePaired
+    private val _isDevicePaired: MutableLiveData<Boolean> = MutableLiveData(appConfig.getBoolean("isPaired", false))
+    val isDevicePaired: LiveData<Boolean> = _isDevicePaired
 
     private val _isSyncing: MutableLiveData<Boolean> = MutableLiveData(false)
     var isSyncing: LiveData<Boolean> = _isSyncing
@@ -158,6 +171,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
     fun saveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
             androRepo.saveNote(note.copy(editDate = Clock.System.now()))
+            ClientControl.SendUpdates.set(true)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
                 _noteEntry.value = NoteProperty()
@@ -167,6 +181,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
     fun archiveNote(note: NoteProperty) {
         viewModelScope.launch(Dispatchers.Default) {
             androRepo.archiveNote(note.id)
+            ClientControl.SendUpdates.set(true)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
             }
@@ -181,12 +196,15 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
         viewModelScope.launch(Dispatchers.Default) {
             if(note.isPinned) androRepo.unpinNote(note.id)
             else androRepo.pinNote(note.id)
+
+            ClientControl.SendUpdates.set(true)
         }
     }
 
     fun restoreNoteFromArchive(note: NoteProperty){
         viewModelScope.launch(Dispatchers.Default) {
             androRepo.restoreNote(note.id)
+            ClientControl.SendUpdates.set(true)
             withContext(Dispatchers.Main) {
                 NotesRouter.navigateTo(Screen.Notes)
             }
@@ -202,6 +220,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
     fun permaDeleteNote(note: NoteProperty){
         viewModelScope.launch(Dispatchers.Default) {
             androRepo.deleteNote(note.id)
+            ClientControl.SendUpdates.set(true)
             withContext(Dispatchers.Main) {
                 /*when(NotesRouter.currentScreen) {
                     is Screen.SaveNote -> NotesRouter.navigateTo(Screen.Archive)

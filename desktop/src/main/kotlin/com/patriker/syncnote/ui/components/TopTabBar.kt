@@ -210,7 +210,7 @@ fun TopTabBar(initState: Int, viewModel: MainViewModel, isConnected: Boolean = f
                                 )
                                 Icon(
                                     imageVector = TablerIcons.Dots,
-                                    "asdf",
+                                    "Archive Context Menu",
                                     modifier = Modifier
                                         .rotate(90f).requiredSizeIn(6.dp).size(15.dp)
                                         .align(Alignment.CenterEnd)

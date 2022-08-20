@@ -15,10 +15,10 @@ fun ArchiveScreen(viewModel: MainViewModel) {
     /*TODO: Perhaps consider merging this screen with note screen? for smooth tab transition*/
 
     var expandAllTrigger by remember { mutableStateOf(false) }
-
+    val showExpandAllButton by derivedStateOf { viewModel.notesInArchive.value.isNotEmpty() }
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
         Column {
-            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger})
+            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, showExpandAllButton)
             //horLineSeparator()
             TopTabBar(initState = 2, viewModel, onClearArchive = viewModel::clearArchive) //Tabs
             NotesList( // here

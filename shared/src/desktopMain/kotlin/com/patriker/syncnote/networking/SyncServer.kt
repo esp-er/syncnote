@@ -1,5 +1,6 @@
 package com.patriker.syncnote.networking
 
+import androidx.compose.runtime.collectAsState
 import com.patriker.syncnote.MainViewModel
 import com.patriker.syncnote.domain.*
 import com.patriker.syncnote.debug.DebugBuild
@@ -11,7 +12,8 @@ import kotlin.collections.LinkedHashSet
 import io.ktor.server.routing.*
 //import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.cio.*
+//import io.ktor.server.cio.*
+import io.ktor.server.netty.*
 
 import io.ktor.server.engine.*
 import io.ktor.server.websocket.WebSockets
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
+import kotlin.coroutines.EmptyCoroutineContext
 
 object SocketSession {
     var sess: DefaultWebSocketServerSession? = null
@@ -45,7 +48,6 @@ fun Application.configureRouting(){
     }
 
 }*/
-
 
 
 
@@ -67,6 +69,12 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
     val pairingResult: StateFlow<PairingResult> = _pairingResult
     private val _deviceName = MutableStateFlow(deviceInitial)
     val deviceName: StateFlow<String> = _deviceName
+
+    private val notesToSend: StateFlow<List<NoteProperty>> by lazy { viewModel.notes }
+
+    private lateinit var sendJob: Job
+    private lateinit var receiveJob: Job
+
 
     private lateinit var serverEngine: ApplicationEngine
 
@@ -108,8 +116,13 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
      */
 
     fun stop(){
-        if(this::serverEngine.isInitialized)
-            serverEngine.stop(200,400)
+        if(this::serverEngine.isInitialized) {
+            sendJob.cancel()
+            receiveJob.cancel()
+            val tmp = serverEngine.stopServerOnCancellation()
+            tmp.cancel()
+            serverEngine.stop(100, 200)
+        }
     }
     fun start(listenAddr: String = "0.0.0.0", listenPort: Int = 9000){
         val environment = applicationEngineEnvironment {
@@ -124,8 +137,8 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
             }
         }
 
-        embeddedServer(
-            CIO, environment
+        serverEngine = embeddedServer(
+            Netty, environment
         ).start(wait = true)
     }
 
@@ -152,25 +165,34 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
                 val thisConnection = Connection(this)
                 connections += thisConnection
                 ///sendNotes(dataSource.getMainNotes())
-                val (validateResult, data) = validatePairing()
-                //TODO: Now we must save the key and device in Settings if valid
-                //Display pairing failed if invalid?
-                //TODO: we need a client indication to whether we want to pair
-                //if(PairingData wantToPair)
-                clientConnects(data)//do this after next step instead?
-                sendPairingResult(PairingResponse(validateResult, data.pairingMessage))
-                if(validateResult) {
+                if(!pairingInitial) {
+                    val (validateResult, data) = validatePairing()
+                    //TODO: we need a client indication to whether we want to pair
+                    clientConnects(data)//do this after next step instead?
+                    sendPairingResult(PairingResponse(validateResult, data.pairingMessage))
+                }
+
+                if(_pairingResult.value.Paired) {
                     viewModel.setSyncingState(true)
                     _isSyncingLive.value = true
                     println("Now sending Notes!")
-                    while (true) {
-                        ensureActive()
-                        //if (ServerControl.SyncOutdated.getAndSet(false)) { //Set this flag whenever notes are out of date
-                            sendNotes(viewModel.notes.value) //TODO: add observability and check if notes changed first
-                            println("server sending ${viewModel.notes.value.size} notes")
+                    sendJob = launch {
+                        while (true) {
+                            ensureActive()
+                            if (ServerControl.SyncOutdated.getAndSet(false))
+                                sendNotes(notesToSend.value)
+                            delay(25)
+                        }
+                    }
+                    receiveJob = launch {
+                        while (true) {
+                            ensureActive()
                             receiveNotes()
                             delay(25)
+                        }
                     }
+                    sendJob.join()
+                    receiveJob.join()
                 }
                 connections -= thisConnection
                 viewModel.setSyncingState(false)
@@ -231,7 +253,7 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
             try {
                 sendSerialized(notes)
             } catch (e: Exception) {
-                if(e is CancellationException){
+                if (e is CancellationException) {
                     throw e
                 }
                 println(e.localizedMessage)
@@ -240,16 +262,16 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
 
 
     suspend fun DefaultWebSocketServerSession.receiveNotes() =
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             try {
                 val networkNotes = receiveDeserialized<List<NoteProperty>>()
                 updateReceivedNotes(networkNotes)
                 println("Received notes from client!!")
-            }catch (e: Exception) {
-                if(e is WebsocketDeserializeException) {
+            } catch (e: Exception) {
+                if (e is WebsocketDeserializeException) {
                     throw e
                 }
-                if(e is ClosedReceiveChannelException) {
+                if (e is ClosedReceiveChannelException) {
                     throw e
                 }
             }

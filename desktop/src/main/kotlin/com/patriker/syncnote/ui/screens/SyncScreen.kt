@@ -24,6 +24,8 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     val syncingHost: String = "archlinux"
 
     var expandAllTrigger by remember { mutableStateOf(false) }
+    val showExpandAllButton by derivedStateOf { viewModel.cachedNotes.value.isNotEmpty() }
+
     fun onAcceptPairing(deviceName: String) {
         viewModel.hostAcceptedPairing()
     }
@@ -34,7 +36,7 @@ fun SyncScreen(viewModel: MainViewModel, isHost: Boolean = false) {
     Box(modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()) {
         Column {
             //TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, showExpandNotes = viewModel.isPaired.value)
-            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, false)  //DEBUG
+            TopBar(viewModel::onCreateNewNoteClick, { expandAllTrigger = !expandAllTrigger}, showExpandAllButton)  //DEBUG
             //horLineSeparator()
             TopTabBar(initState = 1, viewModel, onClearArchive = viewModel::clearArchive)
             if(!devicePaired.value) {

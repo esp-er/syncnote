@@ -14,10 +14,17 @@ import androidx.compose.material.TextFieldDefaults.indicatorLine
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +71,8 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
 
     val isArchivedNote by derivedStateOf {noteEntry in trashedNotes}
 
+
+    fun saveNote(entry: NoteProperty) { viewModel.saveNote(noteEntry) }
     Scaffold( //Creating a scaffold is easy
         topBar =
         {
@@ -97,7 +106,8 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
                 onNoteChange = { updateNoteEntry ->
                     viewModel.onNoteEntryChange(updateNoteEntry)
                 },
-                onOpenColorPickerClick = {  }
+                onOpenColorPickerClick = {  },
+                ::saveNote
             )
         },
         backgroundColor = MaterialTheme.colors.background
@@ -186,18 +196,33 @@ private fun SaveNoteTopAppBar(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SaveNoteContent(
     note: NoteProperty,
     onNoteChange: (NoteProperty) -> Unit,
-    onOpenColorPickerClick: () -> Unit
+    onOpenColorPickerClick: () -> Unit,
+    onSaveNote: (NoteProperty) -> Unit = {}
 ) {
     val noteScrollState = rememberScrollState(0)
+    val titleFocusRequester = remember { FocusRequester() }
+    val notesFocusRequester = remember { FocusRequester() }
 
-
+    LaunchedEffect(true) {
+        titleFocusRequester.requestFocus()
+    }
     Column(modifier = Modifier.fillMaxSize().padding(top=4.dp)) {
         ContentTextField(
-            modifier = Modifier.heightIn(42.dp,42.dp),
+            modifier = Modifier.heightIn(42.dp,42.dp).focusRequester(titleFocusRequester)
+                .onKeyEvent {
+                    when{
+                        (it.key == Key.Enter) -> {
+                            notesFocusRequester.requestFocus()
+                            true
+                        }
+                        else -> false
+                    }
+                },
             label = "Title",
             text = note.title,
             onTextChange = { newTitle ->
@@ -209,7 +234,17 @@ private fun SaveNoteContent(
             ContentTextField(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(noteScrollState),
+                    .verticalScroll(noteScrollState)
+                    .focusRequester(notesFocusRequester)
+                    .onKeyEvent {
+                        when{
+                            (it.isShiftPressed && it.key == Key.Enter) -> {
+                                onSaveNote(note)
+                                true
+                            }
+                            else -> false
+                        }
+                },
                 label = "Notes",
                 text = note.content,
                 onTextChange = { newContent ->
@@ -243,6 +278,7 @@ fun SaveNoteContentPreview() {
         note = NoteProperty(title = "Title", content = "content"),
         onNoteChange = {},
         onOpenColorPickerClick = {}
+
     )
 }
 

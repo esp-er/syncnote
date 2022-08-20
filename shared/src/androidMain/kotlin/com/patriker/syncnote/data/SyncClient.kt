@@ -65,15 +65,29 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
                             pairingDone = pairingOk
                             //val pairingOk = receiveAck.await()
                         }
+
                         if (pairingDone){
                             Log.d("KTORSYNC: ", "CLIENT receiving notes!!!")
                             _isSyncingLive.value = true
-                            while(true) {
-                                ensureActive()
-                                receiveNotes()
-                                sendNotes(viewModel.notes.value ?: emptyList())
-                                delay(50)
+                            val send = launch {
+                                while (true) {
+                                    ensureActive()
+                                    if(ClientControl.SendUpdates.getAndSet(false)) {
+                                        sendNotes(viewModel.notes.value ?: emptyList())
+                                    }
+                                    delay(25)
+                                }
                             }
+                            val receive = launch {
+                                while (true) {
+                                    ensureActive()
+                                    receiveNotes()
+                                    delay(25)
+                                }
+                            }
+
+                            send.join()
+                            receive.join()
                         }
                         Log.d("KTOR3:", "Closing connection")
                     }
