@@ -54,7 +54,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
     }
 
     fun snackBarShort(message: String) {
-        coroutineScope.launch{
+        coroutineScope.launch {
             val showbar = launch {
                 scaffoldState.snackbarHostState.showSnackbar(message,
                     "Hide",

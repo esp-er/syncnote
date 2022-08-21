@@ -19,13 +19,24 @@ class QRGenerator{
     private val pairingStr: MutableStateFlow<String> by lazy{
         MutableStateFlow("")
     }
+    private val portStr: MutableStateFlow<String> by lazy{
+        MutableStateFlow("")
+    }
+    private val ipStr: MutableStateFlow<String> by lazy{
+        MutableStateFlow("")
+    }
 
     fun getQR(): StateFlow<ImageBitmap?> = qrBitmap.asStateFlow()
-    fun getPairingString(): StateFlow<String> = pairingStr.asStateFlow()
+    fun getPairingStr(): StateFlow<String> = pairingStr.asStateFlow()
+    fun getPortStr(): StateFlow<String> = portStr.asStateFlow()
+    fun getIpStr(): StateFlow<String> = ipStr.asStateFlow()
+
 
     suspend fun renderQRBitmap(): Unit = renderQRBitmap(ListNets.getFirstLocalIP())
 
     suspend fun renderQRBitmap(ipAddr: String, port: String = "9009"): Unit = withContext(Dispatchers.IO){
+        portStr.value = port
+        ipStr.value = ipAddr
         val newRandomId = random8Id()
         HostKey.value = newRandomId
         val netAdrr = "$ipAddr:$port"

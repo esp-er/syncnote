@@ -17,6 +17,7 @@ import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.StateFlow
 
 //Contains the app state
 actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
@@ -129,6 +130,7 @@ fun attemptPairConnection(host: HostData, sharedCode: String) {
 
     private val _isSyncing: MutableLiveData<Boolean> = MutableLiveData(false)
     var isSyncing: LiveData<Boolean> = _isSyncing
+
 
     val cachedNotes: LiveData<List<NoteProperty>> by lazy {
         androCache.getNotesLiveData()

@@ -6,6 +6,7 @@ import com.patriker.syncnote.data.ExternRepository
 import com.patriker.syncnote.data.FlowRepository
 import com.patriker.syncnote.domain.NoteProperty
 import com.patriker.syncnote.data.Repository
+import com.patriker.syncnote.domain.ListNets
 import com.patriker.syncnote.domain.QRGenerator
 import com.patriker.syncnote.networking.PairingResult
 import com.patriker.syncnote.networking.ServerControl
@@ -18,7 +19,6 @@ import kotlinx.datetime.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.russhwolf.settings.Settings
-import org.apache.commons.lang3.ThreadUtils.sleep
 
 //Contains the app state
 actual class MainViewModel actual constructor(repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
@@ -62,6 +62,9 @@ actual class MainViewModel actual constructor(repository: Repository, private va
                     yield()
                 }
             }
+            launch{
+                server.listenPort.collect{ _serverPort.value = server.listenPort.value; yield()}
+            }
             //_isPaired = server.isPairingDone
             launch {
                 server.receivedNotes.collect {
@@ -102,7 +105,9 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     val qrgenerator = QRGenerator()
 
     val qrBitmapFlow: StateFlow<ImageBitmap?> = qrgenerator.getQR()
-    val pairingInfoFlow: StateFlow<String> = qrgenerator.getPairingString()
+    val pairingInfoFlow: StateFlow<String> = qrgenerator.getPairingStr()
+    val qrIpFlow: StateFlow<String> = qrgenerator.getIpStr()
+    val qrPortFlow: StateFlow<String> = qrgenerator.getPortStr()
 
     suspend fun savePairingState(dataToSave: PairingResult) = withContext(Dispatchers.IO){
         appConfig.putBoolean("isPaired", dataToSave.Paired)
@@ -134,6 +139,9 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     private var _pairDeviceName = MutableStateFlow(appConfig.getString("pairedDevice", "None"))
     //var pairDeviceName  = _pairDeviceName
     val pairDeviceName: StateFlow<String> = _pairDeviceName
+
+    private val _serverPort = MutableStateFlow(appConfig.getInt("port", 9000))
+    val serverPort: StateFlow<Int> = _serverPort
 
     fun setSyncingState(b: Boolean) {
         _isSyncing.let {
@@ -233,7 +241,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
     fun requestQRCode() {
         if(!isPaired.value) {
             viewModelScope.launch {
-                qrgenerator.renderQRBitmap()
+                qrgenerator.renderQRBitmap(ipAddr = ListNets.getFirstLocalIP(), port = serverPort.value.toString())
             }
         }
     }

@@ -70,6 +70,9 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
     private val _deviceName = MutableStateFlow(deviceInitial)
     val deviceName: StateFlow<String> = _deviceName
 
+    private val _listenPort = MutableStateFlow(9000)
+    val listenPort: StateFlow<Int> = _listenPort
+
     private val notesToSend: StateFlow<List<NoteProperty>> by lazy { viewModel.notes }
 
     private lateinit var sendJob: Job
@@ -137,6 +140,7 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
             }
         }
 
+        this._listenPort.value = listenPort
         serverEngine = embeddedServer(
             Netty, environment
         ).start(wait = true)

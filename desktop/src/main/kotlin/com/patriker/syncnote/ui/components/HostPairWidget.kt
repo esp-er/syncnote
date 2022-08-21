@@ -3,9 +3,7 @@ package com.patriker.syncnote.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
@@ -15,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patriker.syncnote.MainViewModel
@@ -27,6 +26,8 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
 
     val qrImage: State<ImageBitmap?> = viewModel.qrBitmapFlow.collectAsState()
     val ip: State<String> = viewModel.pairingInfoFlow.collectAsState()
+    val ipAddr: State<String> = viewModel.qrIpFlow.collectAsState()
+    val serverPort: State<String> = viewModel.qrPortFlow.collectAsState()
     val pairDevice: State<String> = viewModel.pairDeviceName.collectAsState()
     val pairingIncoming = viewModel.clientPairRequest.collectAsState()
     val pairingRequest by derivedStateOf { pairDevice.value.isNotBlank() }
@@ -115,24 +116,51 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
                     Image(image, "QR code")
                 }
             }
-            Row(modifier = Modifier.padding(top = 4.dp)) {
-                Text("Manual connection info:", style = TextStyle(color = foreground))
-            }
-            Row {
-                listOf("Address:", "Port:", "Pairing Code:").zip(ip.value.split(":"))
-                    .forEach { (label, value) ->
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(modifier = Modifier.padding(top = 4.dp)) {
+                    Text("Manual connection info:", style = TextStyle(color = foreground))
+                }
+                Row {
+                    SelectionContainer {
+                        Text(
+                            "Address: ${ipAddr.value}",
+                            style = TextStyle(color = foreground),
+                            fontSize = 15.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SelectionContainer {
+                        Text(
+                            "Port: ${serverPort.value}",
+                            style = TextStyle(color = foreground),
+                            fontSize = 15.sp
+                        )
+                    }
+                }
+
+                Row {
+                    ip.value.split(":").last().let { code ->
                         SelectionContainer {
                             Text(
-                                "$label $value ",
+                                text = "Code:",
                                 style = TextStyle(color = foreground),
-                                fontSize = 15.sp
+                                fontSize = 15.sp,
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        SelectionContainer {
+                            Text(
+                                text = code,
+                                style = TextStyle(color = foreground),
+                                fontSize = 16.sp,
+                                letterSpacing = 2.sp
+                            )
                         }
                     }
+                }
             }
-
         }
+
     }
 }
 
