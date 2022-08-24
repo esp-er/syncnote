@@ -34,7 +34,7 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(false)
-    val isPaired by viewModel.isDevicePaired.observeAsState(false)
+    val isPaired by viewModel.isPaired.observeAsState(false)
     val syncingHost: String = "archlinux"
 
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
@@ -119,6 +119,8 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
         bottomBar = { SnackbarHost(
             hostState = scaffoldState.snackbarHostState)
         },
+        drawerBackgroundColor = MaterialTheme.colors.background,
+        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         drawerContent = {
             AppDrawer(
                 currentScreen = Screen.Synced,
@@ -128,10 +130,11 @@ fun SyncedNoteScreen(viewModel: MainViewModel) {
                         scaffoldState.drawerState.close()
                     }
                 },
-                isConnected = isConnected
+                isConnected = isConnected,
+                isPaired = isPaired,
+                viewModel::resetPairing
             )
         },
-        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = { pad ->
             //val isPaired = viewModel.isDevicePaired.value ?: false
             if(isPaired)

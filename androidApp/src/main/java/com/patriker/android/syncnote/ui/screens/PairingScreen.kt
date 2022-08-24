@@ -34,8 +34,9 @@ fun PairingScreen(viewModel: MainViewModel) {
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false);
+    val isPaired: Boolean by viewModel.isPaired.observeAsState(initial = false);
     val syncingHost: String = "archlinux"
-
+// her
     //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
@@ -118,6 +119,9 @@ fun PairingScreen(viewModel: MainViewModel) {
         bottomBar = { SnackbarHost(
             hostState = scaffoldState.snackbarHostState)
         },
+        drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
+        drawerBackgroundColor = MaterialTheme.colors.background,
+        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         drawerContent = {
             AppDrawer(
                 currentScreen = Screen.Synced,
@@ -127,10 +131,11 @@ fun PairingScreen(viewModel: MainViewModel) {
                         scaffoldState.drawerState.close()
                     }
                 },
-                isConnected = isConnected
+                isConnected = isConnected,
+                isPaired = isPaired,
+                onResetPairing = viewModel::resetPairing
             )
         },
-        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         content = { padvals ->
             fun onFinishedPairing() { NotesRouter.navigateTo(Screen.Synced)}
             Box(modifier = Modifier.fillMaxSize().padding(padvals)){

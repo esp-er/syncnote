@@ -32,6 +32,7 @@ fun ArchiveScreen(viewModel: MainViewModel) {
     val drawerHeight = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx()}
 
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false);
+    val isPaired: Boolean by viewModel.isPaired.observeAsState(initial = false);
 
 
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
@@ -92,6 +93,9 @@ fun ArchiveScreen(viewModel: MainViewModel) {
         },
         scaffoldState = scaffoldState, //lets the scaffold display the correct state
         snackbarHost = {scaffoldState.snackbarHostState},
+        drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
+        drawerBackgroundColor = MaterialTheme.colors.background,
+        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
         drawerContent = {
             AppDrawer(
                 currentScreen = Screen.Archive,
@@ -102,11 +106,12 @@ fun ArchiveScreen(viewModel: MainViewModel) {
                     }
 
                 },
-                isConnected = isConnected
+                isConnected = isConnected,
+                isPaired = isPaired,
+                viewModel::resetPairing
             )
         },
-        drawerShape = CustomDrawerShape(drawerWidth, drawerHeight),
-        content = {
+        content = { pad ->
             NotesList( // here
                 notes = viewModel.notesInArchive,
                 onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },

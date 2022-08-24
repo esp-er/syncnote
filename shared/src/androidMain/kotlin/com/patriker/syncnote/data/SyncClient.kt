@@ -39,6 +39,7 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
     }
+
     //private var noteList: List<NoteProperty> = listOf<NoteProperty>()
 
     suspend fun connect() = withContext(Dispatchers.IO){
@@ -102,6 +103,10 @@ class SyncClient(val viewModel: MainViewModel, var host: HostData,
                     Log.d("ktor", "Connection closed. Goodbye!")
                 }
             }
+    }
+
+    fun abortConnection(){
+        client.close()
     }
 
     private fun encryptPairingMessage(message: String, password: String, ): String{

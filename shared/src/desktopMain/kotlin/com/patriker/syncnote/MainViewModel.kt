@@ -157,6 +157,7 @@ actual class MainViewModel actual constructor(repository: Repository, private va
         _isSyncing.value = false
         appConfig.putBoolean("isPaired", false)
         appConfig.putString("pairedDevice", "None")
+        ServerControl.SyncOutdated.set(true)
         startServer(wasRestarted = true)
     }
 

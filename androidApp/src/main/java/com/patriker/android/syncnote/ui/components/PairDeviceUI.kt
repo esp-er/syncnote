@@ -1,5 +1,6 @@
 package com.patriker.android.syncnote.ui.components
 
+import android.graphics.Typeface
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -12,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -58,15 +63,22 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                 singleLine = true,
                 placeholder = {
                     Row {
-                        Spacer(Modifier.fillMaxWidth(0.25f))
+                        Spacer(Modifier.fillMaxWidth(0.3f))
                         Text(
                             "Pairing Code (8 Letters)",
                             textAlign = TextAlign.Center,
-                            fontSize = 16.sp
+                            fontSize = 18.sp,
+                            letterSpacing = 1.5.sp
                         )
-                        Spacer(Modifier.fillMaxWidth(0.25f))
+                        Spacer(Modifier.fillMaxWidth(0.35f))
                     } },
-                textStyle = LocalTextStyle.current.copy(fontSize = 20.sp, textAlign = TextAlign.Center),
+                textStyle = TextStyle(
+                    letterSpacing = 5.sp,
+                    fontWeight = FontWeight(700),
+                    fontSize = 21.sp,
+                    fontFamily = FontFamily(Typeface.MONOSPACE),
+                    textAlign = TextAlign.Center
+                ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
             Row(
@@ -82,6 +94,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                         .weight(2.5f)
                         .padding(horizontal = 2.dp),
                     label = { Text("Network Address") },
+                    textStyle = TextStyle(fontSize = 18.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 val portMaxChars = 5
@@ -94,6 +107,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                     placeholder = { Text("(8 Letters)")},
                     label = { Text("Port") },
                     singleLine = true,
+                    textStyle = TextStyle(fontSize = 18.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
@@ -107,7 +121,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                         )
                     }
                 ){
-                    Text("Connect")
+                    Text("Connect", fontSize = 18.sp)
                 }
             }
         }

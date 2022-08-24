@@ -182,7 +182,7 @@ fun JvmApplication.configureProguard() {
         val windowsBuild = System.getenv("WINDOWSBUILD").toBoolean()
         if(windowsBuild)
             libraryjars("C:/java/zulu18fx/$library")
-        if(customCompose)
+        else if(customCompose)
             libraryjars("/home/patrik/.sdkman/candidates/java/18.0.1.fx-zulu/$library")
         else
             libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/$library")

@@ -71,6 +71,7 @@ fun NotesScreen(viewModel: MainViewModel) {
 
     val fabPos: Offset by viewModel.fabPos.observeAsState(viewModel.fabPos.value ?: Offset(0f,0f))
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false)
+    val isPaired: Boolean by viewModel.isPaired.observeAsState(initial = false);
 
     BackHandler(
         onBack = {
@@ -138,7 +139,9 @@ fun NotesScreen(viewModel: MainViewModel) {
                                 scaffoldState.drawerState.close()
                             }
                         },
-                        isConnected = isConnected
+                        isConnected = isConnected,
+                        isPaired = isPaired,
+                        viewModel::resetPairing
                     )
         },
         drawerScrimColor = androidx.compose.ui.graphics.Color.Black.copy(alpha=0.4f),
@@ -205,8 +208,8 @@ fun NotesScreen(viewModel: MainViewModel) {
                 }
             )
         },
-        content = {
-                NotesList( // here
+        content = { pad ->
+                NotesList(
                     notes = viewModel.notes,
                     onNoteCheckedChange = { viewModel.onNoteCheckedChange(it) },
                     onEditNote = { viewModel.onNoteClick(it)},

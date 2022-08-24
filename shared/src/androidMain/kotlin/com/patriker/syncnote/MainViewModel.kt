@@ -17,7 +17,6 @@ import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.StateFlow
 
 //Contains the app state
 actual class MainViewModel actual constructor(private val repository: Repository, private val cacheRepository: ExternRepository, private val appConfig: Settings, getCorScope: () -> CoroutineScope) : BaseViewModel() {
@@ -48,7 +47,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
         "/syncnote"
     ) //TODO: save this to settings
 
-    private lateinit var sync: SyncClient
+    private lateinit var syncClient: SyncClient
     fun attemptConnection(pairingState: Boolean = true) {
         val (attemptHost, attemptCode, name) =
                 listOf(appConfig.getStringOrNull("hostAddress"),
@@ -64,7 +63,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
             return
         }
 
-        sync = SyncClient(
+        syncClient = SyncClient(
             this,
             host = HostData(attemptHost, attemptPort, "/syncnote"),
             pairingDone = pairingState,
@@ -73,16 +72,16 @@ actual class MainViewModel actual constructor(private val repository: Repository
         /*MainScope().launch(Dispatchers.IO) {
         }*/
         MainScope().launch{
-            sync.connect()
+            syncClient.connect()
         }
         viewModelScope.launch(Dispatchers.Main) {
             //_isSyncing = sync.isSyncingLive
             //_isDevicePaired.value = true
             launch {
-                sync.isSyncingLive.collect { _isSyncing.postValue(it) }
+                syncClient.isSyncingLive.collect { _isSyncing.postValue(it) }
             }
             launch{
-                sync.isPairingDone.collect { _isDevicePaired.postValue(it); saveAppConfig(it)}
+                syncClient.isPairingDone.collect { _isPaired.postValue(it); saveAppConfig(it)}
             }
 
         }
@@ -93,40 +92,53 @@ actual class MainViewModel actual constructor(private val repository: Repository
        appConfig.putBoolean("isPaired", isPaired)
     }
 
-fun attemptPairConnection(host: HostData, sharedCode: String) {
-    val model = appConfig.getString("deviceModel", "${android.os.Build.BRAND} ${android.os.Build.MODEL}")
-            sync = SyncClient(
-        this,
-        host = HostData(host.address, host.port, "/syncnote"),
-        pairingDone = false,
-        pairingData = PairingData(model, sharedCode)
-    )
-    MainScope().launch {
-        sync.connect()
-    }
-    viewModelScope.launch(Dispatchers.Main) {
-        launch {
-            sync.isSyncingLive.collect {
-                _isSyncing.postValue(it)
-            }
-        }
-        launch {
-            sync.isPairingDone.collect {
-                _isDevicePaired.postValue(it)
-                saveAppConfig(it)
-            }
-        }
+    fun attemptPairConnection(host: HostData, sharedCode: String) {
+        val model = appConfig.getString("deviceModel", "${android.os.Build.BRAND} ${android.os.Build.MODEL}")
 
+        syncClient = SyncClient(
+            this,
+            host = HostData(host.address, host.port, "/syncnote"),
+            pairingDone = false,
+            pairingData = PairingData(model, sharedCode)
+        )
+
+        ClientControl.SendUpdates.set(true)
+        MainScope().launch {
+            syncClient.connect()
+        }
+        viewModelScope.launch(Dispatchers.Main) {
+            launch {
+                syncClient.isSyncingLive.collect {
+                    _isSyncing.postValue(it)
+                }
+            }
+            launch {
+                syncClient.isPairingDone.collect {
+                    _isPaired.postValue(it)
+                    saveAppConfig(it)
+                }
+            }
+
+        }
     }
-}
+    fun resetPairing(){
+        if(this::syncClient.isInitialized)
+            syncClient.abortConnection()
+        clearAndUpdateCache(listOf<NoteProperty>())
+        _isPaired.postValue(false)
+        _isSyncing.postValue(false)
+        appConfig.putBoolean("isPaired", false)
+        appConfig.putString("pairedDevice", "None")
+        ClientControl.SendUpdates.set(false)
+    }
 
     fun testConnect(host: HostData, sharedCode: String = "ASDFQWER") {
         attemptConnection(false)
     }
 
     //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
-    private val _isDevicePaired: MutableLiveData<Boolean> = MutableLiveData(appConfig.getBoolean("isPaired", false))
-    val isDevicePaired: LiveData<Boolean> = _isDevicePaired
+    private val _isPaired: MutableLiveData<Boolean> = MutableLiveData(appConfig.getBoolean("isPaired", false))
+    val isPaired: LiveData<Boolean> = _isPaired
 
     private val _isSyncing: MutableLiveData<Boolean> = MutableLiveData(false)
     var isSyncing: LiveData<Boolean> = _isSyncing

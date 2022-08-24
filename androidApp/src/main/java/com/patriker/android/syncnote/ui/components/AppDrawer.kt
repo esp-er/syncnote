@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.PhonelinkOff
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 
@@ -26,7 +27,9 @@ import compose.icons.tablericons.*
 fun AppDrawer(
     currentScreen: Screen,
     closeDrawerAction: () -> Unit,
-    isConnected: Boolean = false
+    isConnected: Boolean = false,
+    isPaired: Boolean = false,
+    onResetPairing: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)) {
         AppDrawerHeader()
@@ -60,6 +63,17 @@ fun AppDrawer(
 
         SyncToggleItem()
         LightDarkThemeItem()
+
+        DrawerButton(
+            icon = Icons.Outlined.PhonelinkOff,
+            label = "Reset Pairing with Desktop PC",
+            isEnabled = isPaired,
+            onClick = {
+                onResetPairing()
+                NotesRouter.navigateTo(Screen.Synced)
+                closeDrawerAction()
+            }
+        )
     }
 }
 
@@ -122,6 +136,64 @@ private fun ScreenNavigationButton(
                 .clickable(onClick = onClick)
                 .fillMaxWidth()
                 .padding(4.dp)
+        ) {
+            Image(
+                imageVector = icon,
+                contentDescription = "Screen Navigation Button",
+                colorFilter = ColorFilter.tint(textColor),
+                alpha = imageAlpha
+            )
+            Spacer(Modifier.width(16.dp)) // 3
+            Text(
+                text = label,
+                style = MaterialTheme.typography.body2,
+                color = textColor,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun DrawerButton(
+    icon: ImageVector,
+    isEnabled: Boolean,
+    label: String,
+    onClick: () -> Unit
+) {
+    val colors = MaterialTheme.colors //Nice way to avoid repetition of colors
+    val imageAlpha = if (isEnabled) {
+        1f
+    } else {
+        0.6f
+    }
+    val textColor = if (isEnabled) {
+        colors.primary
+    } else {
+        colors.onSurface.copy(alpha = 0.6f)
+    }
+    val backgroundColor = colors.background //note "colors.surface"
+
+    val rowMod = if(isEnabled){
+                    Modifier.clickable(onClick = onClick)
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                }else{
+                    Modifier.fillMaxWidth()
+                    .padding(4.dp)
+                }
+
+    Surface( // 1
+        modifier = Modifier
+            .fillMaxWidth(0.95f)
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+        color = backgroundColor,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row( // 2
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = rowMod
         ) {
             Image(
                 imageVector = icon,
