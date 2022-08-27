@@ -35,6 +35,7 @@ import com.patriker.syncnote.MainViewModel
 import com.patriker.syncnote.domain.NoteProperty
 import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
+import com.patriker.syncnote.ui.components.SaveNoteTopAppBar
 import compose.icons.Octicons
 import compose.icons.octicons.ArrowLeft24
 import compose.icons.octicons.Inbox24
@@ -114,87 +115,7 @@ fun SaveNoteScreen(viewModel: MainViewModel, title: String = "Save Note") {
     )
 }
 
-@Composable
-private fun SaveNoteTopAppBar(
-    title: String = "New Note",
-    enableTrash: Boolean,
-    enablePermaDelete: Boolean,
-    onBackClick: () -> Unit,
-    onSaveNoteClick: () -> Unit,
-    onOpenColorPickerClick: () -> Unit,
-    onDeleteNoteClick: () -> Unit,
-    onPermaDeleteNote: () -> Unit,
-    onRestoreNote: () -> Unit
-) {
 
-    TopAppBar(
-        modifier = Modifier.heightIn(40.dp,40.dp),
-        title = {
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.W500
-            )
-        },
-
-        navigationIcon = {
-            Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Octicons.ArrowLeft24,
-                    contentDescription = "Save Note Button",
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple(
-                            bounded = false,
-                            radius = 16.dp
-                        ), // You can also change the color and radius of the ripple
-                        onClick = onBackClick
-                    )
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = onSaveNoteClick) {
-                Icon(
-                    imageVector = Octicons.Check24,
-                    tint = MaterialTheme.colors.onPrimary,
-                    contentDescription = "Save Note"
-                )
-            }
-            if(enableTrash){
-                IconButton(onClick = onDeleteNoteClick){
-                    Icon(
-                        imageVector = Octicons.Inbox24,
-                        tint = MaterialTheme.colors.onPrimary,
-                        contentDescription = "Trash Note Button"
-                    )
-                }
-            }
-            if(enablePermaDelete){
-                //Restore Function
-                IconButton(onClick = onRestoreNote ) {
-                    Icon(
-                        imageVector = Octicons.People24,
-                        tint = MaterialTheme.colors.onPrimary,
-                        contentDescription = "Restore Note Button"
-                    )
-
-                }
-
-                IconButton(onClick = onPermaDeleteNote){
-                    Icon(
-                        imageVector = Octicons.Trash24,
-                        tint = MaterialTheme.colors.onPrimary,
-                        contentDescription = "Permanently Delete Note Button"
-                    )
-                }
-            }
-        },
-        backgroundColor = MaterialTheme.colors.background
-
-    )
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
