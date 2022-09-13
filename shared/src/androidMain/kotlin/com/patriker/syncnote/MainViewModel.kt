@@ -9,8 +9,6 @@ import com.patriker.syncnote.data.*
 import com.patriker.syncnote.data.network.HostData
 import com.patriker.syncnote.domain.NoteProperty
 import com.patriker.syncnote.domain.PairingData
-//import com.raywenderlich.jetnotes.routing.NotesRouter
-//import com.raywenderlich.jetnotes.routing.Screen
 import kotlinx.datetime.Clock
 
 import com.patriker.syncnote.routing.NotesRouter
@@ -30,7 +28,7 @@ actual class MainViewModel actual constructor(private val repository: Repository
         //appConfig.putBoolean("isPaired", false)
 
         //TODO: figure out when to append this keys (not here)
-        appConfig.putString("sharedCode", "ASDFQWER")
+        appConfig.putString("sharedCode", "ALPHA")
         if(appConfig.getBoolean("isPaired", false)) {
             Log.d("SyncNote:", "Attempting connection to saved Host")
             this.attemptConnection(true)
@@ -132,9 +130,6 @@ actual class MainViewModel actual constructor(private val repository: Repository
         ClientControl.SendUpdates.set(false)
     }
 
-    fun testConnect(host: HostData, sharedCode: String = "ASDFQWER") {
-        attemptConnection(false)
-    }
 
     //val  _isDevicePaired = MutableLiveData(appConfig.getBoolean("isPaired", false)) //TODO: retreive this from AndroidSettings provider instead
     private val _isPaired: MutableLiveData<Boolean> = MutableLiveData(appConfig.getBoolean("isPaired", false))

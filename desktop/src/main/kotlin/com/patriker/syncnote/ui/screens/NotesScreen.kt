@@ -11,7 +11,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 //import androidx.compose.runtime.livedata.observeAsState
 
-//import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import com.patriker.syncnote.ui.components.*
 import com.patriker.syncnote.MainViewModel
 

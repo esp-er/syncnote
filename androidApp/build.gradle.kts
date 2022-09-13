@@ -101,11 +101,3 @@ dependencies {
 
 
 }
-/*
-sqldelight{
-    database("OpenNotesDb"){
-        packageName = "com.raywenderlich.jetnotes"
-        sourceFolders = listOf("notesdb")
-        //schemaOutputDirectory = file("src/main/sqldelight/com/raywenderlich/android/jetnotes/db")
-    }
-}*/

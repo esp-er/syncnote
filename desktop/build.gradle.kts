@@ -120,7 +120,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "SyncNote"
             macOS {
-                bundleID = "com.raywenderlich.jetnotes"
+                bundleID = "com.patriker.syncnote"
             }
             linux {
                 menuGroup = "SyncNote"

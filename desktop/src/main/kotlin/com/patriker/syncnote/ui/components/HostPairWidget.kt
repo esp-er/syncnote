@@ -42,12 +42,6 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
         Column(modifier = Modifier.align(Alignment.TopCenter)){ //TODO: generate new QR code when theme changes (dark/light)
             val foreground = MaterialTheme.colors.onSurface
             if(pairingIncoming.value && showDialog){
-                /*Dialog(
-                    onCloseRequest = { showDialog = false; onFinishedPairing("asdf")},
-                    state = rememberDialogState(position = WindowPosition(Alignment.Center))
-                ) {
-                    Text("Accept Pairing with new device?")
-                }*/
                 AlertDialog(
                     modifier = Modifier.fillMaxWidth(0.75f).fillMaxHeight(0.25f),
                     onDismissRequest = {
@@ -68,7 +62,7 @@ fun HostPairWidget(viewModel: MainViewModel, onFinishedPairing: (String) -> Unit
                                 coroutineScope.launch {
                                     delay(100)
                                     showDialog = false
-                                    onFinishedPairing("asdf")
+                                    onFinishedPairing("")
                                 }
                             }) {
                             Text("Confirm Pairing")

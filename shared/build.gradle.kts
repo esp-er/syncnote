@@ -118,7 +118,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-geometry:1.2.0")
 }
 
-sqldelight{
+sqldelight{ //TODO: change package name
     database("OpenNotesDb"){
         packageName = "com.raywenderlich.jetnotes"
         sourceFolders = listOf("notesdb")

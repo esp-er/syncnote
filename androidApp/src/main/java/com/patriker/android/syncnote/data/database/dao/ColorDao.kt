@@ -39,7 +39,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
 
 /**
  * Dao for managing Color table in the database.

@@ -30,9 +30,6 @@ import kotlinx.coroutines.*
 import java.awt.Dimension
 
 
-//import com.raywenderlich.compose.theme.AppTheme
-//import com.raywenderlich.compose.ui.MainView
-
 data class WindowInfo(val windowName: String, val windowState: WindowState)
 
 

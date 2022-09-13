@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
 
-//import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,8 +35,6 @@ fun PairingScreen(viewModel: MainViewModel) {
     val isConnected: Boolean by viewModel.isSyncing.observeAsState(initial = false);
     val isPaired: Boolean by viewModel.isPaired.observeAsState(initial = false);
     val syncingHost: String = "archlinux"
-// her
-    //this delegate unwraps State<List<NoteModel>> into regular List<NoteModel>
     val scaffoldState = rememberScaffoldState() //remembers drawer and snackbar state
     val coroutineScope = rememberCoroutineScope()
 

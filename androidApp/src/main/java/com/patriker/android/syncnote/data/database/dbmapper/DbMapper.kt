@@ -34,7 +34,6 @@
 package com.patriker.android.syncnote.data.database.dbmapper
 
 import com.patriker.android.syncnote.data.database.model.ColorDbModel
-//import com.raywenderlich.android.jetnotes.data.database.model.NoteDbModel
 import com.patriker.android.syncnote.domain.model.ColorModel
 
 interface DbMapper {

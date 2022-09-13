@@ -74,14 +74,14 @@ fun SyncedNote(
 
                 //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiers
             ) {
-                NoteColor(
+                /*NoteColor(
                     modifier = Modifier
                         .align(Alignment.Top)
                         .padding(top = 4.dp, start = 4.dp),
                     color = Color.fromHex(ColorModel.DEFAULT.hex), //TODO: fix coloring
                     size = 8.dp,
                     border = 0.5.dp
-                )
+                )*/
                 Column(
                     modifier = Modifier
                         .weight(1f)

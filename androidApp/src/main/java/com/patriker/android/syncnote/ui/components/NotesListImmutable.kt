@@ -24,7 +24,6 @@ fun SyncedNoteList(
     val notes: List<NoteProperty> by notes
         .observeAsState(listOf())
 
-    //TODO: sort notes by last Edited date instead?
     val notesReversed by derivedStateOf {notes.reversed()}
 
     LazyColumn(state = listState) {

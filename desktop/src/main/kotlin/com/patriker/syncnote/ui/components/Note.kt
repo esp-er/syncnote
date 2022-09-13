@@ -563,11 +563,8 @@ private fun NotePreview(){ //Note "private"
     val test = NoteProperty(
             id = 12345,
             title = "Note One",
-            content = """Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
+            content = """TEST
+                |TEST
                 """.trimMargin("|"),
             isCheckedOff = false
         )

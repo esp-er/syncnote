@@ -37,7 +37,6 @@ private val DarkThemeColors = darkColors(
 )
 
 
-//TODO: change the green to something else
 private val LightThemeColors = lightColors(
   primary = SharedAppColors.primaryGreen,
   primaryVariant = Color(0xFFE6E6E6),

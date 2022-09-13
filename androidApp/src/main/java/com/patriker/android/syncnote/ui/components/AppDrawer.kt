@@ -265,7 +265,7 @@ private fun SyncToggleItem(modifier: Modifier = Modifier) {
         }
 
         Column(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
-            Switch( //TODO: implement toggling for sync
+            Switch(
                 checked = false,
                 onCheckedChange = { },
                 modifier = Modifier

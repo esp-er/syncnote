@@ -87,14 +87,14 @@ fun Note(
                     .background(MaterialTheme.colors.surface, backgroundShape)
                 //.clickable(onClick = { onNoteClick(note) }) //note: make any node clickable with modifiers
             ) {
-                NoteColor(
+             /*   NoteColor(
                     modifier = Modifier
                         .align(Alignment.Top)
                         .padding(top = 4.dp, start = 4.dp),
                     color = Color.fromHex(ColorModel.DEFAULT.hex), //TODO: fix coloring
                     size = 8.dp,
                     border = 0.5.dp
-                )
+                )*/
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -119,7 +119,6 @@ fun Note(
                             text = note.content,
                             color = MaterialTheme.colors.onPrimary.copy(alpha = 0.8f),
                             overflow = TextOverflow.Ellipsis,
-                            //TODO: Find a way to determine number of lines in Note?
                             maxLines = if (expandedState) 8 else if(note.title.isBlank()) 3 else minOf(numLines, 2),
                             style = TextStyle(
                                 fontWeight = FontWeight.Normal,
@@ -350,8 +349,7 @@ fun NoteButtons(
 fun PreviewNoteButtons(){
     NoteButtons(NoteProperty() , {}, {})
 }
-
-/* TODO: optional: fix previews
+/*
 @ExperimentalMaterialApi
 @Preview
 @Composable
@@ -359,9 +357,8 @@ private fun NotePreview(){ //Note "private"
     val test = NoteProperty(
             id = 12345,
             title = "Note One",
-            content = """Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
-                |Text One asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
+            content = """TEST:
+            |TEST
                 """.trimMargin("|"),
             isCheckedOff = false
         )

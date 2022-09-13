@@ -104,7 +104,7 @@ fun PairDeviceUI(onConnect: (HostData, String) -> Unit) {
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 1.5.dp),
-                    placeholder = { Text("(8 Letters)")},
+                    placeholder = { Text("Code")},
                     label = { Text("Port") },
                     singleLine = true,
                     textStyle = TextStyle(fontSize = 18.sp),

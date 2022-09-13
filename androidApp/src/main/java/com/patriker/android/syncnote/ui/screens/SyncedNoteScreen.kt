@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import com.patriker.syncnote.routing.NotesRouter
 import com.patriker.syncnote.routing.Screen
 
-//import com.raywenderlich.android.jetnotes.ui.components.TopAppBar
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.livedata.observeAsState

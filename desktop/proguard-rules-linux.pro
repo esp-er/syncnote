@@ -13,7 +13,7 @@
 -keep class org.jetbrains.skiko.** { *; }
 
 -keep class com.patriker.syncnote.MainKt { *; }
--keep class com.raywenderlich.jetnotes.MainViewModel { *; }
+-keep class com.patriker.syncnote.MainViewModel { *; }
 
 -keep class com.squareup.sqldelight.** { *; }
 -keep class com.patriker.sqldelight.sqlite.** { *; }

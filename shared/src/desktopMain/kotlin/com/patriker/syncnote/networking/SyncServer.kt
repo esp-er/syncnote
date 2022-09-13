@@ -171,8 +171,7 @@ class SyncServer(private val viewModel: MainViewModel, private val pairingInitia
                 ///sendNotes(dataSource.getMainNotes())
                 if(!pairingInitial) {
                     val (validateResult, data) = validatePairing()
-                    //TODO: we need a client indication to whether we want to pair
-                    clientConnects(data)//do this after next step instead?
+                    clientConnects(data)
                     sendPairingResult(PairingResponse(validateResult, data.pairingMessage))
                 }
 
