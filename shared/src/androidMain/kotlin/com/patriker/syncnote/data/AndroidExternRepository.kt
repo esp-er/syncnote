@@ -5,12 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.patriker.syncnote.data.ExternRepository
 
-/*
-import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
-import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
-import com.raywenderlich.android.jetnotes.domain.model.ColorModel
- */
-
 //This class becomes single source of truth for reminders,
 // we don't need to create Reminder properties anymore
 class AndroidExternRepository(private val cacheRepo: ExternRepository){

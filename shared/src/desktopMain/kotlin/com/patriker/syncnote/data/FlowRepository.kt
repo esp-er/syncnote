@@ -5,12 +5,6 @@ import com.patriker.syncnote.domain.NoteProperty
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-/*
-import com.raywenderlich.android.jetnotes.data.database.dbmapper.DbMapperImpl
-import com.raywenderlich.android.jetnotes.data.database.model.ColorDbModel
-import com.raywenderlich.android.jetnotes.domain.model.ColorModel
- */
 import kotlinx.coroutines.flow.StateFlow
 
 //This class becomes single source of truth for reminders,
