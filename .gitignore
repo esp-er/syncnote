@@ -51,6 +51,7 @@ ehthumbs.db
 ehthumbs_vista.db
 
 #jars
+*.jar
 
 # Dump file
 *.stackdump
