@@ -26,9 +26,9 @@
 ### Building
 ## Desktop Build
  From the root directory, from the terminal, run: \
- `./gradlew :desktop:run` \ \
+ `./gradlew :desktop:run` \
  For Linux packaging, simply run: \
- `./gradlew :desktop:packageDeb` \ \
+ `./gradlew :desktop:packageDeb` \
  If you require a Windows package build, run:\
- `./gradlew.bat :desktop:packageMsi` \ \
+ `./gradlew.bat :desktop:packageMsi` \
 
