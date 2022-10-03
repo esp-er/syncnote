@@ -30,5 +30,5 @@
  For Linux packaging, simply run: \
  `./gradlew :desktop:packageDeb` \
  If you require a Windows package build, run:\
- `./gradlew.bat :desktop:packageMsi` \
+ `./gradlew.bat :desktop:packageMsi` 
 
